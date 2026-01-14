@@ -39,6 +39,12 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
+                                <NavLink
+                                    :href="route('booking.create')"
+                                    :active="route().current('booking.create')"
+                                >
+                                    จองคิว
+                                </NavLink>
                             </div>
                         </div>
 
@@ -145,6 +151,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('dashboard')"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('booking.create')"
+                            :active="route().current('booking.create')"
+                        >
+                            จองคิว
                         </ResponsiveNavLink>
                     </div>
 

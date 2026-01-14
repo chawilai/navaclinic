@@ -24,6 +24,7 @@ defineProps({
                     <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
                         <li><Link href="/">Home</Link></li>
                         <li><Link href="/services">Services</Link></li>
+                        <li><Link :href="route('booking.create')">จองคิว</Link></li>
                         <li v-if="canLogin">
                             <Link v-if="$page.props.auth.user" :href="route('dashboard')">Dashboard</Link>
                             <template v-else>
@@ -42,6 +43,7 @@ defineProps({
                 <ul class="menu menu-horizontal px-1 font-medium">
                     <li><Link href="/">หน้าแรก</Link></li>
                     <li><Link href="/services">บริการ</Link></li>
+                    <li><Link :href="route('booking.create')">จองคิว</Link></li>
                 </ul>
             </div>
             <div class="navbar-end hidden lg:flex">

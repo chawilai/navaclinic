@@ -25,3 +25,9 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+use App\Http\Controllers\BookingController;
+
+Route::get('/booking', [BookingController::class, 'create'])->name('booking.create');
+Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+Route::get('/api/availability', [BookingController::class, 'checkAvailability'])->name('api.availability');
