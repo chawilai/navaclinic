@@ -31,20 +31,20 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="เข้าสู่ระบบ" />
 
         <div class="mb-6 text-center">
-            <h2 class="text-2xl font-bold text-teal-900">Welcome Back</h2>
-            <p class="text-sm text-gray-600 mt-1">Please sign in to your account</p>
+            <h2 class="text-2xl font-bold text-primary">ยินดีต้อนรับกลับ</h2>
+            <p class="text-sm text-base-content/70 mt-1">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
         </div>
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
+        <div v-if="status" class="mb-4 text-sm font-medium text-success">
             {{ status }}
         </div>
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="อีเมล" />
 
                 <TextInput
                     id="email"
@@ -60,7 +60,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="รหัสผ่าน" />
 
                 <TextInput
                     id="password"
@@ -77,15 +77,15 @@ const submit = () => {
             <div class="mt-4 flex items-center justify-between">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
+                    <span class="ms-2 text-sm text-base-content/70">จดจำฉัน</span>
                 </label>
 
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="rounded-md text-sm text-teal-600 hover:text-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                    class="text-sm link link-primary"
                 >
-                    Forgot password?
+                    ลืมรหัสผ่าน?
                 </Link>
             </div>
 
@@ -95,20 +95,19 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Log in
+                    เข้าสู่ระบบ
                 </PrimaryButton>
             </div>
 
-             <div class="mt-6 text-center text-sm text-gray-600">
-                Don't have an account?
+             <div class="mt-6 text-center text-sm text-base-content/70">
+                ยังไม่มีบัญชี?
                 <Link
                     :href="route('register')"
-                    class="font-medium text-teal-600 hover:text-teal-500"
+                    class="font-medium link link-primary"
                 >
-                    Register
+                    สมัครสมาชิก
                 </Link>
             </div>
         </form>
     </GuestLayout>
-
 </template>

@@ -22,16 +22,16 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head title="สมัครสมาชิก" />
 
         <div class="mb-6 text-center">
-            <h2 class="text-2xl font-bold text-teal-900">Create Account</h2>
-            <p class="text-sm text-gray-600 mt-1">Join Nava Clinic today</p>
+            <h2 class="text-2xl font-bold text-primary">สร้างบัญชีใหม่</h2>
+            <p class="text-sm text-base-content/70 mt-1">สมัครสมาชิกกับนวคลินิกวันนี้</p>
         </div>
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="ชื่อ-นามสกุล" />
 
                 <TextInput
                     id="name"
@@ -47,7 +47,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="อีเมล" />
 
                 <TextInput
                     id="email"
@@ -62,7 +62,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="รหัสผ่าน" />
 
                 <TextInput
                     id="password"
@@ -79,7 +79,7 @@ const submit = () => {
             <div class="mt-4">
                 <InputLabel
                     for="password_confirmation"
-                    value="Confirm Password"
+                    value="ยืนยันรหัสผ่าน"
                 />
 
                 <TextInput
@@ -103,17 +103,17 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Register
+                    สมัครสมาชิก
                 </PrimaryButton>
             </div>
 
-            <div class="mt-6 text-center text-sm text-gray-600">
-                Already registered?
+            <div class="mt-6 text-center text-sm text-base-content/70">
+                มีบัญชีอยู่แล้ว?
                 <Link
                     :href="route('login')"
-                    class="font-medium text-teal-600 hover:text-teal-500"
+                    class="font-medium link link-primary"
                 >
-                    Log in
+                    เข้าสู่ระบบ
                 </Link>
             </div>
         </form>
