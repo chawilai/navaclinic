@@ -1,5 +1,5 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { useForm, Link } from '@inertiajs/vue3';
 import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 import Calendar from '@/Components/Calendar.vue';
@@ -287,7 +287,7 @@ const selectedDoctorName = computed(() => {
             </div>
 
             <!-- Footer Navigation -->
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between">
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between items-center">
                 <button 
                     v-if="currentStep > 1" 
                     @click="prevStep" 
@@ -295,7 +295,13 @@ const selectedDoctorName = computed(() => {
                 >
                     &larr; ย้อนกลับ (Back)
                 </button>
-                <div v-else></div> <!-- Spacer -->
+                <Link 
+                    v-else
+                    :href="route('welcome')"
+                    class="text-gray-500 font-medium hover:text-indigo-600 px-4 py-2 transition-colors"
+                >
+                    &larr; กลับหน้าหลัก (Home)
+                </Link>
 
                 <!-- Optional: Next button for manual navigation if needed, keeping mostly auto for now -->
             </div>
