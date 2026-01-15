@@ -109,7 +109,6 @@ class BookingController extends Controller
 
         while ($current->copy()->addMinutes($duration) <= $endOfDay) {
             $slotStart = $current->copy();
-            $slotEnd = $current->copy()->addMinutes($duration);
 
             // Skip past times if today
             if ($isToday && $slotStart->lt($now)) {
@@ -119,15 +118,24 @@ class BookingController extends Controller
 
             $timeStr = $slotStart->format('H:i');
 
+            // Calculate effective end time for the requested slot (Duration + 30m buffer)
+            // We check if the [Start, Start + Duration + 30) range is free.
+            $checkEnd = $slotStart->copy()->addMinutes($duration + 30);
+
             // Find available doctors for this specific slot
-            $availableDoctors = $doctors->filter(function ($doctor) use ($bookings, $slotStart, $slotEnd) {
+            $availableDoctors = $doctors->filter(function ($doctor) use ($bookings, $slotStart, $checkEnd) {
                 // Check if doctor has any overlapping booking
-                $hasConflict = $bookings->where('doctor_id', $doctor->id)->contains(function ($booking) use ($slotStart, $slotEnd) {
+                $hasConflict = $bookings->where('doctor_id', $doctor->id)->contains(function ($booking) use ($slotStart, $checkEnd) {
                     $bookingStart = \Carbon\Carbon::parse($booking->appointment_date . ' ' . $booking->start_time);
-                    $bookingEnd = $bookingStart->copy()->addMinutes($booking->duration_minutes);
+
+                    // Existing booking effectively blocks its Duration + 30m buffer as well.
+                    // This ensures we respect the buffer of existing bookings.
+                    $bookingEnd = $bookingStart->copy()->addMinutes($booking->duration_minutes + 30);
 
                     // Check overlap: (StartA < EndB) and (EndA > StartB)
-                    return $slotStart < $bookingEnd && $slotEnd > $bookingStart;
+                    // Request Range: [$slotStart, $checkEnd)
+                    // Existing Range: [$bookingStart, $bookingEnd)
+                    return $slotStart < $bookingEnd && $checkEnd > $bookingStart;
                 });
 
                 return !$hasConflict;
