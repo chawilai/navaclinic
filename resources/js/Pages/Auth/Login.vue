@@ -34,7 +34,7 @@ const submit = () => {
         <Head title="เข้าสู่ระบบ" />
 
         <div class="mb-6 text-center">
-            <h2 class="text-2xl font-bold text-primary">ยินดีต้อนรับกลับ</h2>
+            <h2 class="text-2xl font-bold text-blue-700">ยินดีต้อนรับกลับ</h2>
             <p class="text-sm text-base-content/70 mt-1">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
         </div>
 
@@ -83,7 +83,7 @@ const submit = () => {
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="text-sm link link-primary"
+                    class="text-sm link text-blue-600 hover:text-blue-800"
                 >
                     ลืมรหัสผ่าน?
                 </Link>
@@ -103,7 +103,7 @@ const submit = () => {
                 ยังไม่มีบัญชี?
                 <Link
                     :href="route('register')"
-                    class="font-medium link link-primary"
+                    class="font-medium link text-blue-600 hover:text-blue-800"
                 >
                     สมัครสมาชิก
                 </Link>

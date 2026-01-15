@@ -25,7 +25,7 @@ const submit = () => {
         <Head title="สมัครสมาชิก" />
 
         <div class="mb-6 text-center">
-            <h2 class="text-2xl font-bold text-primary">สร้างบัญชีใหม่</h2>
+            <h2 class="text-2xl font-bold text-blue-700">สร้างบัญชีใหม่</h2>
             <p class="text-sm text-base-content/70 mt-1">สมัครสมาชิกกับนวคลินิกวันนี้</p>
         </div>
 
@@ -111,7 +111,7 @@ const submit = () => {
                 มีบัญชีอยู่แล้ว?
                 <Link
                     :href="route('login')"
-                    class="font-medium link link-primary"
+                    class="font-medium link text-blue-600 hover:text-blue-800"
                 >
                     เข้าสู่ระบบ
                 </Link>

@@ -9,10 +9,10 @@ import { Link } from '@inertiajs/vue3';
         <div class="mb-6 flex flex-col items-center">
             <Link href="/" class="flex flex-col items-center gap-2">
                 <img src="/images/logo.png" alt="Nava Clinic Logo" class="w-24 h-24 mb-2 rounded-full shadow-md" />
-                <span class="text-3xl font-bold tracking-tight text-primary">
+                <span class="text-3xl font-bold tracking-tight text-blue-700">
                     นวคลินิก
                 </span>
-                <span class="text-lg text-primary/80 font-medium">
+                <span class="text-lg text-blue-700/80 font-medium">
                     การแพทย์แผนไทย
                 </span>
             </Link>

@@ -6,4 +6,7 @@
 
 @theme {
     --font-sans: 'Sarabun', sans-serif;
+    --color-primary: #2563eb;
+    /* blue-600 matches the specified explicit blue usage */
+    --color-primary-content: #ffffff;
 }
