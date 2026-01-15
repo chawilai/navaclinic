@@ -1,210 +1,121 @@
 <script setup>
-import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
-const showingNavigationDropdown = ref(false);
+const isMobileMenuOpen = ref(false);
 </script>
 
 <template>
-    <div>
-        <div class="min-h-screen bg-gray-100">
-            <nav
-                class="border-b border-gray-100 bg-white"
-            >
-                <!-- Primary Navigation Menu -->
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div class="flex h-16 justify-between">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
-                                </Link>
-                            </div>
+    <div class="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
+        <!-- Navbar -->
+        <nav class="navbar fixed top-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm h-20 px-0 py-0">
+            <div class="container mx-auto px-4 h-full flex items-center justify-between">
+                <!-- Logo -->
+                <div class="navbar-start w-auto lg:w-1/2">
+                    <Link :href="route('welcome')" class="btn btn-ghost text-2xl text-blue-700 font-bold flex gap-2 items-center hover:bg-transparent px-0">
+                        <img src="/images/logo.png" alt="Nava Clinic Logo" class="h-10 w-auto" />
+                        <span class="font-serif tracking-wide">NAVA CLINIC</span>
+                    </Link>
+                </div>
 
-                            <!-- Navigation Links -->
-                            <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
-                            >
-                                <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
-                                >
-                                    Dashboard
-                                </NavLink>
-                                <NavLink
-                                    :href="route('booking.create')"
-                                    :active="route().current('booking.create')"
-                                >
-                                    จองคิว
-                                </NavLink>
+                <!-- Desktop Menu -->
+                <div class="navbar-end hidden lg:flex gap-6 items-center">
+                    <ul class="menu menu-horizontal px-1 font-medium text-lg text-slate-600 gap-2">
+                        <li><Link :href="route('welcome')" :class="{'text-blue-600 font-bold': $page.component === 'Welcome'}">หน้าหลัก</Link></li>
+                        <li><Link :href="route('dashboard')" :class="{'text-blue-600 font-bold': route().current('dashboard')}">ประวัติการจองคิว</Link></li>
+                        <!-- Add other menu items here if needed in the future -->
+                    </ul>
+                    
+
+
+                    <!-- User Profile Dropdown -->
+                    <div class="dropdown dropdown-end ml-2">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online placeholder">
+                            <div class="bg-blue-100 text-blue-600 rounded-full w-10">
+                                <span class="text-lg font-semibold">{{ $page.props.auth.user.name.charAt(0).toUpperCase() }}</span>
                             </div>
                         </div>
-
-                        <div class="hidden sm:ms-6 sm:flex sm:items-center">
-                            <!-- Settings Dropdown -->
-                            <div class="relative ms-3">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
-                                            >
-                                                {{ $page.props.auth.user.name }}
-
-                                                <svg
-                                                    class="-me-0.5 ms-2 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
-                                                >
-                                                    <path
-                                                        fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
-
-                                    <template #content>
-                                        <DropdownLink
-                                            :href="route('profile.edit')"
-                                        >
-                                            Profile
-                                        </DropdownLink>
-                                        <DropdownLink
-                                            :href="route('logout')"
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <!-- Hamburger -->
-                        <div class="-me-2 flex items-center sm:hidden">
-                            <button
-                                @click="
-                                    showingNavigationDropdown =
-                                        !showingNavigationDropdown
-                                "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
-                            >
-                                <svg
-                                    class="h-6 w-6"
-                                    stroke="currentColor"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        :class="{
-                                            hidden: showingNavigationDropdown,
-                                            'inline-flex':
-                                                !showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        :class="{
-                                            hidden: !showingNavigationDropdown,
-                                            'inline-flex':
-                                                showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
+                        <ul tabindex="0" class="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-white rounded-box w-52 border border-slate-100">
+                             <li class="menu-title px-4 py-2 text-slate-400 text-xs uppercase tracking-wider">บัญชีของฉัน</li>
+                            <li><a class="font-medium text-slate-700 mb-1">{{ $page.props.auth.user.name }}</a></li>
+                            <div class="divider my-0"></div>
+                            <li><Link :href="route('profile.edit')">แก้ไขข้อมูลส่วนตัว</Link></li>
+                            <li><Link :href="route('logout')" method="post" as="button" class="text-red-600 hover:bg-red-50">ออกจากระบบ</Link></li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{
-                        block: showingNavigationDropdown,
-                        hidden: !showingNavigationDropdown,
-                    }"
-                    class="sm:hidden"
-                >
-                    <div class="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('booking.create')"
-                            :active="route().current('booking.create')"
-                        >
-                            จองคิว
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <!-- Responsive Settings Options -->
-                    <div
-                        class="border-t border-gray-200 pb-1 pt-4"
-                    >
-                        <div class="px-4">
-                            <div
-                                class="text-base font-medium text-gray-800"
-                            >
-                                {{ $page.props.auth.user.name }}
-                            </div>
-                            <div class="text-sm font-medium text-gray-500">
-                                {{ $page.props.auth.user.email }}
-                            </div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                :href="route('logout')"
-                                method="post"
-                                as="button"
-                            >
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
+                <!-- Mobile Menu Button -->
+                <div class="navbar-end lg:hidden flex w-auto">
+                    <button @click="isMobileMenuOpen = !isMobileMenuOpen" class="btn btn-square btn-ghost text-slate-600">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </button>
                 </div>
-            </nav>
+            </div>
+        </nav>
 
-            <!-- Page Heading -->
-            <header
-                class="bg-white shadow"
-                v-if="$slots.header"
-            >
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Mobile Drawer/Menu Overlay -->
+         <transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="translate-y-1 opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="translate-y-0 opacity-100"
+            leave-to-class="translate-y-1 opacity-0"
+        >
+            <div v-if="isMobileMenuOpen" class="fixed inset-0 z-40 bg-white pt-24 px-4 lg:hidden overflow-y-auto">
+                 <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl mb-4">
+                        <div class="avatar placeholder">
+                             <div class="bg-blue-100 text-blue-600 rounded-full w-12">
+                                <span class="text-xl font-bold">{{ $page.props.auth.user.name.charAt(0).toUpperCase() }}</span>
+                            </div>
+                        </div>
+                        <div>
+                             <p class="font-bold text-lg text-slate-800">{{ $page.props.auth.user.name }}</p>
+                             <p class="text-sm text-slate-500">{{ $page.props.auth.user.email }}</p>
+                        </div>
+                    </div>
+
+                    <Link :href="route('welcome')" class="btn btn-ghost justify-start text-lg font-normal" @click="isMobileMenuOpen = false">หน้าหลัก</Link>
+                    <Link :href="route('dashboard')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('dashboard')}" @click="isMobileMenuOpen = false">ประวัติการจองคิว</Link>
+
+                    
+                    <div class="divider"></div>
+                    
+                    <Link :href="route('profile.edit')" class="btn btn-ghost justify-start text-slate-500" @click="isMobileMenuOpen = false">แก้ไขข้อมูลส่วนตัว</Link>
+                    <Link :href="route('logout')" method="post" as="button" class="btn btn-ghost justify-start text-red-500 hover:bg-red-50" @click="isMobileMenuOpen = false">ออกจากระบบ</Link>
+                 </div>
+            </div>
+         </transition>
+
+        <!-- Main Content -->
+        <!-- Added pt-20 to account for the fixed navbar height -->
+        <main class="flex-grow pt-24 pb-12 px-4 container mx-auto">
+            <!-- Header Slot -->
+             <header v-if="$slots.header" class="mb-8">
+                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                     <slot name="header" />
-                </div>
+                 </div>
             </header>
 
-            <!-- Page Content -->
-            <main>
-                <slot />
-            </main>
-        </div>
+            <slot />
+        </main>
+
+        <!-- Use the same Footer as Welcome page for consistency, or a simplified version? User asked for 'beautiful' so full footer is better -->
+        <footer class="bg-gray-900 text-gray-400 py-12 mt-auto">
+             <div class="container mx-auto px-4 text-center">
+                 <div class="flex items-center justify-center gap-3 text-white text-xl font-bold mb-6">
+                        <img src="/images/logo.png" alt="Logo" class="w-10 h-10 rounded-full bg-white p-1" />
+                        NAVA CLINIC
+                </div>
+                <p class="text-sm font-light text-gray-600">
+                    &copy; 2026 Nava Clinic. All rights reserved.
+                </p>
+            </div>
+        </footer>
+
     </div>
 </template>

@@ -6,20 +6,27 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    return Inertia::render('ShopSelection');
+})->name('shop.selection');
+
+Route::get('/nava-clinic', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('welcome');
 
 Route::get('/services', function () {
     return Inertia::render('Services');
 })->name('services');
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $bookings = auth()->user()->bookings()->with('doctor')->latest()->get();
+    return Inertia::render('Dashboard', [
+        'bookings' => $bookings
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

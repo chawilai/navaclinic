@@ -67,12 +67,12 @@ const features = [
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" /></svg>
                         </div>
                         <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                            <li><Link href="/" class="active">หน้าแรก</Link></li>
+                            <li><Link href="/nava-clinic" class="active">หน้าแรก</Link></li>
                             <li><Link href="/services">บริการและราคา</Link></li>
                             <li><Link :href="route('booking.create')">จองคิว</Link></li>
                         </ul>
                     </div>
-                    <Link href="/" class="btn btn-ghost text-2xl text-blue-700 font-bold flex gap-2 items-center hover:bg-transparent">
+                    <Link href="/nava-clinic" class="btn btn-ghost text-2xl text-blue-700 font-bold flex gap-2 items-center hover:bg-transparent">
                         <img src="/images/logo.png" alt="Nava Clinic Logo" class="h-10 w-auto" />
                         <span class="font-serif tracking-wide">NAVA CLINIC</span>
                     </Link>
@@ -80,7 +80,7 @@ const features = [
                 <!-- Center: Navigation Links -->
                 <div class="navbar-center hidden lg:flex">
                      <ul class="menu menu-horizontal px-1 font-medium text-lg text-slate-600 gap-4">
-                        <li><Link href="/" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">หน้าแรก</Link></li>
+                        <li><Link href="/nava-clinic" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">หน้าแรก</Link></li>
                         <li><Link href="/services" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">บริการและราคา</Link></li>
                         <li><Link href="#" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">เกี่ยวกับเรา</Link></li>
                         <li><Link href="#" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">ติดต่อเรา</Link></li>
@@ -90,7 +90,16 @@ const features = [
                 <!-- Right: Action Buttons -->
                 <div class="navbar-end hidden lg:flex gap-3">
                      <template v-if="$page.props.auth.user">
-                        <Link :href="route('dashboard')" class="btn btn-outline btn-primary rounded-full px-6">แดชบอร์ด</Link>
+                        <div class="dropdown dropdown-end">
+                            <div tabindex="0" role="button" class="btn btn-ghost gap-2 font-medium text-slate-600 hover:text-blue-600">
+                                {{ $page.props.auth.user.name }}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                            <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+                                <li><Link :href="route('dashboard')">ประวัติการจองคิว</Link></li>
+                                <li><Link :href="route('logout')" method="post" as="button" class="text-red-600">ออกจากระบบ</Link></li>
+                            </ul>
+                        </div>
                      </template>
                      <template v-else>
                         <Link :href="route('login')" class="btn btn-ghost hover:text-blue-700 font-medium">เข้าสู่ระบบ</Link>
