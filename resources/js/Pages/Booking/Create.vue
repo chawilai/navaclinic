@@ -65,7 +65,7 @@ const fetchSlots = async () => {
 
 const selectTime = (slot) => {
     form.start_time = slot.time;
-    availableDoctors.value = slot.available_doctors; // Store doctors for next step
+    availableDoctors.value = slot.doctors; // Store doctors for next step
     nextStep();
 };
 
@@ -197,22 +197,47 @@ const selectedDoctorName = computed(() => {
 
                 <!-- Step 4: Doctor -->
                 <div v-if="currentStep === 4" class="w-full">
-                     <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">แพทย์ที่ว่าง (Available Doctors)</h3>
+                     <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">เลือกแพทย์ (Select Doctor)</h3>
                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div 
+                        <button 
                             v-for="doctor in availableDoctors" 
                             :key="doctor.id" 
-                            @click="selectDoctor(doctor)"
-                            class="flex items-center p-4 border rounded-xl cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            @click="doctor.status === 'available' && selectDoctor(doctor)"
+                            :disabled="doctor.status !== 'available'"
+                            :class="[
+                                'flex items-start p-4 border rounded-xl transition-all text-left w-full h-full',
+                                doctor.status === 'available' 
+                                    ? 'cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 bg-white' 
+                                    : 'cursor-not-allowed bg-gray-50 border-gray-200 opacity-75'
+                            ]"
                         >
-                            <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xl mr-4">
+                            <div :class="[
+                                'h-12 w-12 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-xl mr-4',
+                                doctor.status === 'available' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-200 text-gray-400'
+                            ]">
                                 {{ doctor.name.charAt(0) }}
                             </div>
-                            <div>
-                                <div class="font-medium text-gray-900">{{ doctor.name }}</div>
+                            <div class="flex-1">
+                                <div :class="['font-medium', doctor.status === 'available' ? 'text-gray-900' : 'text-gray-500']">
+                                    {{ doctor.name }}
+                                </div>
                                 <div class="text-sm text-gray-500">{{ doctor.specialty || 'แพทย์แผนไทย' }}</div>
+                                
+                                <div v-if="doctor.status !== 'available'" class="text-xs text-red-500 mt-1 font-medium">
+                                    {{ doctor.reason }}
+                                </div>
+
+                                <!-- Show all busy slots if any exist -->
+                                <div v-if="doctor.busy_slots && doctor.busy_slots.length > 0" class="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100">
+                                    <span class="font-semibold text-red-700">คิวที่ไม่ว่าง:</span>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        <span v-for="(slot, idx) in doctor.busy_slots" :key="idx" class="bg-white border border-red-200 px-1.5 py-0.5 rounded text-red-600 shadow-sm">
+                                            {{ slot }}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </button>
                      </div>
                 </div>
 

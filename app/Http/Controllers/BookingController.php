@@ -122,29 +122,75 @@ class BookingController extends Controller
             // We check if the [Start, Start + Duration + 30) range is free.
             $checkEnd = $slotStart->copy()->addMinutes($duration + 30);
 
-            // Find available doctors for this specific slot
-            $availableDoctors = $doctors->filter(function ($doctor) use ($bookings, $slotStart, $checkEnd) {
-                // Check if doctor has any overlapping booking
-                $hasConflict = $bookings->where('doctor_id', $doctor->id)->contains(function ($booking) use ($slotStart, $checkEnd) {
+            // Process all doctors for this slot
+            $doctorsWithStatus = $doctors->map(function ($doctor) use ($bookings, $slotStart, $checkEnd) {
+                // Get all bookings for this doctor to show full schedule
+                $doctorBookings = $bookings->where('doctor_id', $doctor->id);
+
+                $busySlots = $doctorBookings->map(function ($booking) {
+                    $bStart = \Carbon\Carbon::parse($booking->appointment_date . ' ' . $booking->start_time)->format('H:i');
+                    $bEnd = \Carbon\Carbon::parse($booking->appointment_date . ' ' . $booking->start_time)->addMinutes($booking->duration_minutes)->format('H:i');
+                    return "$bStart-$bEnd";
+                })->values()->all();
+
+                // Check if doctor has any overlapping booking for THIS slot
+                $conflictingBooking = $doctorBookings->first(function ($booking) use ($slotStart, $checkEnd) {
                     $bookingStart = \Carbon\Carbon::parse($booking->appointment_date . ' ' . $booking->start_time);
 
                     // Existing booking effectively blocks its Duration + 30m buffer as well.
-                    // This ensures we respect the buffer of existing bookings.
                     $bookingEnd = $bookingStart->copy()->addMinutes($booking->duration_minutes + 30);
 
                     // Check overlap: (StartA < EndB) and (EndA > StartB)
-                    // Request Range: [$slotStart, $checkEnd)
-                    // Existing Range: [$bookingStart, $bookingEnd)
                     return $slotStart < $bookingEnd && $checkEnd > $bookingStart;
                 });
 
-                return !$hasConflict;
+                if ($conflictingBooking) {
+                    $bStart = \Carbon\Carbon::parse($conflictingBooking->appointment_date . ' ' . $conflictingBooking->start_time)->format('H:i');
+                    $bEnd = \Carbon\Carbon::parse($conflictingBooking->appointment_date . ' ' . $conflictingBooking->start_time)->addMinutes($conflictingBooking->duration_minutes)->format('H:i');
+
+                    return [
+                        'id' => $doctor->id,
+                        'name' => $doctor->name,
+                        'specialty' => $doctor->specialty,
+                        'status' => 'busy',
+                        'reason' => "ติดคิว $bStart-$bEnd",
+                        'busy_slots' => $busySlots
+                    ];
+                }
+
+                return [
+                    'id' => $doctor->id,
+                    'name' => $doctor->name,
+                    'specialty' => $doctor->specialty,
+                    'status' => 'available',
+                    'reason' => null,
+                    'busy_slots' => $busySlots
+                ];
             });
 
-            if ($availableDoctors->isNotEmpty()) {
+            // We include the slot even if all doctors are busy? 
+            // The user usually wants to see "Time Slot" -> Then see doctors. 
+            // If we filter out slots where EVERYONE is busy, the user can't see "Busy" status.
+            // But if we show every 30 min slot, it might be too many.
+            // Standard practice: Show slots that have AT LEAST ONE available doctor?
+            // The user request "Please add info saying which doctor is not free". 
+            // This implies they want to see the busy doctors WHEN they select a time.
+            // If a time slot has 0 available doctors, it shouldn't be selectable (or maybe shown but disabled).
+            // Let's assume we still only return slots that have AT LEAST ONE available doctor, 
+            // BUT within that slot, we verify we're passing ALL doctors (including busy ones).
+            // WAIT: If I only return slots with >0 available doctors, then a fully busy slot is hidden.
+            // If the user wants to see "Dr A is busy at 10:00", they can only see 10:00 if Dr B is free?
+            // If 10:00 is fully booked, the user can't select 10:00 to see that Dr A is busy.
+            // THIS IS KEY. 
+            // However, usually you don't care about a time if NO ONE is free.
+            // I'll stick to: Show slot if at least 1 is free. And in that slot, show busy doctors too.
+
+            $hasAvailableInfo = $doctorsWithStatus->where('status', 'available')->isNotEmpty();
+
+            if ($hasAvailableInfo) {
                 $slots[] = [
                     'time' => $timeStr,
-                    'available_doctors' => $availableDoctors->values()
+                    'doctors' => $doctorsWithStatus->values() // Renamed to 'doctors' to imply all
                 ];
             }
 
