@@ -1,5 +1,8 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 defineProps({
     canLogin: {
@@ -8,6 +11,15 @@ defineProps({
     canRegister: {
         type: Boolean,
     },
+});
+
+onMounted(() => {
+    AOS.init({
+        duration: 800,
+        easing: 'ease-out-cubic',
+        once: true,
+        offset: 50,
+    });
 });
 
 const featuredServices = [
@@ -57,9 +69,9 @@ const features = [
 
 <template>
     <Head title="หน้าแรก" />
-    <div class="min-h-screen bg-slate-50 font-sans text-slate-800">
+    <div class="min-h-screen bg-slate-50 font-sans text-slate-800 overflow-x-hidden">
         <!-- Navbar -->
-        <nav class="navbar fixed top-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm h-20 px-0 py-0">
+        <nav class="navbar fixed top-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm h-20 px-0 py-0" data-aos="fade-down" data-aos-duration="600">
             <div class="container mx-auto px-4 h-full flex items-center justify-between">
                 <div class="navbar-start">
                     <div class="dropdown">
@@ -77,7 +89,7 @@ const features = [
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>
                     </Link>
-                    <Link href="/nava-clinic" class="btn btn-ghost text-2xl text-blue-700 font-bold flex gap-2 items-center hover:bg-transparent">
+                    <Link href="/nava-clinic" class="btn btn-ghost text-2xl text-blue-700 font-bold flex gap-2 items-center hover:bg-transparent transition-transform hover:scale-105 active:scale-95 duration-200">
                         <img src="/images/logo.png" alt="Nava Clinic Logo" class="h-10 w-auto" />
                         <span class="font-serif tracking-wide">NAVA CLINIC</span>
                     </Link>
@@ -85,9 +97,9 @@ const features = [
                 <!-- Center: Navigation Links -->
                 <div class="navbar-center hidden lg:flex">
                      <ul class="menu menu-horizontal px-1 font-medium text-lg text-slate-600 gap-4">
-                        <li><Link href="/nava-clinic" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">หน้าแรก</Link></li>
-                        <li><Link href="/services" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">บริการและราคา</Link></li>
-                        <li><Link :href="route('booking.create')" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent">จองคิว</Link></li>
+                        <li><Link href="/nava-clinic" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent transition-colors duration-200 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-blue-600 after:transition-all hover:after:w-full">หน้าแรก</Link></li>
+                        <li><Link href="/services" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent transition-colors duration-200 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-blue-600 after:transition-all hover:after:w-full">บริการและราคา</Link></li>
+                        <li><Link :href="route('booking.create')" class="hover:text-blue-600 active:text-blue-700 active:bg-transparent transition-colors duration-200 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-blue-600 after:transition-all hover:after:w-full">จองคิว</Link></li>
                     </ul>
                 </div>
 
@@ -95,7 +107,7 @@ const features = [
                 <div class="navbar-end hidden lg:flex gap-3">
                      <template v-if="$page.props.auth.user">
                         <div class="dropdown dropdown-end">
-                            <div tabindex="0" role="button" class="btn btn-ghost gap-2 font-medium text-slate-600 hover:text-blue-600">
+                            <div tabindex="0" role="button" class="btn btn-ghost gap-2 font-medium text-slate-600 hover:text-blue-600 transition-transform active:scale-95">
                                 {{ $page.props.auth.user.name }}
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                             </div>
@@ -106,8 +118,8 @@ const features = [
                         </div>
                      </template>
                      <template v-else>
-                        <Link :href="route('login')" class="btn btn-ghost hover:text-blue-700 font-medium">เข้าสู่ระบบ</Link>
-                        <Link :href="route('register')" class="btn btn-primary text-white rounded-full px-6 bg-blue-600 hover:bg-blue-700 border-none shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                        <Link :href="route('login')" class="btn btn-ghost hover:text-blue-700 font-medium transition-transform hover:scale-105 active:scale-95">เข้าสู่ระบบ</Link>
+                        <Link :href="route('register')" class="btn btn-primary text-white rounded-full px-6 bg-blue-600 hover:bg-blue-700 border-none shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0">
                             สมัครสมาชิก
                         </Link>
                      </template>
@@ -119,39 +131,39 @@ const features = [
         <section class="hero min-h-screen relative overflow-hidden">
              <!-- Background Image with Overlay -->
             <div class="absolute inset-0 z-0">
-                <img src="/images/storefront.png" alt="Clinic Atmosphere" class="w-full h-full object-cover" />
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-900/60 to-blue-800/40 mix-blend-multiply"></div>
+                <img src="/images/storefront.png" alt="Clinic Atmosphere" class="w-full h-full object-cover scale-105 animate-[kenburns_20s_infinite_alternate]" />
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-800/40 mix-blend-multiply"></div>
             </div>
 
             <div class="hero-content text-center text-neutral-content relative z-10 pt-20">
                 <div class="max-w-3xl">
-                    <div class="badge badge-accent badge-outline mb-6 p-4 text-sm font-semibold tracking-wider text-blue-100 border-blue-200">THE ART OF THAI HEALING</div>
-                    <h1 class="mb-6 text-5xl md:text-7xl font-bold font-serif leading-tight text-white drop-shadow-md">
+                    <div class="badge badge-accent badge-outline mb-6 p-4 text-sm font-semibold tracking-wider text-blue-100 border-blue-200 backdrop-blur-sm" data-aos="fade-down" data-aos-delay="100">THE ART OF THAI HEALING</div>
+                    <h1 class="mb-6 text-5xl md:text-7xl font-bold font-serif leading-tight text-white drop-shadow-lg" data-aos="zoom-in" data-aos-delay="200" data-aos-duration="1000">
                         คืนความสมดุล<br/>
                         <span class="text-blue-200">สู่ร่างกายและจิตใจ</span>
                     </h1>
-                    <p class="mb-10 text-lg md:text-xl font-light text-slate-100 leading-relaxed max-w-2xl mx-auto">
+                    <p class="mb-10 text-lg md:text-xl font-light text-slate-100 leading-relaxed max-w-2xl mx-auto drop-shadow-md" data-aos="fade-up" data-aos-delay="400">
                         นวคลินิกการแพทย์แผนไทย ผู้เชี่ยวชาญด้านการรักษาออฟฟิศซินโดรมและนวดบำบัด <br class="hidden md:inline" />โดยทีมแพทย์แผนไทยปริญญา ประสบการณ์กว่า 10 ปี
                     </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link :href="route('booking.create')" class="btn btn-lg btn-primary bg-blue-500 hover:bg-blue-600 border-none text-white rounded-full px-8 shadow-lg shadow-blue-900/20">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center" data-aos="fade-up" data-aos-delay="600">
+                        <Link :href="route('booking.create')" class="btn btn-lg btn-primary bg-blue-500 hover:bg-blue-600 border-none text-white rounded-full px-8 shadow-lg shadow-blue-900/30 transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95">
                             จองคิวทันที
                         </Link>
-                        <Link href="/services" class="btn btn-lg btn-outline text-white hover:bg-white hover:text-blue-800 rounded-full px-8 backdrop-blur-sm">
+                        <Link href="/services" class="btn btn-lg btn-outline text-white hover:bg-white hover:text-blue-800 rounded-full px-8 backdrop-blur-sm hover:border-transparent transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95">
                             ดูรายการบริการ
                         </Link>
                     </div>
                     
-                    <div class="mt-16 flex justify-center gap-12 text-blue-100/60">
-                         <div class="text-center">
+                    <div class="mt-16 flex justify-center gap-12 text-blue-100/80" data-aos="fade-up" data-aos-delay="800">
+                         <div class="text-center transform transition duration-500 hover:scale-110">
                             <h3 class="text-3xl font-bold text-white">10+</h3>
                             <p class="text-sm">ปีประสบการณ์</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center transform transition duration-500 hover:scale-110">
                             <h3 class="text-3xl font-bold text-white">5k+</h3>
                             <p class="text-sm">ลูกค้าที่ไว้วางใจ</p>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center transform transition duration-500 hover:scale-110">
                             <h3 class="text-3xl font-bold text-white">100%</h3>
                             <p class="text-sm">ความพึงพอใจ</p>
                         </div>
@@ -161,21 +173,25 @@ const features = [
         </section>
 
         <!-- Features Section -->
-        <section class="py-24 bg-white">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-16">
+        <section class="py-24 bg-white relative overflow-hidden">
+             <!-- Decorative elements -->
+             <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-blue-50 rounded-full blur-3xl opacity-50"></div>
+             <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-50 rounded-full blur-3xl opacity-50"></div>
+
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="text-center mb-16" data-aos="fade-up">
                     <h2 class="text-blue-600 font-bold tracking-widest uppercase text-sm mb-2">Why Choose Us</h2>
                     <h3 class="text-4xl font-bold text-slate-800">ทำไมต้องนวคลินิก?</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div v-for="(feature, index) in features" :key="index" class="card bg-slate-50 hover:bg-white hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-blue-100">
-                        <div class="card-body items-center text-center p-8">
-                            <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-6">
+                    <div v-for="(feature, index) in features" :key="index" class="card bg-slate-50 hover:bg-white hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-blue-100 group" :data-aos="'fade-up'" :data-aos-delay="index * 100">
+                        <div class="card-body items-center text-center p-8 transition-transform duration-300 group-hover:-translate-y-2">
+                            <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white group-hover:rotate-6 shadow-inner">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
                                     <path stroke-linecap="round" stroke-linejoin="round" :d="feature.icon" />
                                 </svg>
                             </div>
-                            <h4 class="card-title text-xl mb-2">{{ feature.title }}</h4>
+                            <h4 class="card-title text-xl mb-2 group-hover:text-blue-700 transition-colors">{{ feature.title }}</h4>
                             <p class="text-slate-500 font-light">{{ feature.desc }}</p>
                         </div>
                     </div>
@@ -187,22 +203,22 @@ const features = [
         <section class="py-24 bg-slate-50 relative">
              <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent"></div>
             <div class="container mx-auto px-4">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4" data-aos="fade-right">
                     <div>
                          <h2 class="text-blue-600 font-bold tracking-widest uppercase text-sm mb-2">Our Services</h2>
                         <h3 class="text-4xl font-bold text-slate-800">บริการยอดนิยม</h3>
                     </div>
-                    <Link href="/services" class="btn btn-link text-blue-600 no-underline hover:text-blue-800 gap-2 p-0 h-auto min-h-0">
-                        ดูทั้งหมด <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
+                    <Link href="/services" class="btn btn-link text-blue-600 no-underline hover:text-blue-800 gap-2 p-0 h-auto min-h-0 group">
+                        ดูทั้งหมด <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 transition-transform group-hover:translate-x-1"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /></svg>
                     </Link>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div v-for="(service, index) in featuredServices" :key="index" class="group cursor-pointer">
-                        <div class="relative overflow-hidden rounded-2xl h-80 mb-6 shadow-md">
+                    <div v-for="(service, index) in featuredServices" :key="index" class="group cursor-pointer" :data-aos="'fade-up'" :data-aos-delay="index * 150">
+                        <div class="relative overflow-hidden rounded-2xl h-80 mb-6 shadow-md transition-all duration-500 hover:shadow-2xl">
                             <img :src="service.image" :alt="service.title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
-                            <div class="absolute bottom-6 left-6 text-white">
+                            <div class="absolute bottom-6 left-6 text-white transform transition-transform duration-500 group-hover:translate-x-2">
                                 <h4 class="text-xl font-bold mb-1">{{ service.titleTh }}</h4>
                                 <p class="text-sm text-blue-200">{{ service.title }}</p>
                             </div>
@@ -216,19 +232,19 @@ const features = [
 
         <!-- CTA Section -->
         <section class="py-24 bg-blue-900 text-white overflow-hidden relative">
-            <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-20 -mr-20 -mt-20"></div>
-            <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-400 rounded-full blur-3xl opacity-10 -ml-20 -mb-20"></div>
+            <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-20 -mr-20 -mt-20 animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-400 rounded-full blur-3xl opacity-10 -ml-20 -mb-20 animate-pulse" style="animation-delay: 1s;"></div>
             
-            <div class="container mx-auto px-4 relative z-10 text-center">
+            <div class="container mx-auto px-4 relative z-10 text-center" data-aos="zoom-in-up">
                 <h2 class="text-4xl md:text-5xl font-bold mb-6 font-serif">ดูแลสุขภาพของคุณวันนี้</h2>
                 <p class="text-blue-100 text-lg mb-10 max-w-2xl mx-auto font-light">
                     อย่าปล่อยให้อาการปวดรบกวนชีวิตประจำวันของคุณ ปรึกษาและรับการรักษาจากแพทย์แผนไทยผู้เชี่ยวชาญที่นวคลินิก
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                     <Link :href="route('booking.create')" class="btn btn-lg bg-white text-blue-900 hover:bg-blue-50 border-none rounded-full px-10 shadow-xl">
+                     <Link :href="route('booking.create')" class="btn btn-lg bg-white text-blue-900 hover:bg-blue-50 border-none rounded-full px-10 shadow-xl transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95">
                         จองคิวออนไลน์
                     </Link>
-                    <a href="tel:0987654321" class="btn btn-lg btn-outline text-white hover:bg-blue-800 hover:text-white rounded-full px-10">
+                    <a href="tel:0987654321" class="btn btn-lg btn-outline text-white hover:bg-blue-800 hover:text-white rounded-full px-10 transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95">
                         โทร 098-765-4321
                     </a>
                 </div>
@@ -239,7 +255,7 @@ const features = [
         <footer class="bg-gray-900 text-gray-400 py-16">
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
-                    <div class="md:col-span-1">
+                    <div class="md:col-span-1" data-aos="fade-up" data-aos-delay="0">
                         <div class="flex items-center gap-3 text-white text-xl font-bold mb-6">
                              <img src="/images/logo.png" alt="Logo" class="w-12 h-12 rounded-full bg-white p-1" />
                              NAVA CLINIC
@@ -248,7 +264,7 @@ const features = [
                             คลินิกการแพทย์แผนไทยและนวดเพื่อสุขภาพ โดยทีมงานมืออาชีพ ใส่ใจทุกรายละเอียดของการรักษา
                         </p>
                     </div>
-                    <div>
+                    <div data-aos="fade-up" data-aos-delay="100">
                         <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">บริการ</h4>
                         <ul class="space-y-3 font-light">
                             <li><Link href="/services" class="hover:text-blue-400 transition-colors">นวดแผนไทย</Link></li>
@@ -257,7 +273,7 @@ const features = [
                              <li><Link href="/services" class="hover:text-blue-400 transition-colors">ออฟฟิศซินโดรม</Link></li>
                         </ul>
                     </div>
-                    <div>
+                    <div data-aos="fade-up" data-aos-delay="200">
                         <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">เวลาทำการ</h4>
                         <ul class="space-y-3 font-light">
                             <li class="flex justify-between"><span>อังคาร - ศุกร์</span> <span>09:00 - 20:00</span></li>
@@ -265,7 +281,7 @@ const features = [
                              <li class="text-blue-500 text-sm pt-2">*รับคิวสุดท้าย 19:00</li>
                         </ul>
                     </div>
-                    <div>
+                    <div data-aos="fade-up" data-aos-delay="300">
                         <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">ติดต่อเรา</h4>
                         <ul class="space-y-3 font-light">
                             <li class="flex items-start gap-3">
