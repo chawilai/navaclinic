@@ -35,10 +35,10 @@ const getStatusClass = (status) => {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                <h2 class="font-semibold text-xl text-slate-800 leading-tight">
                     Patient Profile
                 </h2>
-                <Link :href="route('admin.patients.index')" class="text-sm text-gray-600 hover:text-gray-900">
+                <Link :href="route('admin.patients.index')" class="text-sm text-slate-600 hover:text-blue-600 font-medium transition-colors">
                     &larr; Back to List
                 </Link>
             </div>
@@ -47,65 +47,65 @@ const getStatusClass = (status) => {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <!-- Patient Info Card -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <h3 class="text-lg font-bold mb-4">Personal Information</h3>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100">
+                    <div class="p-6 text-slate-900">
+                        <h3 class="text-lg font-bold mb-4 text-slate-800">Personal Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <p class="text-gray-500 text-sm">Name</p>
-                                <p class="font-medium text-lg">{{ patient.name }} <span class="text-sm text-blue-600 font-bold">({{ patient.patient_id }})</span></p>
+                                <p class="text-slate-500 text-sm uppercase tracking-wider">Name</p>
+                                <p class="font-medium text-lg text-slate-900">{{ patient.name }} <span class="text-sm text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full ml-1">#{{ patient.patient_id }}</span></p>
                             </div>
                             <div>
-                                <p class="text-gray-500 text-sm">Email</p>
-                                <p class="font-medium text-lg">{{ patient.email }}</p>
+                                <p class="text-slate-500 text-sm uppercase tracking-wider">Email</p>
+                                <p class="font-medium text-lg text-slate-900">{{ patient.email }}</p>
                             </div>
                             <div v-if="patient.phone_number">
-                                <p class="text-gray-500 text-sm">Phone</p>
-                                <p class="font-medium text-lg">{{ patient.phone_number }}</p>
+                                <p class="text-slate-500 text-sm uppercase tracking-wider">Phone</p>
+                                <p class="font-medium text-lg text-slate-900">{{ patient.phone_number }}</p>
                             </div>
                             <div>
-                                <p class="text-gray-500 text-sm">Member Since</p>
-                                <p class="font-medium">{{ new Date(patient.created_at).toLocaleDateString() }}</p>
+                                <p class="text-slate-500 text-sm uppercase tracking-wider">Member Since</p>
+                                <p class="font-medium text-lg text-slate-900">{{ new Date(patient.created_at).toLocaleDateString() }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Booking History -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <h3 class="text-lg font-bold mb-4">Booking History</h3>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100">
+                    <div class="p-6 text-slate-900">
+                        <h3 class="text-lg font-bold mb-4 text-slate-800">Booking History</h3>
                         
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <div class="overflow-x-auto rounded-lg border border-slate-200">
+                            <table class="w-full text-sm text-left rtl:text-right text-slate-600">
+                                <thead class="text-xs text-slate-700 uppercase bg-blue-50">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3">Date</th>
-                                        <th scope="col" class="px-6 py-3">Doctor</th>
-                                        <th scope="col" class="px-6 py-3">Status</th>
-                                        <th scope="col" class="px-6 py-3">Actions</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Date</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Doctor</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Status</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr v-for="booking in bookings" :key="booking.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <tbody class="bg-white divide-y divide-slate-100">
+                                    <tr v-for="booking in bookings" :key="booking.id" class="hover:bg-blue-50/50 transition-colors">
                                         <td class="px-6 py-4">
-                                            {{ booking.appointment_date }}<br>
-                                            <span class="text-xs text-gray-400">{{ booking.start_time }}</span>
+                                            <div class="font-medium text-slate-900">{{ booking.appointment_date }}</div>
+                                            <span class="text-xs text-slate-500">{{ booking.start_time }}</span>
                                         </td>
                                         <td class="px-6 py-4">{{ booking.doctor?.name }}</td>
                                         <td class="px-6 py-4">
-                                            <span :class="getStatusClass(booking.status)" class="px-2 py-1 rounded-full text-xs font-semibold uppercase">
+                                            <span :class="getStatusClass(booking.status)" class="px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
                                                 {{ booking.status }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <Link :href="route('admin.bookings.show', booking.id)" class="text-blue-600 hover:text-blue-900">
+                                            <Link :href="route('admin.bookings.show', booking.id)" class="text-blue-600 hover:text-blue-800 font-bold transition-colors">
                                                 View
                                             </Link>
                                         </td>
                                     </tr>
                                     <tr v-if="bookings.length === 0">
-                                        <td colspan="4" class="px-6 py-4 text-center">No bookings found.</td>
+                                        <td colspan="4" class="px-6 py-8 text-center text-slate-500">No bookings found.</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -6,7 +6,11 @@ const isMobileMenuOpen = ref(false);
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
+    <div class="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col relative overflow-hidden">
+        <!-- Decorative Background Elements -->
+        <div class="fixed top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none z-0"></div>
+        <div class="fixed bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none z-0"></div>
+
         <!-- Navbar -->
         <nav class="navbar fixed top-0 w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm h-20 px-0 py-0">
             <div class="container mx-auto px-4 h-full flex items-center justify-between">
@@ -103,7 +107,7 @@ const isMobileMenuOpen = ref(false);
 
         <!-- Main Content -->
         <!-- Added pt-20 to account for the fixed navbar height -->
-        <main class="flex-grow pt-24 pb-12 px-4 container mx-auto">
+        <main class="flex-grow pt-24 pb-12 px-4 container mx-auto relative z-10">
             <!-- Header Slot -->
              <header v-if="$slots.header" class="mb-8">
                  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">

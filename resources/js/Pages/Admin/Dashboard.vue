@@ -32,7 +32,7 @@ const getStatusClass = (status) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
                 Admin Dashboard
             </h2>
         </template>
@@ -42,64 +42,64 @@ const getStatusClass = (status) => {
                 
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Total Patients</div>
-                        <div class="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ stats.total_patients }}</div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Total Patients</div>
+                        <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.total_patients }}</div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Total Doctors</div>
-                        <div class="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ stats.total_doctors }}</div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Total Doctors</div>
+                        <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.total_doctors }}</div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Today's Appointments</div>
-                        <div class="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ stats.today_bookings }}</div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Today's Appointments</div>
+                        <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.today_bookings }}</div>
                     </div>
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase">Pending Requests</div>
-                        <div class="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ stats.pending_bookings }}</div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Pending Requests</div>
+                        <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.pending_bookings }}</div>
                     </div>
                 </div>
 
                 <!-- Bookings Table -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <h3 class="text-lg font-bold mb-4">Latest Bookings</h3>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100">
+                    <div class="p-6 text-slate-900">
+                        <h3 class="text-lg font-bold mb-4 text-slate-800">Latest Bookings</h3>
                         
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <div class="overflow-x-auto rounded-lg border border-slate-200">
+                            <table class="w-full text-sm text-left rtl:text-right text-slate-600">
+                                <thead class="text-xs text-slate-700 uppercase bg-blue-50">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3">Patient</th>
-                                        <th scope="col" class="px-6 py-3">Doctor</th>
-                                        <th scope="col" class="px-6 py-3">Date & Time</th>
-                                        <th scope="col" class="px-6 py-3">Symptoms</th>
-                                        <th scope="col" class="px-6 py-3">Status</th>
-                                        <th scope="col" class="px-6 py-3">Actions</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Patient</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Doctor</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Date & Time</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Symptoms</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Status</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr v-for="booking in bookings" :key="booking.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                                <tbody class="bg-white divide-y divide-slate-100">
+                                    <tr v-for="booking in bookings" :key="booking.id" class="hover:bg-blue-50/50 transition-colors">
+                                        <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
                                             {{ booking.user?.name || 'Guest' }}
-                                            <div class="text-xs text-gray-500">{{ booking.user?.email || 'N/A' }}</div>
+                                            <div class="text-xs text-slate-500">{{ booking.user?.email || 'N/A' }}</div>
                                         </td>
                                         <td class="px-6 py-4">{{ booking.doctor?.name || 'Unknown Doctor' }}</td>
                                         <td class="px-6 py-4">
-                                            <div>{{ booking.appointment_date }}</div>
-                                            <div class="text-xs text-gray-500">{{ booking.start_time }} ({{ booking.duration_minutes }}m)</div>
+                                            <div class="font-medium text-slate-900">{{ booking.appointment_date }}</div>
+                                            <div class="text-xs text-slate-500">{{ booking.start_time }} ({{ booking.duration_minutes }}m)</div>
                                         </td>
                                         <td class="px-6 py-4 truncate max-w-xs">{{ booking.symptoms }}</td>
                                         <td class="px-6 py-4">
-                                            <span :class="getStatusClass(booking.status)" class="px-2 py-1 rounded-full text-xs font-semibold uppercase">
+                                            <span :class="getStatusClass(booking.status)" class="px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
                                                 {{ booking.status }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <Link :href="route('admin.bookings.show', booking.id)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 font-medium">View</Link>
+                                            <Link :href="route('admin.bookings.show', booking.id)" class="text-blue-600 hover:text-blue-800 font-bold transition-colors">View</Link>
                                         </td>
                                     </tr>
                                     <tr v-if="bookings.length === 0">
-                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                        <td colspan="6" class="px-6 py-8 text-center text-slate-500">
                                             No bookings found.
                                         </td>
                                     </tr>
