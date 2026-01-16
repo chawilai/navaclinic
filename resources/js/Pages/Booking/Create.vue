@@ -21,6 +21,18 @@ const availableSlots = ref([]);
 const availableDoctors = ref([]);
 const loadingEx = ref(false);
 const errorMessage = ref('');
+const monthlyAvailability = ref({});
+
+const fetchMonthlyAvailability = async (month, year) => {
+    try {
+        const res = await axios.get(route('api.availability'), {
+            params: { month, year } // No doctor_id needed for global holidays
+        });
+        monthlyAvailability.value = res.data;
+    } catch (e) {
+        console.error("Error fetching monthly availability:", e);
+    }
+};
 
 const steps = [
     { number: 1, title: 'เลือกเวลา (Duration)' },
@@ -170,6 +182,8 @@ const selectedDoctorName = computed(() => {
                 <div v-if="currentStep === 2" class="w-full flex justify-center">
                     <div class="w-full max-w-md">
                         <Calendar 
+                            :availability="monthlyAvailability"
+                            @monthChanged="({ month, year }) => fetchMonthlyAvailability(month, year)"
                             @dateSelected="onDateSelected"
                         />
                          <div v-if="form.appointment_date" class="mt-4 text-center">

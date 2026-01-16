@@ -61,7 +61,7 @@ class BookingController extends Controller
     public function checkAvailability(Request $request)
     {
         $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
+            'doctor_id' => 'nullable|exists:doctors,id',
             'month' => 'required|integer|min:1|max:12',
             'year' => 'required|integer|min:2024',
         ]);
@@ -69,11 +69,14 @@ class BookingController extends Controller
         $start = \Carbon\Carbon::createFromDate($request->year, $request->month, 1);
         $end = $start->copy()->endOfMonth();
 
-        // Get all bookings for this doctor in this month
-        $bookings = Booking::where('doctor_id', $request->doctor_id)
-            ->whereBetween('appointment_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
-            ->get()
-            ->groupBy('appointment_date');
+        // Get all bookings for this doctor in this month IF doctor is selected
+        $bookings = collect([]);
+        if ($request->doctor_id) {
+            $bookings = Booking::where('doctor_id', $request->doctor_id)
+                ->whereBetween('appointment_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+                ->get()
+                ->groupBy('appointment_date');
+        }
 
         // Get special holidays for this month
         $holidays = \App\Models\ClinicHoliday::whereBetween('date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
@@ -81,6 +84,9 @@ class BookingController extends Controller
             ->keyBy(function ($item) {
                 return $item->date->format('Y-m-d');
             });
+
+        // Get weekly schedule
+        $schedules = \App\Models\ClinicSchedule::all()->keyBy('day_of_week');
 
         $availability = [];
         $current = $start->copy();
@@ -91,13 +97,20 @@ class BookingController extends Controller
 
             // Simple logic: If more than 8 bookings, it's full. 
             // Real logic would be checking time slot overlaps.
-            $isFull = $dayBookings->count() >= 8;
+            $isFull = $request->doctor_id && $dayBookings->count() >= 8;
 
             // Check if it's a holiday
             if (isset($holidays[$dateStr])) {
                 $availability[$dateStr] = [
                     'status' => 'closed',
                     'reason' => $holidays[$dateStr]->label
+                ];
+            }
+            // Check if matches weekly closed day
+            elseif (isset($schedules[$current->dayOfWeek]) && !$schedules[$current->dayOfWeek]->is_open) {
+                $availability[$dateStr] = [
+                    'status' => 'closed',
+                    'reason' => 'วันหยุดร้าน' // Regular Shop Holiday
                 ];
             } else {
                 $availability[$dateStr] = [
