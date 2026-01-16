@@ -127,10 +127,7 @@ const features = [
                         </div>
                      </template>
                      <template v-else>
-                        <Link :href="route('login')" class="btn btn-ghost hover:text-blue-700 font-medium transition-transform hover:scale-105 active:scale-95">เข้าสู่ระบบ</Link>
-                        <Link :href="route('register')" class="btn btn-primary text-white rounded-full px-6 bg-blue-600 hover:bg-blue-700 border-none shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 active:translate-y-0">
-                            สมัครสมาชิก
-                        </Link>
+                        <Link :href="route('login')" class="btn btn-ghost hover:text-blue-700 font-medium transition-transform hover:scale-105 active:scale-95 text-sm">เข้าสู่ระบบสำหรับหมอและผู้ดูแลระบบ</Link>
                      </template>
                 </div>
             </div>

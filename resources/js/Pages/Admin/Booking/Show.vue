@@ -58,8 +58,8 @@ const getStatusClass = (status) => {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h3 class="text-lg font-bold mb-4 border-b pb-2">Patient Information</h3>
-                                <p><strong>Name:</strong> {{ booking.user?.name || 'Guest' }}</p>
-                                <p><strong>Email:</strong> {{ booking.user?.email || 'N/A' }}</p>
+                                <p><strong>Name:</strong> {{ booking.user ? booking.user.name : (booking.customer_name || 'Guest') }}</p>
+                                <p><strong>Contact:</strong> {{ booking.user ? booking.user.email : (booking.customer_phone || '-') }}</p>
                                 <div class="mt-4">
                                      <Link v-if="booking.user" :href="route('admin.patients.show', booking.user.id)" class="text-blue-600 hover:underline">
                                         View Patient Profile

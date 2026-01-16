@@ -105,15 +105,7 @@ const submit = () => {
                 </PrimaryButton>
             </div>
 
-             <div class="text-center text-sm text-slate-500 pt-4 border-t border-slate-100">
-                ยังไม่มีบัญชี?
-                <Link
-                    :href="route('register')"
-                    class="font-medium text-blue-600 hover:text-blue-800 ml-1 transition-colors hover:underline"
-                >
-                    สมัครสมาชิก
-                </Link>
-            </div>
+
         </form>
     </GuestLayout>
 </template>

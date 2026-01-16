@@ -18,13 +18,20 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'doctor_id' => 'required|exists:doctors,id',
             'appointment_date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required', // Simple validation for now
+            'start_time' => 'required',
             'duration_minutes' => 'required|in:30,60,90',
             'symptoms' => 'required|string',
-        ]);
+        ];
+
+        if (!auth()->check()) {
+            $rules['customer_name'] = 'required|string|max:255';
+            $rules['customer_phone'] = 'required|string|max:20';
+        }
+
+        $validated = $request->validate($rules);
 
         // Validate Schedule & Holidays
         $date = $validated['appointment_date'];
@@ -42,20 +49,31 @@ class BookingController extends Controller
             return back()->withErrors(['appointment_date' => "Clinic is closed on this day."]);
         }
 
-        // (Optional) Validate time is within open/close window... 
-        // Assuming frontend slots are correct, but good to have if needed.
-
-        $booking = Booking::create([
+        // Prepare data
+        $bookingData = [
             'doctor_id' => $validated['doctor_id'],
-            'user_id' => auth()->id(), // Nullable if guest
             'appointment_date' => $validated['appointment_date'],
             'start_time' => $validated['start_time'],
             'duration_minutes' => $validated['duration_minutes'],
             'symptoms' => $validated['symptoms'],
             'status' => 'pending',
-        ]);
+        ];
 
-        return redirect()->route('dashboard')->with('success', 'Booking created successfully!');
+        if (auth()->check()) {
+            $bookingData['user_id'] = auth()->id();
+        } else {
+            $bookingData['user_id'] = null;
+            $bookingData['customer_name'] = $validated['customer_name'];
+            $bookingData['customer_phone'] = $validated['customer_phone'];
+        }
+
+        $booking = Booking::create($bookingData);
+
+        if (auth()->check()) {
+            return redirect()->route('dashboard')->with('success', 'Booking created successfully!');
+        }
+
+        return redirect()->route('welcome')->with('success', 'Booking created successfully! We will contact you shortly.');
     }
 
     public function checkAvailability(Request $request)

@@ -12,22 +12,82 @@ class PatientController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::where('is_admin', false);
+        // 1. Fetch Registered Users
+        $users = User::where('is_admin', false)->latest()->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'patient_id' => $user->patient_id,
+                'created_at' => $user->created_at,
+                'type' => 'user',
+            ];
+        });
 
+        // 2. Fetch Guests (Group by Name + Phone)
+        $guests = \App\Models\Booking::whereNull('user_id')
+            ->whereNotNull('customer_name')
+            ->select('customer_name', 'customer_phone')
+            ->selectRaw('MIN(created_at) as created_at')
+            ->selectRaw('MIN(id) as first_booking_id')
+            ->selectRaw('MAX(id) as latest_booking_id')
+            ->groupBy('customer_name', 'customer_phone')
+            ->get()
+            ->map(function ($guest) {
+                // Calculate HN-dmY-XXXX
+                $firstBookingDate = \Carbon\Carbon::parse($guest->created_at);
+
+                // Count bookings in that month up to the first booking ID
+                $monthlySequence = \App\Models\Booking::whereYear('created_at', $firstBookingDate->year)
+                    ->whereMonth('created_at', $firstBookingDate->month)
+                    ->where('id', '<=', $guest->first_booking_id)
+                    ->count();
+
+                $hnId = 'HN-' . $firstBookingDate->format('dmY') . '-' . str_pad($monthlySequence, 4, '0', STR_PAD_LEFT);
+
+                return [
+                    'id' => 'guest_' . $guest->latest_booking_id,
+                    'name' => $guest->customer_name,
+                    'email' => $guest->customer_phone,
+                    'phone_number' => $guest->customer_phone,
+                    'patient_id' => $hnId,
+                    'created_at' => $guest->created_at,
+                    'type' => 'guest',
+                    'booking_id' => $guest->latest_booking_id
+                ];
+            });
+
+        // 3. Merge Collection
+        $allPatients = $users->concat($guests);
+
+        // 4. Filter / Search
         if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
-                    ->orWhere('patient_id', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
+            $search = strtolower($request->input('search'));
+            $allPatients = $allPatients->filter(function ($item) use ($search) {
+                return str_contains(strtolower($item['name']), $search) ||
+                    str_contains(strtolower($item['email']), $search) ||
+                    str_contains(strtolower($item['phone_number']), $search) ||
+                    str_contains(strtolower($item['patient_id']), $search);
             });
         }
 
-        $patients = $query->latest()
-            ->paginate(10)
-            ->withQueryString();
+        // 5. Sort by created_at desc
+        $allPatients = $allPatients->sortByDesc('created_at')->values();
+
+        // 6. Paginate manually
+        $perPage = 10;
+        $page = $request->input('page', 1);
+        $total = $allPatients->count();
+        $items = $allPatients->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $patients = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return Inertia::render('Admin/Patients/Index', [
             'patients' => $patients,
@@ -48,6 +108,50 @@ class PatientController extends Controller
         return Inertia::render('Admin/Patients/Show', [
             'patient' => $user,
             'bookings' => $user->bookings()->latest()->get()
+        ]);
+    }
+
+    public function showGuest(\App\Models\Booking $booking)
+    {
+        // Find other bookings by this guest (matching name and phone)
+        $relatedBookings = \App\Models\Booking::whereNull('user_id')
+            ->where('customer_name', $booking->customer_name)
+            ->where('customer_phone', $booking->customer_phone)
+            ->latest()
+            ->with(['doctor'])
+            ->get();
+
+        // Logic to reconstruct the ID
+        // We need the FIRST booking of this guest to establish the "Start Date" and "Sequence"
+        $firstBooking = \App\Models\Booking::whereNull('user_id')
+            ->where('customer_name', $booking->customer_name)
+            ->where('customer_phone', $booking->customer_phone)
+            ->orderBy('id')
+            ->first();
+
+        $firstBookingDate = \Carbon\Carbon::parse($firstBooking->created_at);
+
+        $monthlySequence = \App\Models\Booking::whereYear('created_at', $firstBookingDate->year)
+            ->whereMonth('created_at', $firstBookingDate->month)
+            ->where('id', '<=', $firstBooking->id)
+            ->count();
+
+        $hnId = 'HN-' . $firstBookingDate->format('dmY') . '-' . str_pad($monthlySequence, 4, '0', STR_PAD_LEFT);
+
+        // Construct a "Fake" patient object
+        $guestPatient = [
+            'id' => 'guest_' . $booking->id,
+            'name' => $booking->customer_name,
+            'email' => '-',
+            'phone_number' => $booking->customer_phone,
+            'patient_id' => $hnId,
+            'created_at' => $firstBooking->created_at,
+            'is_guest' => true
+        ];
+
+        return Inertia::render('Admin/Patients/Show', [
+            'patient' => $guestPatient,
+            'bookings' => $relatedBookings
         ]);
     }
 }

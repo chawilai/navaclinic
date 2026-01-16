@@ -63,7 +63,11 @@ watch(search, debounce((value) => {
                                     <tr v-for="patient in patients.data" :key="patient.id" class="hover:bg-blue-50/50 transition-colors">
                                         <td class="px-6 py-4 font-medium text-slate-900">
                                             {{ patient.name }}<br>
-                                            <span class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full mt-1 inline-block">{{ patient.patient_id }}</span>
+                                            <span 
+                                                class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full mt-1 inline-block"
+                                            >
+                                                {{ patient.patient_id || 'ID: ' + patient.id }}
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="text-slate-800">{{ patient.email }}</div>
@@ -71,7 +75,18 @@ watch(search, debounce((value) => {
                                         </td>
                                         <td class="px-6 py-4">{{ new Date(patient.created_at).toLocaleDateString() }}</td>
                                         <td class="px-6 py-4">
-                                            <Link :href="route('admin.patients.show', patient.id)" class="text-blue-600 hover:text-blue-800 font-bold transition-colors">
+                                            <Link 
+                                                v-if="patient.type === 'user'"
+                                                :href="route('admin.patients.show', patient.id)" 
+                                                class="text-blue-600 hover:text-blue-800 font-bold transition-colors"
+                                            >
+                                                View
+                                            </Link>
+                                            <Link 
+                                                v-else
+                                                :href="route('admin.patients.guest.show', patient.booking_id)" 
+                                                class="text-blue-600 hover:text-blue-800 font-bold transition-colors"
+                                            >
                                                 View
                                             </Link>
                                         </td>

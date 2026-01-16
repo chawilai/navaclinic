@@ -1,5 +1,5 @@
 <script setup>
-import { useForm, Link } from '@inertiajs/vue3';
+import { useForm, Link, usePage } from '@inertiajs/vue3';
 import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 import Calendar from '@/Components/Calendar.vue';
@@ -15,7 +15,12 @@ const form = useForm({
     start_time: '',
     doctor_id: '',
     symptoms: '',
+    customer_name: '',
+    customer_phone: '',
 });
+
+const page = usePage();
+const user = computed(() => page.props.auth.user);
 
 const availableSlots = ref([]);
 const availableDoctors = ref([]);
@@ -296,6 +301,31 @@ const selectedDoctorName = computed(() => {
                             required
                         ></textarea>
                         <div v-if="form.errors.symptoms" class="text-red-500 text-sm mt-1">{{ form.errors.symptoms }}</div>
+                    </div>
+
+                    <div v-if="!user" class="mb-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ - นามสกุล (Full Name)</label>
+                            <input 
+                                type="text" 
+                                v-model="form.customer_name" 
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                placeholder="กรอกชื่อของคุณ"
+                                required
+                            />
+                            <div v-if="form.errors.customer_name" class="text-red-500 text-sm mt-1">{{ form.errors.customer_name }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์ (Phone Number)</label>
+                            <input 
+                                type="text" 
+                                v-model="form.customer_phone" 
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                placeholder="กรอกเบอร์โทรศัพท์"
+                                required
+                            />
+                            <div v-if="form.errors.customer_phone" class="text-red-500 text-sm mt-1">{{ form.errors.customer_phone }}</div>
+                        </div>
                     </div>
 
                     <button 

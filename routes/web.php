@@ -63,6 +63,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Patient Management
     Route::get('/patients', [\App\Http\Controllers\Admin\PatientController::class, 'index'])->name('admin.patients.index');
+    Route::get('/patients/guest/{booking}', [\App\Http\Controllers\Admin\PatientController::class, 'showGuest'])->name('admin.patients.guest.show');
     Route::get('/patients/{user}', [\App\Http\Controllers\Admin\PatientController::class, 'show'])->name('admin.patients.show');
 
     // Doctor Management

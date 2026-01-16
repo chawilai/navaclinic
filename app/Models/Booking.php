@@ -17,6 +17,8 @@ class Booking extends Model
         'duration_minutes',
         'symptoms',
         'status',
+        'customer_name',
+        'customer_phone',
     ];
 
     public function doctor()

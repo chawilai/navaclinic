@@ -80,8 +80,14 @@ const getStatusClass = (status) => {
                                 <tbody class="bg-white divide-y divide-slate-100">
                                     <tr v-for="booking in bookings" :key="booking.id" class="hover:bg-blue-50/50 transition-colors">
                                         <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
-                                            {{ booking.user?.name || 'Guest' }}
-                                            <div class="text-xs text-slate-500">{{ booking.user?.email || 'N/A' }}</div>
+                                            <div v-if="booking.user">
+                                                {{ booking.user.name }}
+                                                <div class="text-xs text-slate-500">{{ booking.user.email }}</div>
+                                            </div>
+                                            <div v-else>
+                                                {{ booking.customer_name || 'Guest' }}
+                                                <div class="text-xs text-slate-500">{{ booking.customer_phone || '-' }}</div>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4">{{ booking.doctor?.name || 'Unknown Doctor' }}</td>
                                         <td class="px-6 py-4">
