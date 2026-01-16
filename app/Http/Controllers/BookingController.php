@@ -26,6 +26,25 @@ class BookingController extends Controller
             'symptoms' => 'required|string',
         ]);
 
+        // Validate Schedule & Holidays
+        $date = $validated['appointment_date'];
+
+        // Check Holiday
+        $holiday = \App\Models\ClinicHoliday::where('date', $date)->first();
+        if ($holiday) {
+            return back()->withErrors(['appointment_date' => "Clinic is closed on this date: {$holiday->label}"]);
+        }
+
+        // Check Weekly Schedule
+        $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek;
+        $schedule = \App\Models\ClinicSchedule::where('day_of_week', $dayOfWeek)->first();
+        if (!$schedule || !$schedule->is_open) {
+            return back()->withErrors(['appointment_date' => "Clinic is closed on this day."]);
+        }
+
+        // (Optional) Validate time is within open/close window... 
+        // Assuming frontend slots are correct, but good to have if needed.
+
         $booking = Booking::create([
             'doctor_id' => $validated['doctor_id'],
             'user_id' => auth()->id(), // Nullable if guest
@@ -56,6 +75,13 @@ class BookingController extends Controller
             ->get()
             ->groupBy('appointment_date');
 
+        // Get special holidays for this month
+        $holidays = \App\Models\ClinicHoliday::whereBetween('date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->date->format('Y-m-d');
+            });
+
         $availability = [];
         $current = $start->copy();
 
@@ -67,10 +93,18 @@ class BookingController extends Controller
             // Real logic would be checking time slot overlaps.
             $isFull = $dayBookings->count() >= 8;
 
-            $availability[$dateStr] = [
-                'status' => $isFull ? 'full' : 'available',
-                'count' => $dayBookings->count()
-            ];
+            // Check if it's a holiday
+            if (isset($holidays[$dateStr])) {
+                $availability[$dateStr] = [
+                    'status' => 'closed',
+                    'reason' => $holidays[$dateStr]->label
+                ];
+            } else {
+                $availability[$dateStr] = [
+                    'status' => $isFull ? 'full' : 'available',
+                    'count' => $dayBookings->count()
+                ];
+            }
 
             $current->addDay();
         }
@@ -88,6 +122,21 @@ class BookingController extends Controller
         $date = $request->date;
         $duration = (int) $request->duration;
 
+        // 1. Check for Special Holidays
+        // 1. Check for Special Holidays
+        $holiday = \App\Models\ClinicHoliday::whereDate('date', $date)->first();
+        if ($holiday) {
+            return response()->json(['message' => "Clinic is closed: {$holiday->label}"], 422);
+        }
+
+        // 2. Check Weekly Schedule
+        $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek; // 0 (Sun) - 6 (Sat)
+        $schedule = \App\Models\ClinicSchedule::where('day_of_week', $dayOfWeek)->first();
+
+        if (!$schedule || !$schedule->is_open) {
+            return response()->json(['message' => "Clinic is closed on this day."], 422);
+        }
+
         \Illuminate\Support\Facades\Log::info("Checking slots for Date: $date, Duration: $duration");
 
         $doctors = Doctor::all();
@@ -98,8 +147,9 @@ class BookingController extends Controller
             ->get();
         \Illuminate\Support\Facades\Log::info("Bookings found: " . $bookings->count());
 
-        $startOfDay = \Carbon\Carbon::parse($date . ' 09:00:00');
-        $endOfDay = \Carbon\Carbon::parse($date . ' 17:00:00');
+        // Use dynamic Open/Close times from Schedule
+        $startOfDay = \Carbon\Carbon::parse($date . ' ' . $schedule->open_time);
+        $endOfDay = \Carbon\Carbon::parse($date . ' ' . $schedule->close_time);
 
         $slots = [];
         $current = $startOfDay->copy();
@@ -176,11 +226,6 @@ class BookingController extends Controller
             // The user request "Please add info saying which doctor is not free". 
             // This implies they want to see the busy doctors WHEN they select a time.
             // If a time slot has 0 available doctors, it shouldn't be selectable (or maybe shown but disabled).
-            // Let's assume we still only return slots that have AT LEAST ONE available doctor, 
-            // BUT within that slot, we verify we're passing ALL doctors (including busy ones).
-            // WAIT: If I only return slots with >0 available doctors, then a fully busy slot is hidden.
-            // If the user wants to see "Dr A is busy at 10:00", they can only see 10:00 if Dr B is free?
-            // If 10:00 is fully booked, the user can't select 10:00 to see that Dr A is busy.
             // THIS IS KEY. 
             // However, usually you don't care about a time if NO ONE is free.
             // I'll stick to: Show slot if at least 1 is free. And in that slot, show busy doctors too.

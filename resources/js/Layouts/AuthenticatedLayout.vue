@@ -35,6 +35,9 @@ const isMobileMenuOpen = ref(false);
                         <li v-if="$page.props.auth.user.is_admin">
                              <Link :href="route('admin.doctors.index')" :class="{'text-blue-600 font-bold': route().current('admin.doctors.index')}">รายชื่อหมอ</Link>
                         </li>
+                        <li v-if="$page.props.auth.user.is_admin">
+                             <Link :href="route('admin.settings.index')" :class="{'text-blue-600 font-bold': route().current('admin.settings.index')}">ตั้งค่าร้าน</Link>
+                        </li>
                         <li v-if="!$page.props.auth.user.is_admin"><Link :href="route('dashboard')" :class="{'text-blue-600 font-bold': route().current('dashboard')}">ประวัติการจองคิว</Link></li>
                         <!-- Add other menu items here if needed in the future -->
                     </ul>
@@ -94,6 +97,7 @@ const isMobileMenuOpen = ref(false);
 
                     <Link :href="route('welcome')" class="btn btn-ghost justify-start text-lg font-normal" @click="isMobileMenuOpen = false">หน้าหลัก</Link>
                     <Link v-if="$page.props.auth.user.is_admin" :href="route('admin.dashboard')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.dashboard')}" @click="isMobileMenuOpen = false">แดชบอร์ดแอดมิน</Link>
+                    <Link v-if="$page.props.auth.user.is_admin" :href="route('admin.settings.index')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.settings.index')}" @click="isMobileMenuOpen = false">ตั้งค่าร้าน</Link>
                     <Link v-else :href="route('dashboard')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('dashboard')}" @click="isMobileMenuOpen = false">ประวัติการจองคิว</Link>
 
                     
