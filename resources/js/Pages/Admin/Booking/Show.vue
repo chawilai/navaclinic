@@ -31,7 +31,8 @@ const getStatusClass = (status) => {
         case 'completed':
             return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
         default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+            return 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300';
+
     }
 };
 </script>
@@ -42,19 +43,21 @@ const getStatusClass = (status) => {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                <h2 class="font-semibold text-xl text-slate-800 dark:text-slate-200 leading-tight">
                     Booking #{{ booking.id }}
                 </h2>
-                <Link :href="route('admin.dashboard')" class="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+                <Link :href="route('admin.dashboard')" class="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100">
                     &larr; Back to Dashboard
                 </Link>
             </div>
+
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
+                <div class="bg-white dark:bg-slate-800 overflow-hidden shadow-sm sm:rounded-lg border border-slate-100 dark:border-slate-700">
+                    <div class="p-6 text-slate-900 dark:text-slate-100">
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h3 class="text-lg font-bold mb-4 border-b pb-2">Patient Information</h3>

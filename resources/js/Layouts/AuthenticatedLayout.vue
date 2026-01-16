@@ -174,13 +174,13 @@ const isMobileMenuOpen = ref(false);
         </main>
 
         <!-- Use the same Footer as Welcome page for consistency, or a simplified version? User asked for 'beautiful' so full footer is better -->
-        <footer class="bg-gray-900 text-gray-400 py-12 mt-auto">
+        <footer class="bg-slate-900 text-slate-400 py-12 mt-auto">
              <div class="container mx-auto px-4 text-center">
                  <div class="flex items-center justify-center gap-3 text-white text-xl font-bold mb-6">
                         <img src="/images/logo.png" alt="Logo" class="w-10 h-10 rounded-full bg-white p-1" />
                         NAVA CLINIC
                 </div>
-                <p class="text-sm font-light text-gray-600">
+                <p class="text-sm font-light text-slate-600">
                     &copy; 2026 Nava Clinic. All rights reserved.
                 </p>
             </div>
