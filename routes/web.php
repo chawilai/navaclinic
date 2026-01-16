@@ -39,6 +39,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', function () {
+        $stats = [
+            'total_patients' => \App\Models\User::where('is_admin', false)->count(),
+            'total_doctors' => \App\Models\Doctor::count(),
+            'total_bookings' => \App\Models\Booking::count(),
+            'today_bookings' => \App\Models\Booking::whereDate('appointment_date', now()->today())->count(),
+            'pending_bookings' => \App\Models\Booking::where('status', 'pending')->count(),
+        ];
+
+        $bookings = \App\Models\Booking::with(['user', 'doctor'])->latest()->get();
+
+        return Inertia::render('Admin/Dashboard', [
+            'bookings' => $bookings,
+            'stats' => $stats
+        ]);
+    })->name('admin.dashboard');
+});
+
 require __DIR__ . '/auth.php';
 
 use App\Http\Controllers\BookingController;
