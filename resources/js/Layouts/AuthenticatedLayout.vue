@@ -28,6 +28,9 @@ const isMobileMenuOpen = ref(false);
                         <li v-if="$page.props.auth.user.is_admin">
                              <Link :href="route('admin.patients.index')" :class="{'text-blue-600 font-bold': route().current('admin.patients.index')}">รายชื่อคนไข้</Link>
                         </li>
+                        <li v-if="$page.props.auth.user.is_admin">
+                             <Link :href="route('admin.doctors.index')" :class="{'text-blue-600 font-bold': route().current('admin.doctors.index')}">รายชื่อหมอ</Link>
+                        </li>
                         <li v-if="!$page.props.auth.user.is_admin"><Link :href="route('dashboard')" :class="{'text-blue-600 font-bold': route().current('dashboard')}">ประวัติการจองคิว</Link></li>
                         <!-- Add other menu items here if needed in the future -->
                     </ul>

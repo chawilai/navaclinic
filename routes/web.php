@@ -64,6 +64,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Patient Management
     Route::get('/patients', [\App\Http\Controllers\Admin\PatientController::class, 'index'])->name('admin.patients.index');
     Route::get('/patients/{user}', [\App\Http\Controllers\Admin\PatientController::class, 'show'])->name('admin.patients.show');
+
+    // Doctor Management
+    Route::get('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'index'])->name('admin.doctors.index');
+    Route::get('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'show'])->name('admin.doctors.show');
 });
 
 require __DIR__ . '/auth.php';
