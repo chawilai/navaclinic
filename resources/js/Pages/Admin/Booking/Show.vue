@@ -128,6 +128,12 @@ const getStatusClass = (status) => {
                                 >
                                     Cancel Booking
                                 </button>
+                                <Link
+                                    :href="route('admin.treatment.create', booking.id)"
+                                    class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md hover:shadow-lg transition-all"
+                                >
+                                    Add Treatment Details
+                                </Link>
                             </div>
                         </div>
 
