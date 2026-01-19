@@ -46,6 +46,8 @@ class TreatmentController extends Controller
             'chief_complaint' => 'nullable|string',
             'physical_exam' => 'nullable|string',
             'massage_weight' => 'nullable|string|in:light,medium,heavy',
+            'pain_level_before' => 'nullable|integer|between:0,10',
+            'pain_level_after' => 'nullable|integer|between:0,10',
             'diagnosis' => 'required|string',
             'treatment_details' => 'required|string',
             'notes' => 'nullable|string',

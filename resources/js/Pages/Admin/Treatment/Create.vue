@@ -48,6 +48,8 @@ const form = useForm({
     physical_exam: props.previousRecord?.physical_exam || '',
     
     // Treatment
+    pain_level_before: props.previousRecord?.pain_level_before || '',
+    pain_level_after: props.previousRecord?.pain_level_after || '',
     massage_weight: props.previousRecord?.massage_weight || '',
     diagnosis: props.previousRecord?.diagnosis || '',
     treatment_details: props.previousRecord?.treatment_details || '',
@@ -278,7 +280,7 @@ const submit = () => {
                                 <InputError class="mt-2" :message="form.errors.diagnosis" />
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-bold text-slate-900 mb-1">Treatment Procedures (รายละเอียดการรักษา)</label>
                                     <textarea v-model="form.treatment_details" rows="4" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Treatment steps performed..."></textarea>
@@ -301,6 +303,21 @@ const submit = () => {
                                         </label>
                                     </div>
                                     <InputError class="mt-2" :message="form.errors.massage_weight" />
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 h-fit">
+                                    <label class="block text-sm font-bold text-indigo-900 mb-3">Pain Level (ระดับความเจ็บปวด 0-10)</label>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">Before (ก่อน)</label>
+                                            <input type="number" min="0" max="10" v-model="form.pain_level_before" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm placeholder:text-gray-300" placeholder="0-10">
+                                            <InputError class="mt-2" :message="form.errors.pain_level_before" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-medium text-slate-600 mb-1">After (หลัง)</label>
+                                            <input type="number" min="0" max="10" v-model="form.pain_level_after" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm placeholder:text-gray-300" placeholder="0-10">
+                                            <InputError class="mt-2" :message="form.errors.pain_level_after" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

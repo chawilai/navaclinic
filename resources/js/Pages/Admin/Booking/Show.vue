@@ -323,9 +323,21 @@ const getStatusLabel = (status) => {
                                         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">แผนการรักษา</h4>
                                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm h-full">
                                              <div class="prose prose-sm text-slate-700 mb-4 whitespace-pre-wrap">{{ booking.treatment_record.treatment_details || 'ไม่มีข้อมูลรายละเอียดการรักษา' }}</div>
-                                             <div class="flex items-center gap-2 pt-4 border-t border-slate-100">
-                                                 <span class="text-xs font-bold text-slate-500 uppercase">น้ำหนักมือ:</span>
-                                                 <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold border border-slate-200 capitalize">{{ booking.treatment_record.massage_weight || '-' }}</span>
+                                             <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                                                 <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                                     <span class="text-xs font-bold text-slate-500">น้ำหนักมือ</span>
+                                                     <span class="font-bold text-slate-700 capitalize">{{ booking.treatment_record.massage_weight || '-' }}</span>
+                                                 </div>
+                                                 <div class="grid grid-cols-2 gap-3">
+                                                    <div class="flex flex-col items-center p-3 rounded-xl bg-rose-50 border border-rose-100 text-center">
+                                                        <span class="text-[10px] font-bold text-rose-400 mb-1">ระดับอาการปวดก่อนการรักษา</span>
+                                                        <span class="text-xl font-bold text-rose-700">{{ booking.treatment_record.pain_level_before ?? '-' }}</span>
+                                                    </div>
+                                                    <div class="flex flex-col items-center p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
+                                                         <span class="text-[10px] font-bold text-emerald-400 mb-1">หลังรักษา</span>
+                                                         <span class="text-xl font-bold text-emerald-700">{{ booking.treatment_record.pain_level_after ?? '-' }}</span>
+                                                    </div>
+                                                 </div>
                                              </div>
                                         </div>
                                     </section>

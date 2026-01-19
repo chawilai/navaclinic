@@ -36,6 +36,8 @@ class TreatmentRecord extends Model
         'chief_complaint',
         'physical_exam',
         'massage_weight',
+        'pain_level_before',
+        'pain_level_after',
         'diagnosis',
         'treatment_details',
         'notes',
