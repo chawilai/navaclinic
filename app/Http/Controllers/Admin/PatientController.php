@@ -121,6 +121,7 @@ class PatientController extends Controller
             'weight' => $latestRecord->weight,
             'height' => $latestRecord->height,
             'blood_pressure' => $latestRecord->blood_pressure,
+            'pain_areas' => $latestRecord->pain_areas,
             'last_updated' => $latestRecord->created_at,
         ] : null;
 
@@ -192,6 +193,7 @@ class PatientController extends Controller
             'weight' => $latestRecord->weight,
             'height' => $latestRecord->height,
             'blood_pressure' => $latestRecord->blood_pressure,
+            'pain_areas' => $latestRecord->pain_areas,
             'last_updated' => $latestRecord->created_at,
         ] : null;
 

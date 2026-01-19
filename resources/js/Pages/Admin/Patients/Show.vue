@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import BodyPartSelector from '@/Components/BodyPartSelector.vue';
 
 const props = defineProps({
     patient: {
@@ -162,6 +163,17 @@ const getStatusClass = (status) => {
                                 <div class="p-4 rounded-lg bg-slate-50 border border-slate-100">
                                     <p class="text-xs font-bold text-slate-500 uppercase mb-1">Blood Pressure</p>
                                     <p class="text-xl font-bold text-slate-800">{{ medicalSummary.blood_pressure || '-' }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Treated Areas -->
+                            <div class="col-span-1 md:col-span-2 lg:col-span-4 mt-4 pt-4 border-t border-slate-100" v-if="medicalSummary.pain_areas && medicalSummary.pain_areas.length > 0">
+                                <p class="text-xs font-bold text-slate-500 uppercase mb-4 text-center">Treated Areas (ส่วนร่างกายที่รักษา)</p>
+                                <div class="bg-slate-50 p-6 rounded-lg border border-slate-100">
+                                     <BodyPartSelector 
+                                        :modelValue="medicalSummary.pain_areas" 
+                                        :readonly="true" 
+                                    />
                                 </div>
                             </div>
                         </div>

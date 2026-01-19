@@ -89,9 +89,9 @@ const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fri
                             </label>
 
                             <div v-if="schedule.is_open" class="flex items-center gap-2 ml-4">
-                                <input type="time" v-model="schedule.open_time" class="input input-bordered input-sm" />
+                                <input type="time" v-model="schedule.open_time" class="input input-bordered input-sm w-36" />
                                 <span class="text-slate-400">-</span>
-                                <input type="time" v-model="schedule.close_time" class="input input-bordered input-sm" />
+                                <input type="time" v-model="schedule.close_time" class="input input-bordered input-sm w-36" />
                             </div>
                             <div v-else class="text-sm text-slate-400 italic ml-4">
                                 Closed all day
