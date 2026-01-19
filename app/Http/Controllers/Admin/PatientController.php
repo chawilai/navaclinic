@@ -103,11 +103,34 @@ class PatientController extends Controller
             // Let's stick to patients for consistency with the controller name, but viewing admins is also fine.
         }
 
+        // Helper to get stats and medical summary
+        $stats = [
+            'total_visits' => $user->bookings()->where('status', 'completed')->count(),
+            'last_visit' => $user->bookings()->where('status', 'completed')->latest('appointment_date')->first()?->appointment_date,
+            'next_appointment' => $user->bookings()->whereIn('status', ['pending', 'confirmed'])->where('appointment_date', '>=', now()->toDateString())->orderBy('appointment_date')->orderBy('start_time')->first(),
+        ];
+
+        // Get latest treatment record for medical summary
+        $latestRecord = \App\Models\TreatmentRecord::whereIn('booking_id', $user->bookings()->pluck('id'))
+            ->latest()
+            ->first();
+
+        $medicalSummary = $latestRecord ? [
+            'drug_allergy' => $latestRecord->drug_allergy,
+            'underlying_disease' => $latestRecord->underlying_disease,
+            'weight' => $latestRecord->weight,
+            'height' => $latestRecord->height,
+            'blood_pressure' => $latestRecord->blood_pressure,
+            'last_updated' => $latestRecord->created_at,
+        ] : null;
+
         $user->load(['bookings.doctor']); // Load booking history
 
         return Inertia::render('Admin/Patients/Show', [
             'patient' => $user,
-            'bookings' => $user->bookings()->latest()->get()
+            'bookings' => $user->bookings()->latest()->get(),
+            'stats' => $stats,
+            'medicalSummary' => $medicalSummary
         ]);
     }
 
@@ -149,9 +172,34 @@ class PatientController extends Controller
             'is_guest' => true
         ];
 
+        // Guest Stats
+        $guestBookingIds = $relatedBookings->pluck('id');
+
+        $stats = [
+            'total_visits' => $relatedBookings->where('status', 'completed')->count(),
+            'last_visit' => $relatedBookings->where('status', 'completed')->sortByDesc('appointment_date')->first()?->appointment_date,
+            'next_appointment' => $relatedBookings->whereIn('status', ['pending', 'confirmed'])->where('appointment_date', '>=', now()->toDateString())->sortBy('appointment_date')->first(),
+        ];
+
+        // Get latest treatment record for guest
+        $latestRecord = \App\Models\TreatmentRecord::whereIn('booking_id', $guestBookingIds)
+            ->latest()
+            ->first();
+
+        $medicalSummary = $latestRecord ? [
+            'drug_allergy' => $latestRecord->drug_allergy,
+            'underlying_disease' => $latestRecord->underlying_disease,
+            'weight' => $latestRecord->weight,
+            'height' => $latestRecord->height,
+            'blood_pressure' => $latestRecord->blood_pressure,
+            'last_updated' => $latestRecord->created_at,
+        ] : null;
+
         return Inertia::render('Admin/Patients/Show', [
             'patient' => $guestPatient,
-            'bookings' => $relatedBookings
+            'bookings' => $relatedBookings,
+            'stats' => $stats,
+            'medicalSummary' => $medicalSummary
         ]);
     }
 }
