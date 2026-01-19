@@ -138,7 +138,7 @@ const getStatusLabel = (status) => {
                                     ยืนยันการจอง
                                 </button>
                                 <button
-                                    v-if="booking.status !== 'completed'"
+                                    v-if="booking.status !== 'completed' && booking.status !== 'pending'"
                                     @click="updateStatus('completed')"
                                     class="btn bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md hover:shadow-lg transition-all"
                                     :disabled="form.processing"
@@ -154,6 +154,7 @@ const getStatusLabel = (status) => {
                                     ยกเลิกการจอง
                                 </button>
                                 <Link
+                                    v-if="booking.status !== 'pending'"
                                     :href="route('admin.treatment.create', booking.id)"
                                     class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md hover:shadow-lg transition-all"
                                 >
