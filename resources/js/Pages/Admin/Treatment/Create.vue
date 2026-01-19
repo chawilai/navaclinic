@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     booking: {
@@ -54,7 +55,19 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('admin.treatment.store', props.booking.id));
+    form.post(route('admin.treatment.store', props.booking.id), {
+        onSuccess: () => {
+            Swal.fire({
+                title: 'Data Saved Successfully',
+                text: 'Treatment details have been recorded.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4f46e5', // indigo-600
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+    });
 };
 </script>
 
