@@ -12,18 +12,22 @@ class PatientController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Fetch Registered Users
-        $users = User::where('is_admin', false)->latest()->get()->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone_number' => $user->phone_number,
-                'patient_id' => $user->patient_id,
-                'created_at' => $user->created_at,
-                'type' => 'user',
-            ];
-        });
+        // 1. Fetch Registered Users (excluding admins and doctors)
+        $users = User::where('is_admin', false)
+            ->doesntHave('doctor')
+            ->latest()
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone_number' => $user->phone_number,
+                    'patient_id' => $user->patient_id,
+                    'created_at' => $user->created_at,
+                    'type' => 'user',
+                ];
+            });
 
         // 2. Fetch Guests (Group by Name + Phone)
         $guests = \App\Models\Booking::whereNull('user_id')

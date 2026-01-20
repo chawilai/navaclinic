@@ -27,9 +27,15 @@ Route::get('/siam-retreat', function () {
 })->name('siam.retreat');
 
 Route::get('/dashboard', function () {
-    $bookings = auth()->user()->bookings()->with('doctor')->latest()->get();
+    $user = auth()->user();
+    if ($user->doctor) {
+        $bookings = $user->doctor->bookings()->with('user')->latest()->get();
+    } else {
+        $bookings = $user->bookings()->with('doctor')->latest()->get();
+    }
     return Inertia::render('Dashboard', [
-        'bookings' => $bookings
+        'bookings' => $bookings,
+        'isDoctor' => $user->doctor ? true : false,
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
