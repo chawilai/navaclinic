@@ -34,9 +34,21 @@ class DoctorController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'specialty' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
         ]);
 
-        Doctor::create($validated);
+        $user = \App\Models\User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+        ]);
+
+        Doctor::create([
+            'name' => $validated['name'],
+            'specialty' => $validated['specialty'],
+            'user_id' => $user->id,
+        ]);
 
         return redirect()->back();
     }

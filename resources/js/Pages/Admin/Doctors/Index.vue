@@ -20,6 +20,8 @@ defineProps({
 const form = useForm({
     name: '',
     specialty: '',
+    email: '',
+    password: '',
 });
 
 const showModal = ref(false);
@@ -154,6 +156,30 @@ const deleteDoctor = () => {
                             placeholder="e.g. Cardiologist, Dentist"
                         />
                         <InputError :message="form.errors.specialty" class="mt-2" />
+                    </div>
+
+                    <div v-if="!editingDoctor" class="mb-4">
+                        <InputLabel for="email" value="Email" />
+                        <TextInput
+                            id="email"
+                            v-model="form.email"
+                            type="email"
+                            class="mt-1 block w-full"
+                            placeholder="email@example.com"
+                        />
+                        <InputError :message="form.errors.email" class="mt-2" />
+                    </div>
+
+                    <div v-if="!editingDoctor" class="mb-4">
+                        <InputLabel for="password" value="Password" />
+                        <TextInput
+                            id="password"
+                            v-model="form.password"
+                            type="password"
+                            class="mt-1 block w-full"
+                            placeholder="Min 8 characters"
+                        />
+                        <InputError :message="form.errors.password" class="mt-2" />
                     </div>
 
                     <div class="flex justify-end mt-6">
