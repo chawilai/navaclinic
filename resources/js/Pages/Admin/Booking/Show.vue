@@ -84,6 +84,12 @@ const remainingAmount = computed(() => {
 
 const submitPayment = () => {
     if (!paymentForm.amount) return;
+    
+    // Validate amount
+    if (Number(paymentForm.amount) > remainingAmount.value) {
+        alert(`ยอดชำระเกินกว่าที่ต้องชำระ (สูงสุด ${remainingAmount.value.toLocaleString()} ฿)`);
+        return;
+    }
     paymentForm.post(route('admin.payments.store', props.booking.id), {
         onSuccess: () => {
             paymentForm.reset('amount', 'notes');
@@ -537,7 +543,16 @@ const printReceipt = () => {
                                     <form @submit.prevent="submitPayment" class="space-y-4 mt-6">
                                         <div>
                                             <label class="block text-xs font-bold text-indigo-700 mb-1">จำนวนเงินที่ชำระ / Amount</label>
-                                            <input type="number" v-model="paymentForm.amount" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500" placeholder="0.00" required>
+                                            <input type="number" v-model="paymentForm.amount" 
+                                                class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500" 
+                                                placeholder="0.00" 
+                                                step="0.01"
+                                                min="0"
+                                                :max="remainingAmount"
+                                                required>
+                                            <div v-if="paymentForm.amount > remainingAmount" class="text-rose-500 text-xs mt-1">
+                                                ยอดชำระเกินกว่าที่ต้องชำระ (สูงสุด {{ remainingAmount.toLocaleString() }} ฿)
+                                            </div>
                                         </div>
                                         <div>
                                             <label class="block text-xs font-bold text-indigo-700 mb-1">วิธีชำระ / Method</label>
