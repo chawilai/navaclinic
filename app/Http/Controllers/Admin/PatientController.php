@@ -115,16 +115,35 @@ class PatientController extends Controller
         ];
 
         // Get latest treatment record for medical summary
-        $latestRecord = \App\Models\TreatmentRecord::whereIn('booking_id', $user->bookings()->pluck('id'))
+        // CHANGED: Source from Visits instead of Bookings to include walk-ins
+        $latestRecord = \App\Models\TreatmentRecord::whereIn('visit_id', $user->visits()->pluck('id'))
             ->latest()
             ->first();
 
+        // Fallback: If no visit-based record, check booking-based (legacy support)
+        if (!$latestRecord) {
+            $latestRecord = \App\Models\TreatmentRecord::whereIn('booking_id', $user->bookings()->pluck('id'))
+                ->latest()
+                ->first();
+        }
+
         $medicalSummary = $latestRecord ? [
-            'drug_allergy' => $latestRecord->drug_allergy,
-            'underlying_disease' => $latestRecord->underlying_disease,
+            // Existing fields
             'weight' => $latestRecord->weight,
             'height' => $latestRecord->height,
             'blood_pressure' => $latestRecord->blood_pressure,
+
+            // New Vitals
+            'temperature' => $latestRecord->temperature,
+            'pulse_rate' => $latestRecord->pulse_rate,
+            'respiratory_rate' => $latestRecord->respiratory_rate,
+
+            // Medical Info
+            'drug_allergy' => $latestRecord->drug_allergy,
+            'underlying_disease' => $latestRecord->underlying_disease,
+            'chief_complaint' => $latestRecord->chief_complaint,
+            'diagnosis' => $latestRecord->diagnosis,
+
             'pain_areas' => $latestRecord->pain_areas,
             'last_updated' => $latestRecord->created_at,
         ] : null;
@@ -259,16 +278,31 @@ class PatientController extends Controller
         ];
 
         // Get latest treatment record for guest
-        $latestRecord = \App\Models\TreatmentRecord::whereIn('booking_id', $guestBookingIds)
-            ->latest()
+        // CHANGED: Source from Visits instead of Bookings
+        $latestRecord = \App\Models\TreatmentRecord::whereIn('booking_id', $guestBookingIds) // Guests usually stick to bookings for now, but better logic might be needed if they have walk-in visits without user_id?
+            ->latest() // existing logic for guests assumes booking-based for now as they are "Guests" in booking system mostly.
             ->first();
 
+        // NOTE: For guests, linking visits might be tricky if they don't have a user_id. 
+        // Visits usually demand a patient_id (User). 
+        // So for "Guests" coming from Bookings table, we probably still rely on Booking IDs.
+        // But let's add the extra fields anyway.
+
         $medicalSummary = $latestRecord ? [
-            'drug_allergy' => $latestRecord->drug_allergy,
-            'underlying_disease' => $latestRecord->underlying_disease,
             'weight' => $latestRecord->weight,
             'height' => $latestRecord->height,
             'blood_pressure' => $latestRecord->blood_pressure,
+
+            // New Vitals
+            'temperature' => $latestRecord->temperature,
+            'pulse_rate' => $latestRecord->pulse_rate,
+            'respiratory_rate' => $latestRecord->respiratory_rate,
+
+            'drug_allergy' => $latestRecord->drug_allergy,
+            'underlying_disease' => $latestRecord->underlying_disease,
+            'chief_complaint' => $latestRecord->chief_complaint,
+            'diagnosis' => $latestRecord->diagnosis,
+
             'pain_areas' => $latestRecord->pain_areas,
             'last_updated' => $latestRecord->created_at,
         ] : null;

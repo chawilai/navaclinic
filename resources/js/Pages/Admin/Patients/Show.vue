@@ -269,54 +269,183 @@ const patientAge = computed(() => {
 
                         <!-- Medical Overview -->
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                                <h3 class="font-bold text-slate-800 text-lg">Latest Medical Overview</h3>
-                                <span v-if="medicalSummary" class="text-xs font-medium bg-slate-100 text-slate-500 px-2 py-1 rounded">
-                                    Updated: {{ new Date(medicalSummary.last_updated).toLocaleDateString() }}
-                                </span>
+                             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                    <HeartIcon class="w-5 h-5 text-rose-500" />
+                                    Latest Medical Overview
+                                </h3>
+                                <div v-if="medicalSummary" class="flex items-center gap-2">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Last Update</span>
+                                    <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-md shadow-sm">
+                                        {{ new Date(medicalSummary.last_updated).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) }}
+                                    </span>
+                                </div>
                             </div>
                             
                             <div v-if="medicalSummary" class="p-6">
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                                    <div class="p-4 bg-slate-50 rounded-xl text-center">
-                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">Weight</p>
-                                        <p class="text-2xl font-bold text-slate-800">{{ medicalSummary.weight || '-' }} <span class="text-sm font-normal text-slate-500">kg</span></p>
-                                    </div>
-                                    <div class="p-4 bg-slate-50 rounded-xl text-center">
-                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">Height</p>
-                                        <p class="text-2xl font-bold text-slate-800">{{ medicalSummary.height || '-' }} <span class="text-sm font-normal text-slate-500">cm</span></p>
-                                    </div>
-                                    <div class="p-4 bg-slate-50 rounded-xl text-center">
-                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">BMI</p>
-                                        <p class="text-2xl font-bold text-slate-800">
-                                             {{ (medicalSummary.weight && medicalSummary.height) ? (medicalSummary.weight / ((medicalSummary.height / 100) * (medicalSummary.height / 100))).toFixed(1) : '-' }}
-                                        </p>
-                                    </div>
-                                    <div class="p-4 bg-slate-50 rounded-xl text-center">
-                                        <p class="text-xs text-slate-400 uppercase font-bold mb-1">BP</p>
-                                        <p class="text-2xl font-bold text-slate-800">{{ medicalSummary.blood_pressure || '-' }}</p>
+                                <!-- 1. Vitals Row -->
+                                <div class="mb-8">
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                        <div class="w-1 h-3 bg-indigo-500 rounded-full"></div>
+                                        Vital Signs
+                                    </h4>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                                        <!-- BP -->
+                                        <div class="p-3 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex flex-col items-center justify-center relative overflow-hidden group">
+                                            <div class="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <HeartIcon class="w-8 h-8 text-indigo-600" />
+                                            </div>
+                                            <p class="text-[10px] text-indigo-400 uppercase font-bold mb-1">Blood Pressure</p>
+                                            <p class="text-lg font-black text-indigo-700">{{ medicalSummary.blood_pressure || '-' }}</p>
+                                            <p class="text-[10px] text-indigo-400 font-medium">mmHg</p>
+                                        </div>
+                                         <!-- Pulse -->
+                                         <div class="p-3 rounded-2xl bg-rose-50/50 border border-rose-100 flex flex-col items-center justify-center relative overflow-hidden group">
+                                            <div class="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-rose-600">
+                                                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                                </svg>
+                                            </div>
+                                            <p class="text-[10px] text-rose-400 uppercase font-bold mb-1">Pulse Rate</p>
+                                            <p class="text-lg font-black text-rose-600">{{ medicalSummary.pulse_rate || '-' }}</p>
+                                            <p class="text-[10px] text-rose-400 font-medium">bpm</p>
+                                        </div>
+                                         <!-- Temp -->
+                                         <div class="p-3 rounded-2xl bg-amber-50/50 border border-amber-100 flex flex-col items-center justify-center">
+                                            <p class="text-[10px] text-amber-400 uppercase font-bold mb-1">Temperature</p>
+                                            <p class="text-lg font-black text-amber-600">{{ medicalSummary.temperature || '-' }}</p>
+                                            <p class="text-[10px] text-amber-400 font-medium">°C</p>
+                                        </div>
+                                        <!-- Weight -->
+                                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center">
+                                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Weight</p>
+                                            <p class="text-lg font-black text-slate-700">{{ medicalSummary.weight || '-' }}</p>
+                                            <p class="text-[10px] text-slate-400 font-medium">kg</p>
+                                        </div>
+                                        <!-- Height -->
+                                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center">
+                                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Height</p>
+                                            <p class="text-lg font-black text-slate-700">{{ medicalSummary.height || '-' }}</p>
+                                            <p class="text-[10px] text-slate-400 font-medium">cm</p>
+                                        </div>
+                                        <!-- BMI -->
+                                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center">
+                                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">BMI</p>
+                                            <p class="text-lg font-black text-slate-700">
+                                                 {{ (medicalSummary.weight && medicalSummary.height) ? (medicalSummary.weight / ((medicalSummary.height / 100) * (medicalSummary.height / 100))).toFixed(1) : '-' }}
+                                            </p>
+                                            <p class="text-[10px] text-slate-400 font-medium">kg/m²</p>
+                                        </div>
                                     </div>
                                 </div>
 
+                                <!-- 2. Clinical Info Row -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
+                                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+                                        <h5 class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            Chief Complaint (อาการสำคัญ)
+                                        </h5>
+                                        <p class="text-slate-700 font-medium text-sm leading-relaxed pl-1">
+                                            {{ medicalSummary.chief_complaint || '-' }}
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
+                                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+                                        <h5 class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Diagnosis (การวินิจฉัย)
+                                        </h5>
+                                        <p class="text-slate-700 font-medium text-sm leading-relaxed pl-1">
+                                            {{ medicalSummary.diagnosis || '-' }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Pain Areas -->
                                 <div v-if="medicalSummary.pain_areas && medicalSummary.pain_areas.length > 0">
-                                    <h4 class="text-sm font-bold text-slate-700 mb-4 flex items-center">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
-                                        Treated Areas (ส่วนที่รักษาล่าสุด)
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                        <div class="w-1 h-3 bg-emerald-500 rounded-full"></div>
+                                        Treated Areas
                                     </h4>
-                                    <div class="bg-slate-50 rounded-xl p-6 border border-slate-100 flex justify-center">
-                                         <BodyPartSelector 
-                                            :modelValue="medicalSummary.pain_areas" 
-                                            :readonly="true" 
-                                        />
+                                    
+                                    <div class="rounded-2xl border border-slate-100 bg-slate-50/30 p-6">
+                                        <div class="flex flex-col 2xl:flex-row gap-8 items-start">
+                                            
+                                            <!-- Body Map Card -->
+                                            <div class="w-full 2xl:w-auto flex-shrink-0 sticky top-6">
+                                                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex justify-center">
+                                                     <div class="origin-top scale-90 sm:scale-100">
+                                                         <BodyPartSelector 
+                                                            :modelValue="medicalSummary.pain_areas" 
+                                                            :readonly="true" 
+                                                        />
+                                                     </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Details List -->
+                                            <div class="w-full 2xl:flex-1">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-1 gap-6 h-full content-start">
+                                                    <div v-for="(item, idx) in medicalSummary.pain_areas" :key="idx" class="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group border-slate-200 flex flex-col gap-5 relative overflow-hidden">
+                                                         
+                                                         <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-slate-50 to-transparent -mr-8 -mt-8 rounded-full pointer-events-none"></div>
+
+                                                         <!-- Header -->
+                                                         <div class="flex items-center gap-3 z-10">
+                                                            <div class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center border border-rose-100 flex-shrink-0">
+                                                                <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
+                                                            </div>
+                                                            <span class="font-bold text-slate-800 text-lg leading-tight">{{ item.area }}</span>
+                                                         </div>
+
+                                                         <!-- Pain Dashboard -->
+                                                         <div v-if="item.pain_level || item.pain_level_after" class="flex items-center justify-between bg-slate-50 rounded-xl p-4 border border-slate-100 z-10 transition-colors group-hover:border-slate-200 group-hover:bg-slate-50/80">
+                                                            <!-- Before -->
+                                                            <div class="flex flex-col items-center px-4 border-r border-slate-200">
+                                                                <span class="text-xs uppercase font-bold text-slate-400 mb-1">Before</span>
+                                                                <span class="text-3xl font-black text-rose-500 tracking-tight">{{ item.pain_level || '-' }}</span>
+                                                            </div>
+                                                            
+                                                            <!-- Icon -->
+                                                            <div class="text-slate-400">
+                                                                <ArrowLongRightIcon class="w-6 h-6" />
+                                                            </div>
+
+                                                            <!-- After -->
+                                                            <div class="flex flex-col items-center px-4">
+                                                                <span class="text-xs uppercase font-bold text-slate-400 mb-1">After</span>
+                                                                <span class="text-3xl font-black text-emerald-500 tracking-tight">{{ item.pain_level_after || '-' }}</span>
+                                                            </div>
+                                                         </div>
+
+                                                        <!-- Note -->
+                                                        <div class="text-sm text-slate-600 leading-relaxed z-10 pl-1">
+                                                            <span v-if="item.symptom">{{ item.symptom }}</span>
+                                                            <span v-else class="italic text-slate-400 text-xs">No specific symptoms recorded</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div v-else class="p-12 text-center">
-                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 text-slate-300 mb-4">
-                                    <ClipboardDocumentListIcon class="w-8 h-8" />
+                            <div v-else class="p-16 flex flex-col items-center justify-center text-center bg-slate-50/30">
+                                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300">
+                                    <ClipboardDocumentListIcon class="w-10 h-10" />
                                 </div>
-                                <p class="text-slate-500 font-medium">No medical records available yet.</p>
-                                <p class="text-slate-400 text-sm">Vital signs and treatment areas will appear here after the first visit.</p>
+                                <h4 class="text-slate-800 font-bold text-lg mb-1">No Medical Records Yet</h4>
+                                <p class="text-slate-500 text-sm max-w-xs mx-auto">
+                                    Vital signs, diagnosis, and treatment areas will appear here after the first visit is recorded.
+                                </p>
                             </div>
                         </div>
 
