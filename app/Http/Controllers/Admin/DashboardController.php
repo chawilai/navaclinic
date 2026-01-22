@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Doctor;
 use App\Models\User;
+use App\Models\Visit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -111,8 +112,15 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(10);
 
+        // 7. Latest Visits (Completed Checkups)
+        $latestVisits = Visit::with(['patient', 'doctor', 'treatmentRecord'])
+            ->latest()
+            ->limit(5)
+            ->get();
+
         return Inertia::render('Admin/Dashboard', [
             'bookings' => $latestBookings,
+            'latestVisits' => $latestVisits,
             'upcomingBookings' => $upcomingBookings,
             'stats' => $stats,
             'chartData' => $chartData,

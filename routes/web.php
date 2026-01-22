@@ -84,6 +84,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/settings/holidays', [\App\Http\Controllers\Admin\SettingController::class, 'storeHoliday'])->name('admin.settings.holidays.store');
     Route::delete('/settings/holidays/{holiday}', [\App\Http\Controllers\Admin\SettingController::class, 'destroyHoliday'])->name('admin.settings.holidays.destroy');
     // Visit Management
+    Route::get('/visits/check-availability', [\App\Http\Controllers\Admin\VisitController::class, 'checkAvailability'])->name('admin.visits.check-availability');
     Route::get('/visits/create', [\App\Http\Controllers\Admin\VisitController::class, 'create'])->name('admin.visits.create');
     Route::post('/visits', [\App\Http\Controllers\Admin\VisitController::class, 'store'])->name('admin.visits.store');
     Route::get('/visits/{visit}', [\App\Http\Controllers\Admin\VisitController::class, 'show'])->name('admin.visits.show');

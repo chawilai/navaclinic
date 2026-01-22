@@ -21,9 +21,13 @@ const form = useForm({
     visit_date: '',
     symptoms: '',
     notes: '',
+    duration_minutes: 30, // Default duration
 });
 
 const visitTime = ref('');
+const timeSlots = ref([]);
+const availableDoctors = ref([]);
+const loadingSlots = ref(false);
 
 // Calculate the correct route for the patient (Guest vs Registered)
 const patientRoute = computed(() => {
@@ -37,11 +41,9 @@ const patientRoute = computed(() => {
 
 // Initialize form type
 onMounted(() => {
-    // Set default time for walk-in to now
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    visitTime.value = `${hours}:${minutes}`;
+    if (mode.value === 'walk_in') {
+        fetchTimeSlots();
+    }
 });
 
 watch(mode, (newMode) => {
@@ -53,11 +55,11 @@ watch(mode, (newMode) => {
     } else {
         form.booking_id = null;
         selectedBooking.value = null;
-        // Reset time to now
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        visitTime.value = `${hours}:${minutes}`;
+        visitTime.value = '';
+        form.doctor_id = '';
+        form.duration_minutes = 30;
+        availableDoctors.value = [];
+        fetchTimeSlots();
     }
 });
 
@@ -67,6 +69,48 @@ watch(selectedBooking, (booking) => {
         form.symptoms = booking.symptoms || ''; // Pre-fill symptoms from booking
     }
 });
+
+const updateDuration = (duration) => {
+    if (form.duration_minutes === duration) return;
+    form.duration_minutes = duration;
+    visitTime.value = ''; // Reset selection
+    form.doctor_id = '';
+    availableDoctors.value = [];
+    fetchTimeSlots();
+};
+
+const fetchTimeSlots = async () => {
+    loadingSlots.value = true;
+    timeSlots.value = [];
+    
+    try {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        const response = await window.axios.get(route('api.available-slots'), {
+            params: {
+                date: dateStr,
+                duration: form.duration_minutes
+            }
+        });
+
+        timeSlots.value = response.data;
+    } catch (error) {
+        console.error('Error fetching slots:', error);
+    } finally {
+        loadingSlots.value = false;
+    }
+};
+
+const selectTimeSlot = (slot) => {
+    visitTime.value = slot.time;
+    // slot.doctors contains local doctor objects with status
+    availableDoctors.value = slot.doctors;
+    form.doctor_id = ''; // Reset doctor selection when time changes
+};
 
 const submit = () => {
     if (!confirm('Are you sure you want to start this visit?')) return;
@@ -167,20 +211,97 @@ const submit = () => {
 
                             <!-- MODE: WALK-IN -->
                             <div v-if="mode === 'walk_in'" class="space-y-6">
+                                <!-- Duration Selection -->
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Select Doctor (เลือกหมอ)</label>
-                                    <select v-model="form.doctor_id" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500">
-                                        <option value="" disabled>Select a doctor...</option>
-                                        <option v-for="doctor in doctors" :key="doctor.id" :value="doctor.id">
-                                            {{ doctor.name }}
-                                        </option>
-                                    </select>
-                                    <InputError :message="form.errors.doctor_id" class="mt-2" />
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">1. Select Duration (เลือกระยะเวลา)</label>
+                                    <div class="flex gap-3">
+                                        <button 
+                                            v-for="duration in [30, 60, 90]" 
+                                            :key="duration"
+                                            type="button"
+                                            @click="updateDuration(duration)"
+                                            :class="{'bg-emerald-600 text-white ring-2 ring-emerald-300 ring-offset-1 shadow-md': form.duration_minutes === duration, 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-emerald-300': form.duration_minutes !== duration}"
+                                            class="flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all focus:outline-none"
+                                        >
+                                            {{ duration }} Minutes
+                                        </button>
+                                    </div>
                                 </div>
 
+                                <!-- Time Slot Selection -->
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Time (เวลาที่เข้าตรวจ)</label>
-                                    <input type="time" v-model="visitTime" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">2. Select Time (เลือกเวลา)</label>
+                                    
+                                    <div v-if="loadingSlots" class="text-center py-8 text-slate-500">
+                                        <svg class="animate-spin h-6 w-6 text-emerald-500 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Loading available slots...
+                                    </div>
+                                    
+                                    <div v-else-if="timeSlots.length === 0" class="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-500">
+                                        No available time slots for today.
+                                    </div>
+
+                                    <div v-else class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 max-h-60 overflow-y-auto p-1">
+                                        <button 
+                                            v-for="slot in timeSlots" 
+                                            :key="slot.time"
+                                            type="button"
+                                            @click="selectTimeSlot(slot)"
+                                            :class="{'bg-emerald-600 text-white shadow-md transform scale-105': visitTime === slot.time, 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-400 hover:text-emerald-600': visitTime !== slot.time}"
+                                            class="py-2 px-1 rounded-lg text-sm font-medium transition-all text-center"
+                                        >
+                                            {{ slot.time }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Doctor Selection (Based on Slot) -->
+                                <div v-if="visitTime">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">3. Select Doctor (เลือกหมอ)</label>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div 
+                                            v-for="doctor in availableDoctors" 
+                                            :key="doctor.id"
+                                            @click="doctor.status === 'available' && (form.doctor_id = doctor.id)"
+                                            :class="[
+                                                'relative border rounded-xl p-3 transition-all flex items-start gap-3',
+                                                doctor.status === 'available' 
+                                                    ? (form.doctor_id === doctor.id ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500 cursor-pointer' : 'border-slate-200 bg-white hover:border-emerald-300 cursor-pointer')
+                                                    : 'border-slate-100 bg-slate-50 opacity-70 cursor-not-allowed'
+                                            ]"
+                                        >
+                                            <div :class="[
+                                                'h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0',
+                                                doctor.status === 'available' ? 'bg-emerald-500' : 'bg-slate-400'
+                                            ]">
+                                                {{ doctor.name.charAt(0) }}
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-bold text-slate-800 text-sm truncate">{{ doctor.name }}</div>
+                                                <div class="text-xs text-slate-500 mb-1">{{ doctor.specialty || 'General Practitioner' }}</div>
+                                                
+                                                <!-- Status Badge -->
+                                                <div v-if="doctor.status === 'available'" class="inline-flex items-center text-[10px] text-emerald-600 font-bold bg-white px-2 py-0.5 rounded border border-emerald-100 shadow-sm">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                                    Available
+                                                </div>
+                                                <div v-else class="text-[10px] text-red-500 font-bold bg-red-50 px-2 py-1 rounded inline-block border border-red-100">
+                                                    Busy: {{ doctor.reason }}
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Checkmark -->
+                                            <div v-if="form.doctor_id === doctor.id" class="absolute top-3 right-3 text-emerald-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <InputError :message="form.errors.doctor_id" class="mt-2" />
                                 </div>
 
                                 <div>
@@ -189,7 +310,7 @@ const submit = () => {
                                     <InputError :message="form.errors.symptoms" class="mt-2" />
                                 </div>
                             </div>
-
+                            
                             <!-- COMMON: NOTES -->
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">Additional Notes (บันทึกเพิ่มเติม)</label>
@@ -202,8 +323,8 @@ const submit = () => {
                                 </Link>
                                 <button 
                                     type="submit" 
-                                    :disabled="form.processing || (mode === 'booking' && !form.booking_id)" 
-                                    :class="{'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200': mode === 'booking', 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200': mode === 'walk_in', 'opacity-50 cursor-not-allowed': form.processing || (mode === 'booking' && !form.booking_id)}"
+                                    :disabled="form.processing || (mode === 'booking' && !form.booking_id) || (mode === 'walk_in' && !form.doctor_id)" 
+                                    :class="{'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200': mode === 'booking', 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200': mode === 'walk_in', 'opacity-50 cursor-not-allowed': form.processing || (mode === 'booking' && !form.booking_id) || (mode === 'walk_in' && !form.doctor_id)}"
                                     class="px-6 py-2.5 text-white rounded-lg font-bold shadow-lg transition-all"
                                 >
                                     {{ mode === 'booking' ? 'Confirm Visit' : 'Confirm Walk-in' }}

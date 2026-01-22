@@ -68,7 +68,7 @@ class VisitController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        DB::transaction(function () use ($validated, $request) {
             $patientId = $validated['patient_id'];
 
             // Handle Guest Registration if needed
@@ -128,15 +128,27 @@ class VisitController extends Controller
                 // Update Booking Status to completed
                 $booking->update(['status' => 'completed']);
             } else {
-                // Walk-in
+                // Visit::create([
+                //     'visit_date' => $validated['visit_date'],
+                //     'patient_id' => $patientId,
+                //     'doctor_id' => $validated['doctor_id'],
+                //     'booking_id' => null,
+                //     'symptoms' => $validated['symptoms'],
+                //     'notes' => $validated['notes'] ?? null,
+                //     'status' => 'ongoing',
+                //     'duration_minutes' => $request->input('duration_minutes', 30),
+                // ]);
+
+                // Using array syntax for create to ensure clarity
                 Visit::create([
                     'visit_date' => $validated['visit_date'],
                     'patient_id' => $patientId,
                     'doctor_id' => $validated['doctor_id'],
-                    'booking_id' => null,
+                    'booking_id' => null, // Explicitly null for walk-in
                     'symptoms' => $validated['symptoms'],
                     'notes' => $validated['notes'] ?? null,
                     'status' => 'ongoing',
+                    'duration_minutes' => $request->integer('duration_minutes', 30),
                 ]);
             }
         });
@@ -144,21 +156,63 @@ class VisitController extends Controller
         // We can't redirect to the OLD guest ID, we must redirect to the NEW user ID if migrated.
         // Re-calculate ID
         $redirectId = $validated['patient_id'];
-        if (str_starts_with($redirectId, 'guest_')) {
-            // Find the user we just created?
-            // We are inside transaction, simpler to capture the ID in outer scope or assume the redirect logic query.
-            // But we need the ID. 
-            // Let's rely on finding it again or better: 
-            // To solve this cleanly, I should capture the new user ID.
-            // But the transaction closure scope variables are by value unless object.
-            // I'll refactor the Redirect to be dynamic.
+
+        // Note: The logic for redirecting appropriately is implied to be handled by the frontend knowing the patient path or simple redirect index.
+        return redirect()->route('admin.patients.index')->with('success', 'Visit started successfully.');
+    }
+
+    public function checkAvailability(Request $request)
+    {
+        $request->validate([
+            'doctor_id' => 'required|exists:doctors,id',
+            'start_time' => 'required|date_format:H:i',
+            'duration_minutes' => 'required|integer|in:30,60,90',
+            'date' => 'required|date',
+        ]);
+
+        $doctor = Doctor::find($request->doctor_id);
+        $start = \Carbon\Carbon::parse($request->date . ' ' . $request->start_time);
+        $end = $start->copy()->addMinutes($request->duration_minutes);
+
+        // Check Bookings
+        $conflictingBooking = Booking::where('doctor_id', $doctor->id)
+            ->where('appointment_date', $request->date)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->get()
+            ->first(function ($booking) use ($start, $end) {
+                $bStart = \Carbon\Carbon::parse($booking->appointment_date . ' ' . $booking->start_time);
+                $bEnd = $bStart->copy()->addMinutes($booking->duration_minutes);
+                return $start < $bEnd && $end > $bStart;
+            });
+
+        if ($conflictingBooking) {
+            return response()->json([
+                'available' => false,
+                'reason' => 'Doctor has a booking at this time.'
+            ]);
         }
 
-        // Since I cannot change the Redirect line easily in this block replacement without including it...
-        // Wait, the ReplacementContent INCLUDES the entire methods.
-        // So I can write the redirect logic correctly.
+        // Check Visits
+        $conflictingVisit = Visit::where('doctor_id', $doctor->id)
+            ->whereDate('visit_date', $request->date)
+            ->whereIn('status', ['ongoing', 'pending'])
+            ->get()
+            ->first(function ($visit) use ($start, $end) {
+                if ($visit->booking_id)
+                    return false; // Already checked in booking
+                $vStart = \Carbon\Carbon::parse($visit->visit_date);
+                $vEnd = $vStart->copy()->addMinutes($visit->duration_minutes ?? 30);
+                return $start < $vEnd && $end > $vStart;
+            });
 
-        return redirect()->route('admin.patients.index')->with('success', 'Visit started successfully.');
+        if ($conflictingVisit) {
+            return response()->json([
+                'available' => false,
+                'reason' => 'Doctor is currently in a visit.'
+            ]);
+        }
+
+        return response()->json(['available' => true]);
     }
     public function show(Visit $visit)
     {

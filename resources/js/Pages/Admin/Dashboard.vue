@@ -22,6 +22,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    latestVisits: {
+        type: Array,
+        required: true,
+    },
     upcomingBookings: {
         type: Array,
         required: true,
@@ -156,6 +160,29 @@ const getStatusClass = (status) => {
         default:
             return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
+};
+
+const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+    }).format(date);
+};
+
+const formatDateTime = (dateString) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    }).format(date);
 };
 </script>
 
@@ -371,6 +398,61 @@ const getStatusClass = (status) => {
                     </div>
                 </div>
             </div>
-        </div>
+
+                <!-- Latest Visits Table -->
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100 mt-6">
+                    <div class="p-6 text-slate-900">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-slate-800">Latest Visits</h3>
+                            <!-- TODO: Implement Visits Index -->
+                            <!-- <Link :href="route('admin.visits.index')" class="text-sm text-blue-600 hover:text-blue-900 font-medium">
+                                View All Visits &rarr;
+                            </Link> -->
+                        </div>
+                        
+                        <div class="overflow-x-auto rounded-lg border border-slate-200">
+                            <table class="w-full text-sm text-left rtl:text-right text-slate-600">
+                                <thead class="text-xs text-slate-700 uppercase bg-emerald-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Patient</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Doctor</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Date & Time</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Diagnosis</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-slate-100">
+                                    <tr v-for="visit in latestVisits" :key="visit.id" class="hover:bg-emerald-50/50 transition-colors">
+                                        <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
+                                            <div v-if="visit.patient">
+                                                {{ visit.patient.name }}
+                                                <div class="text-xs text-slate-500">{{ visit.patient.phone_number || '-' }}</div>
+                                            </div>
+                                            <div v-else>
+                                                Walk-in Customer
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">{{ visit.doctor?.name || 'Unknown Doctor' }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="font-medium text-slate-900">{{ formatDateTime(visit.visit_date) }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 truncate max-w-xs">{{ visit.treatment_record?.diagnosis || visit.symptoms || '-' }}</td>
+                                        <td class="px-6 py-4">
+                                            <Link :href="route('admin.visits.show', visit.id)" class="inline-flex items-center px-3 py-1 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-500 active:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                                View
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="latestVisits.length === 0">
+                                        <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                            No visits recorded yet.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </AuthenticatedLayout>
 </template>
