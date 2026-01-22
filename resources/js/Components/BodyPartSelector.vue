@@ -185,10 +185,10 @@ const isSelected = (part) => {
             </div>
         </div>
         
-        <div class="mt-4 flex flex-wrap gap-2 justify-center max-w-lg">
+        <div v-if="!readonly" class="mt-4 flex flex-wrap gap-2 justify-center max-w-lg">
             <span v-for="part in selectedParts" :key="typeof part === 'object' ? part.area : part" class="px-2 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-bold border border-rose-200">
                 {{ formatLabel(part) }}
-                <button @click.stop="togglePart(part)" class="ml-1 text-rose-400 hover:text-rose-900" v-if="!readonly">&times;</button>
+                <button @click.stop="togglePart(part)" class="ml-1 text-rose-400 hover:text-rose-900">&times;</button>
             </span>
         </div>
     </div>
