@@ -23,7 +23,7 @@ const props = defineProps({
         required: true,
     },
     latestVisits: {
-        type: Array,
+        type: Object,
         required: true,
     },
     upcomingBookings: {
@@ -215,7 +215,7 @@ const formatDate = (dateString) => {
 const formatDateTime = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-GB', {
+    return new Intl.DateTimeFormat('th-TH', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',
@@ -463,26 +463,22 @@ const formatDateTime = (dateString) => {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100 mt-6">
                     <div class="p-6 text-slate-900">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold text-slate-800">Latest Visits</h3>
-                            <!-- TODO: Implement Visits Index -->
-                            <!-- <Link :href="route('admin.visits.index')" class="text-sm text-blue-600 hover:text-blue-900 font-medium">
-                                View All Visits &rarr;
-                            </Link> -->
+                            <h3 class="text-lg font-bold text-slate-800">การเข้าพบแพทย์ล่าสุด</h3>
                         </div>
                         
                         <div class="overflow-x-auto rounded-lg border border-slate-200">
                             <table class="w-full text-sm text-left rtl:text-right text-slate-600">
                                 <thead class="text-xs text-slate-700 uppercase bg-emerald-50">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Patient</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Doctor</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Date & Time</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Diagnosis</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">Actions</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">ผู้ป่วย</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">แพทย์</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">วันและเวลา</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">การวินิจฉัย</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">การดำเนินการ</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-slate-100">
-                                    <tr v-for="visit in latestVisits" :key="visit.id" class="hover:bg-emerald-50/50 transition-colors">
+                                    <tr v-for="visit in latestVisits.data" :key="visit.id" class="hover:bg-emerald-50/50 transition-colors">
                                         <td class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
                                             <div v-if="visit.patient">
                                                 {{ visit.patient.name }}
@@ -492,24 +488,27 @@ const formatDateTime = (dateString) => {
                                                 Walk-in Customer
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4">{{ visit.doctor?.name || 'Unknown Doctor' }}</td>
+                                        <td class="px-6 py-4">{{ visit.doctor?.name || 'ไม่ระบุแพทย์' }}</td>
                                         <td class="px-6 py-4">
                                             <div class="font-medium text-slate-900">{{ formatDateTime(visit.visit_date) }}</div>
                                         </td>
                                         <td class="px-6 py-4 truncate max-w-xs">{{ visit.treatment_record?.diagnosis || visit.symptoms || '-' }}</td>
                                         <td class="px-6 py-4">
                                             <Link :href="route('admin.visits.show', visit.id)" class="inline-flex items-center px-3 py-1 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-500 active:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                View
+                                                ดูรายละเอียด
                                             </Link>
                                         </td>
                                     </tr>
-                                    <tr v-if="latestVisits.length === 0">
+                                    <tr v-if="latestVisits.data.length === 0">
                                         <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-                                            No visits recorded yet.
+                                            ไม่พบประวัติการเข้าพบแพทย์
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="mt-6 flex justify-end">
+                            <Pagination :links="latestVisits.links" />
                         </div>
                     </div>
                 </div>

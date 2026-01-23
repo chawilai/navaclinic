@@ -173,13 +173,14 @@ class DashboardController extends Controller
         // 6. Latest Bookings (General)
         $latestBookings = Booking::with(['user', 'doctor'])
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         // 7. Latest Visits (Completed Checkups)
         $latestVisits = Visit::with(['patient', 'doctor', 'treatmentRecord'])
             ->latest()
-            ->limit(5)
-            ->get();
+            ->paginate(5, ['*'], 'visits_page')
+            ->withQueryString();
 
         return Inertia::render('Admin/Dashboard', [
             'bookings' => $latestBookings,
