@@ -32,9 +32,10 @@ class DashboardController extends Controller
 
         $stats['avg_pain_reduction'] = $painStats ? round($painStats->avg_reduction, 1) : 0;
 
-        // 2. Chart Data Logic (Main Bar Chart)
-        $year = $request->input('year', Carbon::now()->year);
-        $month = $request->input('month', null); // If null, show yearly view (All months)
+        // 2. Chart Data Logic (Main Bar Chart - Bookings)
+        // Default to current year if no params provided, or 'year' param for backward compat
+        $bookingsYear = $request->input('bookings_year', $request->input('year', Carbon::now()->year));
+        $bookingsMonth = $request->input('bookings_month', $request->input('month', null));
 
         $chartData = [
             'labels' => [],
@@ -42,9 +43,9 @@ class DashboardController extends Controller
             'title' => ''
         ];
 
-        if ($month) {
+        if ($bookingsMonth) {
             // Monthly View: Show days of the specific month
-            $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+            $startDate = Carbon::createFromDate($bookingsYear, $bookingsMonth, 1)->startOfMonth();
             $endDate = $startDate->copy()->endOfMonth();
             $chartData['title'] = "Bookings in " . $startDate->format('F Y');
 
@@ -57,7 +58,7 @@ class DashboardController extends Controller
 
             $daysInMonth = $startDate->daysInMonth;
             for ($day = 1; $day <= $daysInMonth; $day++) {
-                $date = Carbon::createFromDate($year, $month, $day);
+                $date = Carbon::createFromDate($bookingsYear, $bookingsMonth, $day);
                 $dateString = $date->toDateString();
 
                 $chartData['labels'][] = $day;
@@ -66,19 +67,81 @@ class DashboardController extends Controller
 
         } else {
             // Yearly View: Show all 12 months
-            $chartData['title'] = "Bookings in $year";
+            $chartData['title'] = "Bookings in $bookingsYear";
 
             // Fetch all bookings for the year and group by month
-            $bookings = Booking::whereYear('appointment_date', $year)
+            $bookings = Booking::whereYear('appointment_date', $bookingsYear)
                 ->get()
                 ->groupBy(function ($date) {
                     return Carbon::parse($date->appointment_date)->format('n'); // 1-12
                 });
 
             for ($m = 1; $m <= 12; $m++) {
-                $monthName = Carbon::createFromDate($year, $m, 1)->format('M');
+                $monthName = Carbon::createFromDate($bookingsYear, $m, 1)->format('M');
                 $chartData['labels'][] = $monthName;
                 $chartData['data'][] = isset($bookings[$m]) ? $bookings[$m]->count() : 0;
+            }
+        }
+
+        // Visit Chart Data Logic
+        // Default to current year if no params provided, or 'year' param for backward compat
+        // Crucially, if only one set of filters was provided previously (year=...), both charts used it.
+        // We will default visitsYear to the bookingsYear ONLY if visitsYear is not explicitly set, 
+        // to ensure they start in sync on fresh load but can diverge. 
+        // Actually, simplest is default to current year.
+        $visitsYear = $request->input('visits_year', Carbon::now()->year);
+        $visitsMonth = $request->input('visits_month', null);
+
+        // If it's a legacy request (only 'year' param provided), sync visits to it as well
+        if ($request->has('year') && !$request->has('visits_year')) {
+            $visitsYear = $request->input('year');
+        }
+        if ($request->has('month') && !$request->has('visits_month')) {
+            $visitsMonth = $request->input('month');
+        }
+
+        $visitsChartData = [
+            'labels' => [],
+            'data' => [],
+            'title' => ''
+        ];
+
+        if ($visitsMonth) {
+            // Monthly View
+            $startDate = Carbon::createFromDate($visitsYear, $visitsMonth, 1)->startOfMonth();
+            $endDate = $startDate->copy()->endOfMonth();
+            $visitsChartData['title'] = "Visits in " . $startDate->format('F Y');
+
+            $visits = Visit::whereBetween('visit_date', [$startDate, $endDate])
+                ->get()
+                ->groupBy(function ($date) {
+                    return Carbon::parse($date->visit_date)->format('Y-m-d');
+                });
+
+            $daysInMonth = $startDate->daysInMonth; // Re-calculate days for visits month
+
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $date = Carbon::createFromDate($visitsYear, $visitsMonth, $day);
+                $dateString = $date->toDateString();
+
+                $visitsChartData['labels'][] = $day;
+                $visitsChartData['data'][] = isset($visits[$dateString]) ? $visits[$dateString]->count() : 0;
+            }
+
+        } else {
+            // Yearly View
+            $visitsChartData['title'] = "Visits in $visitsYear";
+
+            $visits = Visit::whereYear('visit_date', $visitsYear)
+                ->get()
+                ->groupBy(function ($date) {
+                    return Carbon::parse($date->visit_date)->format('n');
+                });
+
+            for ($m = 1; $m <= 12; $m++) {
+                $monthName = Carbon::createFromDate($visitsYear, $m, 1)->format('M');
+                $visitsChartData['labels'][] = $monthName;
+                $visitsChartData['data'][] = isset($visits[$m]) ? $visits[$m]->count() : 0;
             }
         }
 
@@ -124,11 +187,14 @@ class DashboardController extends Controller
             'upcomingBookings' => $upcomingBookings,
             'stats' => $stats,
             'chartData' => $chartData,
+            'visitsChartData' => $visitsChartData,
             'pieChartData' => $pieChartData,
             'topDoctors' => $topDoctors,
             'filters' => [
-                'year' => (int) $year,
-                'month' => $month ? (int) $month : null
+                'bookings_year' => (int) $bookingsYear,
+                'bookings_month' => $bookingsMonth ? (int) $bookingsMonth : null,
+                'visits_year' => (int) $visitsYear,
+                'visits_month' => $visitsMonth ? (int) $visitsMonth : null,
             ]
         ]);
     }

@@ -44,6 +44,11 @@ const props = defineProps({
         required: false,
         default: () => ({ labels: [], data: [] })
     },
+    visitsChartData: {
+        type: Object,
+        required: false,
+        default: () => ({ labels: [], data: [], title: '' })
+    },
     topDoctors: {
         type: Array,
         required: false,
@@ -52,12 +57,19 @@ const props = defineProps({
     filters: {
         type: Object,
         required: false,
-        default: () => ({ year: new Date().getFullYear(), month: null })
+        default: () => ({
+            bookings_year: new Date().getFullYear(),
+            bookings_month: null,
+            visits_year: new Date().getFullYear(),
+            visits_month: null 
+        })
     }
 });
 
-const selectedYear = ref(props.filters.year);
-const selectedMonth = ref(props.filters.month);
+const selectedBookingsYear = ref(props.filters.bookings_year || props.filters.year || new Date().getFullYear());
+const selectedBookingsMonth = ref(props.filters.bookings_month || props.filters.month || null);
+const selectedVisitsYear = ref(props.filters.visits_year || props.filters.year || new Date().getFullYear());
+const selectedVisitsMonth = ref(props.filters.visits_month || props.filters.month || null);
 
 const years = computed(() => {
     const currentYear = new Date().getFullYear();
@@ -89,14 +101,31 @@ const months = [
     { value: 12, label: 'December' },
 ];
 
-const updateChart = () => {
+const updateBookingsChart = () => {
     router.get(route('admin.dashboard'), {
-        year: selectedYear.value,
-        month: selectedMonth.value
+        bookings_year: selectedBookingsYear.value,
+        bookings_month: selectedBookingsMonth.value,
+        // Preserve current visit filters
+        visits_year: selectedVisitsYear.value,
+        visits_month: selectedVisitsMonth.value,
     }, {
         preserveState: true,
         preserveScroll: true,
         only: ['chartData', 'filters']
+    });
+};
+
+const updateVisitsChart = () => {
+    router.get(route('admin.dashboard'), {
+        visits_year: selectedVisitsYear.value,
+        visits_month: selectedVisitsMonth.value,
+        // Preserve current booking filters
+        bookings_year: selectedBookingsYear.value,
+        bookings_month: selectedBookingsMonth.value,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        only: ['visitsChartData', 'filters']
     });
 };
 
@@ -107,6 +136,17 @@ const chartDataConfig = computed(() => ({
       label: 'Bookings',
       backgroundColor: '#3b82f6',
       data: props.chartData.data
+    }
+  ]
+}))
+
+const visitsChartConfig = computed(() => ({
+  labels: props.visitsChartData.labels,
+  datasets: [
+    {
+      label: 'Visits',
+      backgroundColor: '#10b981',
+      data: props.visitsChartData.data
     }
   ]
 }))
@@ -235,10 +275,10 @@ const formatDateTime = (dateString) => {
                              <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-lg font-bold text-slate-800">{{ chartData.title || 'Bookings Overview' }}</h3>
                                 <div class="flex gap-2">
-                                    <select v-model="selectedYear" @change="updateChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                    <select v-model="selectedBookingsYear" @change="updateBookingsChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                                         <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
                                     </select>
-                                    <select v-model="selectedMonth" @change="updateChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                    <select v-model="selectedBookingsMonth" @change="updateBookingsChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                                         <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
                                     </select>
                                 </div>
@@ -260,6 +300,26 @@ const formatDateTime = (dateString) => {
                                 <div v-else class="text-slate-400 italic">No status data available</div>
                              </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Visits Chart Section -->
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100 mt-6">
+                    <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-slate-800">{{ visitsChartData.title || 'Visits Overview' }}</h3>
+                                <div class="flex gap-2">
+                                    <select v-model="selectedVisitsYear" @change="updateVisitsChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                        <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
+                                    </select>
+                                    <select v-model="selectedVisitsMonth" @change="updateVisitsChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                        <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="h-64">
+                            <Bar :data="visitsChartConfig" :options="chartOptions" />
+                            </div>
                     </div>
                 </div>
 
