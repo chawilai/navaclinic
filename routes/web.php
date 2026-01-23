@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/owner-dashboard', [\App\Http\Controllers\Admin\OwnerDashboardController::class, 'index'])->name('admin.owner.dashboard');
 
     // Booking Management
     Route::get('/bookings/create', [\App\Http\Controllers\Admin\BookingController::class, 'create'])->name('admin.bookings.create');

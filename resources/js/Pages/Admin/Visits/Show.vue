@@ -4,9 +4,27 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import BodyPartSelector from '@/Components/BodyPartSelector.vue';
 import { computed } from 'vue';
 
+const statusLabels = {
+    pending: 'รอการรักษา',
+    ongoing: 'กำลังรักษา',
+    completed: 'เสร็จสิ้น',
+    cancelled: 'ยกเลิก',
+};
+
+const getStatusLabel = (status) => statusLabels[status] || status;
+
 const isDetailedPainArea = (areas) => {
     return Array.isArray(areas) && areas.length > 0 && typeof areas[0] !== 'string';
 };
+
+
+const paymentMethodLabels = {
+    cash: 'เงินสด',
+    transfer: 'โอนเงิน',
+    credit_card: 'บัตรเครดิต',
+};
+
+const getPaymentMethodLabel = (method) => paymentMethodLabels[method] || method;
 
 const props = defineProps({
     visit: Object,
@@ -45,7 +63,7 @@ const submitPayment = () => {
 };
 
 const deletePayment = (id) => {
-    if (confirm('Are you sure you want to delete this payment?')) {
+    if (confirm('ยืนยันลบรายการชำระเงินนี้?')) {
         useForm({}).delete(route('admin.payments.destroy', id), {
              preserveScroll: true
         });
@@ -54,7 +72,7 @@ const deletePayment = (id) => {
 </script>
 
 <template>
-    <Head title="Visit Details" />
+    <Head title="รายละเอียดการเข้ารับบริการ" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -65,11 +83,15 @@ const deletePayment = (id) => {
                     </svg>
                 </Link>
                 <h2 class="font-bold text-xl text-slate-800 leading-tight">
-                    Visit Details
+                    รายละเอียดการเข้ารับบริการ <span class="text-slate-400 font-normal text-sm ml-2">#{{ visit.id }}</span>
                 </h2>
-                <span class="px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wide"
-                    :class="{'bg-emerald-100 text-emerald-800': visit.status === 'completed', 'bg-blue-100 text-blue-800': visit.status === 'ongoing', 'bg-slate-100 text-slate-800': visit.status === 'pending'}">
-                    {{ visit.status }}
+                <span class="px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wide ring-1 ring-inset"
+                    :class="{
+                        'bg-emerald-50 text-emerald-700 ring-emerald-600/20': visit.status === 'completed', 
+                        'bg-blue-50 text-blue-700 ring-blue-600/20': visit.status === 'ongoing', 
+                        'bg-slate-50 text-slate-700 ring-slate-600/20': visit.status === 'pending'
+                    }">
+                    {{ getStatusLabel(visit.status) }}
                 </span>
             </div>
         </template>
@@ -81,35 +103,41 @@ const deletePayment = (id) => {
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-6">
                     <div class="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                          <div>
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Patient</p>
-                            <h3 class="font-bold text-slate-900 text-lg">{{ visit.patient.name }}</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">ผู้ป่วย (Patient)</p>
+                            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                {{ visit.patient.name }}
+                                <Link :href="route('admin.patients.show', visit.patient.id)" class="text-xs font-normal text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 transition-colors">
+                                    ดูประวัติ
+                                </Link>
+                            </h3>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Visit Date</p>
-                            <p class="font-bold text-slate-900">{{ new Date(visit.visit_date).toLocaleDateString() }} {{ new Date(visit.visit_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">วันที่รับบริการ (Visit Date)</p>
+                            <p class="font-bold text-slate-900 text-lg">{{ new Date(visit.visit_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                            <p class="text-xs text-slate-500">{{ new Date(visit.visit_date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }} น.</p>
                         </div>
                     </div>
                     
                     <div class="p-8 space-y-8">
                         <!-- Clinical Info -->
                         <div>
-                            <h4 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <h4 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 flex items-center gap-2 text-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                Clinical Information
+                                ข้อมูลทั่วไปทางคลินิก
                             </h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">Doctor</p>
-                                    <p class="text-slate-900 font-medium">{{ visit.doctor?.name || 'Unassigned' }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">แพทย์ผู้ดูแล (Doctor)</p>
+                                    <p class="text-slate-900 font-medium text-base">{{ visit.doctor?.name || 'ไม่ได้ระบุแพทย์' }}</p>
                                 </div>
                                  <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Symptoms / Chief Complaint</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">อาการเบื้องต้น (Symptoms / CC)</p>
                                     <p class="text-slate-900 leading-relaxed">{{ visit.symptoms || '-' }}</p>
                                 </div>
                                 <div class="md:col-span-2">
-                                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">Notes</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">บันทึกเพิ่มเติม (Notes)</p>
                                     <p class="text-slate-700">{{ visit.notes || '-' }}</p>
                                 </div>
                             </div>
@@ -117,34 +145,34 @@ const deletePayment = (id) => {
 
                          <!-- Related Booking -->
                          <div v-if="visit.booking" class="pt-6 border-t border-slate-100">
-                            <h4 class="font-bold text-slate-800 mb-4 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                Related Booking
+                                ข้อมูลการจอง
                             </h4>
                             <div class="bg-amber-50 rounded-xl p-4 border border-amber-100 flex items-center justify-between">
                                 <div>
-                                    <p class="text-amber-900 font-bold">Booking #{{ visit.booking.id }}</p>
-                                    <p class="text-amber-700 text-sm">{{ visit.booking.appointment_date }} @ {{ visit.booking.start_time }}</p>
+                                    <p class="text-amber-900 font-bold">รหัสการจอง #{{ visit.booking.id }}</p>
+                                    <p class="text-amber-700 text-sm">วันที่ {{ visit.booking.appointment_date }} เวลา {{ visit.booking.start_time }}</p>
                                 </div>
                                 <Link :href="route('admin.bookings.show', visit.booking.id)" class="text-amber-700 hover:text-amber-900 font-bold text-xs uppercase underline">
-                                    View Booking
+                                    ดูรายละเอียดการจอง
                                 </Link>
                             </div>
                          </div>
                          <div v-else class="pt-6 border-t border-slate-100">
-                             <p class="text-emerald-600 font-medium flex items-center text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <p class="text-emerald-600 font-medium flex items-center text-sm gap-2 bg-emerald-50 w-fit px-4 py-2 rounded-xl border border-emerald-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
-                                Walk-in Visit (No Booking Required)
+                                Visit แบบ Walk-in (ไม่ได้จองล่วงหน้า)
                              </p>
                          </div>
 
                          <!-- Management Actions -->
                          <div class="pt-6 border-t border-slate-100">
-                            <h4 class="font-bold text-slate-800 mb-4">Management</h4>
+                            <h4 class="font-bold text-slate-800 mb-4">การจัดการ (Management)</h4>
                             <div class="flex flex-wrap gap-4">
                                 <Link
                                     v-if="!visit.treatment_record"
@@ -167,8 +195,10 @@ const deletePayment = (id) => {
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                                 </svg>
                             </div>
-                            บันทึกเวชระเบียน
-                             <span class="text-xs font-normal text-indigo-400 border border-indigo-200 px-2 py-0.5 rounded-full">Medical Record</span>
+                            <div>
+                                บันทึกเวชระเบียน
+                                <div class="text-[10px] uppercase tracking-wider font-semibold text-indigo-400">Medical Record</div>
+                            </div>
                         </h3>
                         <Link :href="route('admin.visits.treatment.create', visit.id)" class="group flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-white px-4 py-2 rounded-xl border border-indigo-100 hover:border-indigo-300 transition-all shadow-sm hover:shadow-md">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:scale-110 transition-transform">
@@ -291,7 +321,7 @@ const deletePayment = (id) => {
                                                     <span class="font-bold text-slate-700 text-sm border-b border-transparent group-hover:border-rose-200 transition-colors">{{ item.area }}</span>
                                                     <div v-if="item.pain_level || item.pain_level_after" class="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200">
                                                         <div class="flex items-center gap-1">
-                                                            <span class="text-rose-500">Pain:</span>
+                                                            <span class="text-rose-500">ระดับความปวด:</span>
                                                             <span class="text-slate-700 text-sm">{{ item.pain_level || '-' }}</span>
                                                         </div>
                                                         <template v-if="item.pain_level_after">
@@ -331,12 +361,12 @@ const deletePayment = (id) => {
                                             </div>
                                             
                                             <div class="px-4 py-3 bg-rose-50 rounded-xl border border-rose-100 flex flex-col items-center min-w-[100px]">
-                                                <span class="text-[10px] font-bold text-rose-400 uppercase">Pain (Before)</span>
+                                                <span class="text-[10px] font-bold text-rose-400 uppercase">ระดับความปวด (ก่อน)</span>
                                                 <span class="font-bold text-rose-600">{{ visit.treatment_record.pain_level_before || '-' }}</span>
                                             </div>
                                             
                                             <div class="px-4 py-3 bg-emerald-50 rounded-xl border border-emerald-100 flex flex-col items-center min-w-[100px]">
-                                                <span class="text-[10px] font-bold text-emerald-400 uppercase">Pain (After)</span>
+                                                <span class="text-[10px] font-bold text-emerald-400 uppercase">ระดับความปวด (หลัง)</span>
                                                 <span class="font-bold text-emerald-600">{{ visit.treatment_record.pain_level_after || '-' }}</span>
                                             </div>
                                         </div>
@@ -371,8 +401,10 @@ const deletePayment = (id) => {
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                 </svg>
                             </div>
-                            การเงิน & การชำระเงิน
-                            <span class="text-xs font-normal text-emerald-400 border border-emerald-200 px-2 py-0.5 rounded-full">Financial</span>
+                            <div>
+                                การเงิน & การชำระเงิน
+                                <div class="text-[10px] uppercase tracking-wider font-semibold text-emerald-400">Financial</div>
+                            </div>
                         </h3>
                         <div class="flex items-center gap-4">
                             <div class="text-right hidden sm:block">
@@ -422,7 +454,7 @@ const deletePayment = (id) => {
                                                     <span class="text-xs text-slate-400 block">{{ new Date(payment.payment_date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }}</span>
                                                 </td>
                                                 <td class="px-4 py-3">
-                                                    <span class="font-medium text-slate-800 capitalize">{{ payment.payment_method }}</span>
+                                                    <span class="font-medium text-slate-800 capitalize">{{ getPaymentMethodLabel(payment.payment_method) }}</span>
                                                     <div v-if="payment.notes" class="text-xs text-slate-500">{{ payment.notes }}</div>
                                                 </td>
                                                 <td class="px-4 py-3 text-right font-bold text-emerald-600">+{{ Number(payment.amount).toLocaleString() }} ฿</td>
@@ -468,7 +500,7 @@ const deletePayment = (id) => {
 
                                     <form @submit.prevent="submitPayment" class="space-y-4 mt-6">
                                         <div>
-                                            <label class="block text-xs font-bold text-indigo-700 mb-1">จำนวนเงินที่ชำระ / Amount</label>
+                                            <label class="block text-xs font-bold text-indigo-700 mb-1">จำนวนเงินที่ชำระ (Amount)</label>
                                             <input type="number" v-model="paymentForm.amount" 
                                                 class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500" 
                                                 placeholder="0.00" 
@@ -481,7 +513,7 @@ const deletePayment = (id) => {
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-bold text-indigo-700 mb-1">วิธีชำระ / Method</label>
+                                            <label class="block text-xs font-bold text-indigo-700 mb-1">วิธีชำระ (Method)</label>
                                             <select v-model="paymentForm.payment_method" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500">
                                                 <option value="cash">เงินสด (Cash)</option>
                                                 <option value="transfer">เงินโอน (Transfer)</option>
@@ -489,8 +521,8 @@ const deletePayment = (id) => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-bold text-indigo-700 mb-1">หมายเหตุ / Note</label>
-                                            <input type="text" v-model="paymentForm.notes" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Optional">
+                                            <label class="block text-xs font-bold text-indigo-700 mb-1">หมายเหตุ (Note)</label>
+                                            <input type="text" v-model="paymentForm.notes" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500" placeholder="ระบุหมายเหตุ (ถ้ามี)">
                                         </div>
                                         <button type="submit" :disabled="paymentForm.processing" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
