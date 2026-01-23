@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { ref, watch, onMounted, computed } from 'vue';
 import InputError from '@/Components/InputError.vue';
+import Modal from '@/Components/Modal.vue';
 
 const props = defineProps({
     patient: Object,
@@ -28,6 +29,7 @@ const visitTime = ref('');
 const timeSlots = ref([]);
 const availableDoctors = ref([]);
 const loadingSlots = ref(false);
+const confirmingVisit = ref(false);
 
 // Calculate the correct route for the patient (Guest vs Registered)
 const patientRoute = computed(() => {
@@ -112,9 +114,25 @@ const selectTimeSlot = (slot) => {
     form.doctor_id = ''; // Reset doctor selection when time changes
 };
 
+const closeModal = () => {
+    confirmingVisit.value = false;
+};
+
+const selectedDoctorName = computed(() => {
+    if (mode.value === 'walk_in') {
+        const doc = availableDoctors.value.find(d => d.id === form.doctor_id);
+        return doc ? doc.name : '-';
+    } else if (mode.value === 'booking' && selectedBooking.value) {
+        return selectedBooking.value.doctor?.name || 'Any Doctor';
+    }
+    return '-';
+});
+
 const submit = () => {
-    if (!confirm('Are you sure you want to start this visit?')) return;
-    
+    confirmingVisit.value = true;
+};
+
+const confirmSubmit = () => {
     if (mode.value === 'walk_in') {
         // limit to today
         const now = new Date();
@@ -124,7 +142,9 @@ const submit = () => {
         form.visit_date = `${year}-${month}-${day}T${visitTime.value}`;
     }
 
-    form.post(route('admin.visits.store'));
+    form.post(route('admin.visits.store'), {
+        onFinish: () => confirmingVisit.value = false,
+    });
 };
 </script>
 
@@ -336,4 +356,90 @@ const submit = () => {
             </div>
         </div>
     </AuthenticatedLayout>
+    
+    <Modal :show="confirmingVisit" @close="closeModal">
+        <div class="p-6">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 mb-4 border border-emerald-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-emerald-600">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            
+            <h2 class="text-xl font-bold text-center text-slate-800 mb-2">
+                ยืนยันการเริ่มตรวจ
+            </h2>
+            
+            <p class="text-sm text-center text-slate-500 mb-6">
+                กรุณาตรวจสอบข้อมูลการเข้ารับบริการของ <span class="font-bold text-slate-700">{{ patient.name }}</span>
+            </p>
+
+            <div class="bg-gradient-to-br from-slate-50 to-white rounded-xl p-5 mb-6 space-y-4 text-sm border border-slate-100 shadow-sm relative overflow-hidden">
+                <!-- Decorative element -->
+                <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-50 rounded-full blur-2xl opacity-50 -mr-10 -mt-10"></div>
+
+                <div class="flex justify-between items-center relative z-10">
+                    <span class="text-slate-500 flex items-center gap-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-4 4 4M5 17l7-7 7 7" />
+                        </svg>
+                        ประเภท
+                    </span>
+                    <span class="font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider" 
+                          :class="mode === 'walk_in' ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'">
+                        {{ mode === 'walk_in' ? 'Walk-in' : 'Appointment' }}
+                    </span>
+                </div>
+                
+                <div class="border-t border-slate-100 my-2"></div>
+                
+                <div class="flex justify-between items-center relative z-10">
+                    <span class="text-slate-500 flex items-center gap-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        แพทย์ผู้ตรวจ
+                    </span>
+                    <span class="font-bold text-slate-800">{{ selectedDoctorName }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center relative z-10">
+                    <span class="text-slate-500 flex items-center gap-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        เวลา
+                    </span>
+                    <span class="font-bold text-slate-800">
+                        {{ mode === 'walk_in' ? `${visitTime} (${form.duration_minutes} น.)` : (selectedBooking?.start_time || '-') }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button 
+                    type="button"
+                    @click="closeModal" 
+                    class="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 w-full sm:w-auto"
+                > 
+                    ยกเลิก 
+                </button>
+                <button 
+                    type="button"
+                    @click="confirmSubmit" 
+                    :class="{'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500': mode === 'walk_in', 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500': mode === 'booking'}"
+                    :disabled="form.processing"
+                    class="px-4 py-2 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 flex justify-center items-center w-full sm:w-auto transition-all"
+                > 
+                    <span v-if="form.processing" class="flex items-center">
+                         <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        กำลังบันทึก...
+                    </span>
+                    <span v-else>ยืนยันและเริ่มงาน</span>
+                </button>
+            </div>
+        </div>
+    </Modal>
 </template>
