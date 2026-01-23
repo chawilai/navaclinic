@@ -86,19 +86,19 @@ const years = computed(() => {
 });
 
 const months = [
-    { value: null, label: 'All Months (Yearly View)' },
-    { value: 1, label: 'January' },
-    { value: 2, label: 'February' },
-    { value: 3, label: 'March' },
-    { value: 4, label: 'April' },
-    { value: 5, label: 'May' },
-    { value: 6, label: 'June' },
-    { value: 7, label: 'July' },
-    { value: 8, label: 'August' },
-    { value: 9, label: 'September' },
-    { value: 10, label: 'October' },
-    { value: 11, label: 'November' },
-    { value: 12, label: 'December' },
+    { value: null, label: 'ทุกเดือน (มุมมองรายปี)' },
+    { value: 1, label: 'มกราคม' },
+    { value: 2, label: 'กุมภาพันธ์' },
+    { value: 3, label: 'มีนาคม' },
+    { value: 4, label: 'เมษายน' },
+    { value: 5, label: 'พฤษภาคม' },
+    { value: 6, label: 'มิถุนายน' },
+    { value: 7, label: 'กรกฎาคม' },
+    { value: 8, label: 'สิงหาคม' },
+    { value: 9, label: 'กันยายน' },
+    { value: 10, label: 'ตุลาคม' },
+    { value: 11, label: 'พฤศจิกายน' },
+    { value: 12, label: 'ธันวาคม' },
 ];
 
 const updateBookingsChart = () => {
@@ -133,7 +133,7 @@ const chartDataConfig = computed(() => ({
   labels: props.chartData.labels,
   datasets: [
     {
-      label: 'Bookings',
+      label: 'การจอง',
       backgroundColor: '#3b82f6',
       data: props.chartData.data
     }
@@ -144,7 +144,7 @@ const visitsChartConfig = computed(() => ({
   labels: props.visitsChartData.labels,
   datasets: [
     {
-      label: 'Visits',
+      label: 'การเข้าพบแพทย์',
       backgroundColor: '#10b981',
       data: props.visitsChartData.data
     }
@@ -205,11 +205,22 @@ const getStatusClass = (status) => {
 const formatDate = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-GB', {
+    return new Intl.DateTimeFormat('th-TH', {
         day: 'numeric',
         month: 'short',
         year: 'numeric'
     }).format(date);
+};
+
+const getStatusLabel = (status) => {
+    switch (status) {
+        case 'confirmed': return 'ยืนยันแล้ว';
+        case 'pending': return 'รอดำเนินการ';
+        case 'cancelled': return 'ยกเลิก';
+        case 'completed': return 'เสร็จสิ้น';
+        case 'ongoing': return 'กำลังรักษา';
+        default: return status;
+    }
 };
 
 const formatDateTime = (dateString) => {
@@ -227,12 +238,12 @@ const formatDateTime = (dateString) => {
 </script>
 
 <template>
-    <Head title="Admin Dashboard" />
+    <Head title="แดชบอร์ดผู้ดูแลระบบ" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-slate-800 leading-tight">
-                Admin Dashboard
+                แดชบอร์ดผู้ดูแลระบบ
             </h2>
         </template>
 
@@ -242,23 +253,23 @@ const formatDateTime = (dateString) => {
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
-                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Total Patients</div>
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">ผู้ป่วยทั้งหมด</div>
                         <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.total_patients }}</div>
                     </div>
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
-                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Total Doctors</div>
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">แพทย์ทั้งหมด</div>
                         <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.total_doctors }}</div>
                     </div>
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
-                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Today's Appts</div>
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">นัดหมายวันนี้</div>
                         <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.today_bookings }}</div>
                     </div>
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
-                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">Pending Requests</div>
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">รายการรอดำเนินการ</div>
                         <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.pending_bookings }}</div>
                     </div>
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-emerald-500 shadow-emerald-50 hover:shadow-lg transition-all duration-300 group">
-                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-emerald-600 transition-colors">Avg Pain Reduction</div>
+                        <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-emerald-600 transition-colors">ความเจ็บปวดลดลงเฉลี่ย</div>
                         <div class="text-3xl font-bold text-emerald-600 mt-2 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -273,7 +284,7 @@ const formatDateTime = (dateString) => {
                     <div class="lg:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100">
                         <div class="p-6">
                              <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-lg font-bold text-slate-800">{{ chartData.title || 'Bookings Overview' }}</h3>
+                                <h3 class="text-lg font-bold text-slate-800">{{ chartData.title || 'ภาพรวมการจองคิว' }}</h3>
                                 <div class="flex gap-2">
                                     <select v-model="selectedBookingsYear" @change="updateBookingsChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                                         <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
@@ -292,22 +303,21 @@ const formatDateTime = (dateString) => {
                     <!-- Pie Chart Section -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100">
                         <div class="p-6">
-                             <h3 class="text-lg font-bold text-slate-800 mb-4">Booking Status</h3>
+                             <h3 class="text-lg font-bold text-slate-800 mb-4">สถานะการจอง</h3>
                              <div class="h-64 flex justify-center items-center">
                                 <div v-if="pieChartData.labels.length > 0" class="w-full h-full">
                                     <Pie :data="pieChartConfig" :options="pieOptions" />
                                 </div>
-                                <div v-else class="text-slate-400 italic">No status data available</div>
+                                <div v-else class="text-slate-400 italic">ไม่มีข้อมูลสถานะ</div>
                              </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Visits Chart Section -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100 mt-6">
                     <div class="p-6">
                             <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-lg font-bold text-slate-800">{{ visitsChartData.title || 'Visits Overview' }}</h3>
+                                <h3 class="text-lg font-bold text-slate-800">{{ visitsChartData.title || 'ภาพรวมการเข้าพบแพทย์' }}</h3>
                                 <div class="flex gap-2">
                                     <select v-model="selectedVisitsYear" @change="updateVisitsChart" class="text-sm border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                                         <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
@@ -333,7 +343,7 @@ const formatDateTime = (dateString) => {
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                Upcoming Today
+                                คิวที่กำลังจะมาถึงวันนี้
                             </h3>
                             <div v-if="upcomingBookings.length > 0" class="space-y-3">
                                 <div v-for="booking in upcomingBookings" :key="booking.id" class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
@@ -342,21 +352,21 @@ const formatDateTime = (dateString) => {
                                             {{ booking.start_time }}
                                         </div>
                                         <div class="text-sm text-slate-500">
-                                            {{ booking.user?.name || booking.customer_name || 'Guest' }}
+                                            {{ booking.user?.name || booking.customer_name || 'ลูกค้า Walk-in' }}
                                         </div>
                                     </div>
                                     <div class="text-right">
                                         <div class="text-sm font-medium text-blue-600">
-                                            {{ booking.doctor?.name || 'No Doctor' }}
+                                            {{ booking.doctor?.name || 'ไม่ระบุแพทย์' }}
                                         </div>
                                         <div class="text-xs text-slate-400">
-                                            {{ booking.duration_minutes }} mins
+                                            {{ booking.duration_minutes }} นาที
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div v-else class="text-slate-500 text-center py-8 italic">
-                                No more upcoming appointments today.
+                                ไม่มีนัดหมายที่กำลังจะถึงในวันนี้
                             </div>
                         </div>
                     </div>
@@ -368,7 +378,7 @@ const formatDateTime = (dateString) => {
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                 </svg>
-                                Top Doctors
+                                แพทย์ยอดนิยม
                             </h3>
                             <div v-if="topDoctors.length > 0" class="space-y-4">
                                 <div v-for="(doctor, index) in topDoctors" :key="doctor.id" class="flex items-center">
@@ -377,15 +387,15 @@ const formatDateTime = (dateString) => {
                                     </div>
                                     <div class="flex-1">
                                         <div class="font-medium text-slate-900">{{ doctor.name }}</div>
-                                        <div class="text-xs text-slate-500">{{ doctor.specialty || 'General Practitioner' }}</div>
+                                        <div class="text-xs text-slate-500">{{ doctor.specialty || 'แพทย์ทั่วไป' }}</div>
                                     </div>
                                     <div class="text-sm font-semibold text-slate-700">
-                                        {{ doctor.bookings_count }} <span class="text-slate-400 font-normal text-xs">bookings</span>
+                                        {{ doctor.bookings_count }} <span class="text-slate-400 font-normal text-xs">นัดหมาย</span>
                                     </div>
                                 </div>
                             </div>
                              <div v-else class="text-slate-500 text-center py-8 italic">
-                                No booking data for doctors yet.
+                                ยังไม่มีข้อมูลการนัดหมายแพทย์
                             </div>
                         </div>
                     </div>
@@ -396,9 +406,9 @@ const formatDateTime = (dateString) => {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100">
                     <div class="p-6 text-slate-900">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold text-slate-800">Latest Bookings</h3>
+                            <h3 class="text-lg font-bold text-slate-800">รายการจองล่าสุด</h3>
                             <Link :href="route('admin.bookings.create')" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                + Add Appointment
+                                + เพิ่มนัดหมาย
                             </Link>
                         </div>
                         
@@ -406,12 +416,12 @@ const formatDateTime = (dateString) => {
                             <table class="w-full text-sm text-left rtl:text-right text-slate-600">
                                 <thead class="text-xs text-slate-700 uppercase bg-blue-50">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Patient</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Doctor</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Date & Time</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Symptoms</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Status</th>
-                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">Actions</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">ผู้ป่วย</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">แพทย์</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">วันและเวลา</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">อาการ</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">สถานะ</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-blue-900">การดำเนินการ</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-slate-100">
@@ -422,30 +432,30 @@ const formatDateTime = (dateString) => {
                                                 <div class="text-xs text-slate-500">{{ booking.user.phone_number || '-' }}</div>
                                             </div>
                                             <div v-else>
-                                                {{ booking.customer_name || 'Guest' }}
+                                                {{ booking.customer_name || 'ลูกค้า Walk-in' }}
                                                 <div class="text-xs text-slate-500">{{ booking.customer_phone || '-' }}</div>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4">{{ booking.doctor?.name || 'Unknown Doctor' }}</td>
+                                        <td class="px-6 py-4">{{ booking.doctor?.name || 'ไม่ระบุแพทย์' }}</td>
                                         <td class="px-6 py-4">
-                                            <div class="font-medium text-slate-900">{{ booking.appointment_date }}</div>
-                                            <div class="text-xs text-slate-500">{{ booking.start_time }} ({{ booking.duration_minutes }}m)</div>
+                                            <div class="font-medium text-slate-900">{{ formatDate(booking.appointment_date) }}</div>
+                                            <div class="text-xs text-slate-500">{{ booking.start_time }} ({{ booking.duration_minutes }} น.)</div>
                                         </td>
                                         <td class="px-6 py-4 truncate max-w-xs">{{ booking.symptoms }}</td>
                                         <td class="px-6 py-4">
                                             <span :class="getStatusClass(booking.status)" class="px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-                                                {{ booking.status }}
+                                                {{ getStatusLabel(booking.status) }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <Link :href="route('admin.bookings.show', booking.id)" class="inline-flex items-center px-3 py-1 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                View
+                                                ดูรายละเอียด
                                             </Link>
                                         </td>
                                     </tr>
                                     <tr v-if="bookings.data.length === 0">
                                         <td colspan="6" class="px-6 py-8 text-center text-slate-500">
-                                            No bookings found.
+                                            ไม่พบข้อมูลการจอง
                                         </td>
                                     </tr>
                                 </tbody>

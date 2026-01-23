@@ -47,7 +47,8 @@ class DashboardController extends Controller
             // Monthly View: Show days of the specific month
             $startDate = Carbon::createFromDate($bookingsYear, $bookingsMonth, 1)->startOfMonth();
             $endDate = $startDate->copy()->endOfMonth();
-            $chartData['title'] = "Bookings in " . $startDate->format('F Y');
+            $thaiMonthsFull = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            $chartData['title'] = "สถิติการจองประจำเดือน " . $thaiMonthsFull[$bookingsMonth - 1] . " " . ($bookingsYear + 543);
 
             // Fetch all bookings for the range and group by day
             $bookings = Booking::whereBetween('appointment_date', [$startDate, $endDate])
@@ -67,7 +68,7 @@ class DashboardController extends Controller
 
         } else {
             // Yearly View: Show all 12 months
-            $chartData['title'] = "Bookings in $bookingsYear";
+            $chartData['title'] = "สถิติการจองประจำปี " . ($bookingsYear + 543);
 
             // Fetch all bookings for the year and group by month
             $bookings = Booking::whereYear('appointment_date', $bookingsYear)
@@ -76,9 +77,10 @@ class DashboardController extends Controller
                     return Carbon::parse($date->appointment_date)->format('n'); // 1-12
                 });
 
+            $thaiMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
             for ($m = 1; $m <= 12; $m++) {
-                $monthName = Carbon::createFromDate($bookingsYear, $m, 1)->format('M');
-                $chartData['labels'][] = $monthName;
+                $chartData['labels'][] = $thaiMonthsShort[$m - 1];
                 $chartData['data'][] = isset($bookings[$m]) ? $bookings[$m]->count() : 0;
             }
         }
@@ -110,7 +112,8 @@ class DashboardController extends Controller
             // Monthly View
             $startDate = Carbon::createFromDate($visitsYear, $visitsMonth, 1)->startOfMonth();
             $endDate = $startDate->copy()->endOfMonth();
-            $visitsChartData['title'] = "Visits in " . $startDate->format('F Y');
+            $thaiMonthsFull = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            $visitsChartData['title'] = "สถิติการเข้าพบแพทย์ประจำเดือน " . $thaiMonthsFull[$visitsMonth - 1] . " " . ($visitsYear + 543);
 
             $visits = Visit::whereBetween('visit_date', [$startDate, $endDate])
                 ->get()
@@ -130,7 +133,7 @@ class DashboardController extends Controller
 
         } else {
             // Yearly View
-            $visitsChartData['title'] = "Visits in $visitsYear";
+            $visitsChartData['title'] = "สถิติการเข้าพบแพทย์ประจำปี " . ($visitsYear + 543);
 
             $visits = Visit::whereYear('visit_date', $visitsYear)
                 ->get()
@@ -138,9 +141,10 @@ class DashboardController extends Controller
                     return Carbon::parse($date->visit_date)->format('n');
                 });
 
+            $thaiMonthsShort = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
             for ($m = 1; $m <= 12; $m++) {
-                $monthName = Carbon::createFromDate($visitsYear, $m, 1)->format('M');
-                $visitsChartData['labels'][] = $monthName;
+                $visitsChartData['labels'][] = $thaiMonthsShort[$m - 1];
                 $visitsChartData['data'][] = isset($visits[$m]) ? $visits[$m]->count() : 0;
             }
         }
