@@ -14,7 +14,7 @@ class OwnerDashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $period = $request->input('period', 'monthly'); // daily, weekly, monthly
+        $period = $request->input('period', 'monthly'); // daily, weekly, monthly, yearly
         $date = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::now();
 
         // Base query
@@ -25,17 +25,22 @@ class OwnerDashboardController extends Controller
         if ($period === 'daily') {
             $startDate = $date->copy()->startOfDay();
             $endDate = $date->copy()->endOfDay();
-            $dateFormat = '%H:00'; // SQLite format for hour
+            $dateFormat = '%H:00'; // SQLite/MySQL format for hour, adjusted in logic usually
             $labelFormat = 'H:i';
         } elseif ($period === 'weekly') {
             $startDate = $date->copy()->startOfWeek();
             $endDate = $date->copy()->endOfWeek();
-            $dateFormat = '%Y-%m-%d';
+            $dateFormat = 'Y-m-d';
             $labelFormat = 'D d M';
+        } elseif ($period === 'yearly') {
+            $startDate = $date->copy()->startOfYear();
+            $endDate = $date->copy()->endOfYear();
+            $dateFormat = 'Y-m';
+            $labelFormat = 'M Y';
         } else { // monthly
             $startDate = $date->copy()->startOfMonth();
             $endDate = $date->copy()->endOfMonth();
-            $dateFormat = '%Y-%m-%d';
+            $dateFormat = 'Y-m-d';
             $labelFormat = 'd M';
         }
 
@@ -55,6 +60,8 @@ class OwnerDashboardController extends Controller
         $revenueData = $visits->groupBy(function ($date) use ($period) {
             if ($period === 'daily') {
                 return $date->visit_date->format('H:00');
+            } elseif ($period === 'yearly') {
+                return $date->visit_date->format('Y-m');
             }
             return $date->visit_date->format('Y-m-d');
         })->map(function ($dayVisits) {
@@ -70,6 +77,14 @@ class OwnerDashboardController extends Controller
                 $time = sprintf('%02d:00', $i);
                 $chartLabels[] = $time;
                 $chartValues[] = $revenueData->get($time, 0);
+            }
+        } elseif ($period === 'yearly') {
+            $current = $startDate->copy();
+            while ($current <= $endDate) {
+                $key = $current->format('Y-m');
+                $chartLabels[] = $current->format('M');
+                $chartValues[] = $revenueData->get($key, 0);
+                $current->addMonth();
             }
         } else {
             $current = $startDate->copy();
