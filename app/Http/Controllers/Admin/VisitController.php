@@ -217,6 +217,7 @@ class VisitController extends Controller
     public function show(Visit $visit)
     {
         $visit->load(['patient', 'doctor', 'booking', 'treatmentRecord', 'payments']);
+        $visit->patient->load('patientPackages.servicePackage'); // Load packages
 
         return Inertia::render('Admin/Visits/Show', [
             'visit' => $visit,

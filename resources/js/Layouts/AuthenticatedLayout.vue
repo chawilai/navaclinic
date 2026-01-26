@@ -81,6 +81,17 @@ const isMobileMenuOpen = ref(false);
                             </Link>
                         </li>
                         <li v-if="$page.props.auth.user.is_admin">
+                             <Link :href="route('admin.packages.index')" 
+                                :class="{'bg-white text-blue-600 shadow-sm font-bold': route().current('admin.packages.index*'), 'hover:bg-white/60 hover:text-blue-500': !route().current('admin.packages.index*')}"
+                                class="rounded-full px-4 py-2 transition-all duration-200"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1.5">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                </svg>
+                                แพ็กเกจ
+                            </Link>
+                        </li>
+                        <li v-if="$page.props.auth.user.is_admin">
                              <Link :href="route('admin.settings.index')" 
                                 :class="{'bg-white text-blue-600 shadow-sm font-bold': route().current('admin.settings.index*'), 'hover:bg-white/60 hover:text-blue-500': !route().current('admin.settings.index*')}"
                                 class="rounded-full px-4 py-2 transition-all duration-200"
@@ -175,6 +186,16 @@ const isMobileMenuOpen = ref(false);
         <!-- Main Content -->
         <!-- Added pt-20 to account for the fixed navbar height -->
         <main class="flex-grow pt-24 pb-12 px-4 container mx-auto relative z-10">
+            <!-- Flash Messages -->
+            <div v-if="$page.props.flash.success" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Success!</strong>
+                <span class="block sm:inline ml-1">{{ $page.props.flash.success }}</span>
+            </div>
+            <div v-if="$page.props.flash.error" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline ml-1">{{ $page.props.flash.error }}</span>
+            </div>
+
             <!-- Header Slot -->
              <header v-if="$slots.header" class="mb-8">
                  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">

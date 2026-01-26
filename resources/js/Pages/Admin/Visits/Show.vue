@@ -35,6 +35,7 @@ const paymentForm = useForm({
     payment_method: 'cash',
     notes: '',
     payment_date: new Date().toISOString().slice(0, 16),
+    package_id: '',
 });
 
 const totalPaid = computed(() => {
@@ -518,7 +519,26 @@ const deletePayment = (id) => {
                                                 <option value="cash">เงินสด (Cash)</option>
                                                 <option value="transfer">เงินโอน (Transfer)</option>
                                                 <option value="credit_card">บัตรเครดิต (Credit Card)</option>
+                                                <option value="package">ตัดแพ็กเกจ (Use Package)</option>
                                             </select>
+                                        </div>
+
+                                        <!-- Package Selection (Conditional) -->
+                                        <div v-if="paymentForm.payment_method === 'package'">
+                                            <label class="block text-xs font-bold text-indigo-700 mb-1">เลือกแพ็กเกจ (Select Package)</label>
+                                            <select v-model="paymentForm.package_id" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500">
+                                                <option value="" disabled>-- เลือกแพ็กเกจที่มี --</option>
+                                                <option 
+                                                    v-for="pkg in visit.patient.patient_packages?.filter(p => p.remaining_sessions > 0 && p.status === 'active')" 
+                                                    :key="pkg.id" 
+                                                    :value="pkg.id"
+                                                >
+                                                    {{ pkg.service_package?.name }} (คงเหลือ {{ pkg.remaining_sessions }} ครั้ง)
+                                                </option>
+                                            </select>
+                                            <div v-if="paymentForm.payment_method === 'package' && (!visit.patient.patient_packages || visit.patient.patient_packages.filter(p => p.remaining_sessions > 0 && p.status === 'active').length === 0)" class="text-rose-500 text-xs mt-1">
+                                                ไม่มีแพ็กเกจที่ใช้งานได้
+                                            </div>
                                         </div>
                                         <div>
                                             <label class="block text-xs font-bold text-indigo-700 mb-1">หมายเหตุ (Note)</label>

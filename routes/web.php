@@ -158,6 +158,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Visit Payments
     Route::post('/visits/{visit}/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'storeForVisit'])->name('admin.visits.payments.store');
 
+    // Service Packages
+    Route::resource('packages', \App\Http\Controllers\Admin\ServicePackageController::class)->names([
+        'index' => 'admin.packages.index',
+        'create' => 'admin.packages.create',
+        'store' => 'admin.packages.store',
+        'show' => 'admin.packages.show',
+        'edit' => 'admin.packages.edit',
+        'update' => 'admin.packages.update',
+        'destroy' => 'admin.packages.destroy',
+    ]);
+
+    // Assign Package to Patient
+    Route::post('/patients/packages', [\App\Http\Controllers\Admin\PatientPackageController::class, 'store'])->name('admin.patient-packages.store');
 });
 
 require __DIR__ . '/auth.php';
