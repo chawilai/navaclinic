@@ -10,6 +10,10 @@ const props = defineProps({
     readonly: {
         type: Boolean,
         default: false,
+    },
+    embedded: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -111,7 +115,7 @@ const removeItem = (item) => {
 <template>
     <div class="flex flex-col gap-4">
         <!-- View Switcher -->
-        <div class="flex flex-wrap gap-2 justify-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+        <div :class="['flex flex-wrap gap-2 justify-center', embedded ? '' : 'bg-slate-50 p-2 rounded-xl border border-slate-200']">
             <button 
                 v-for="view in views" 
                 :key="view.id"
@@ -126,10 +130,15 @@ const removeItem = (item) => {
         </div>
 
         <!-- Interactive SVG Area -->
-        <div class="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
+        <!-- Interactive SVG Area -->
+        <div :class="[
+            'relative overflow-hidden flex flex-col transition-all',
+            embedded ? 'bg-transparent' : 'bg-white rounded-2xl border border-slate-200 shadow-sm min-h-[600px]'
+        ]">
             <div class="p-4 flex-1 relative flex justify-center items-start overflow-auto custom-scrollbar">
                 <!-- Wrapper to constraint size -->
-                <div class="relative w-full max-w-[500px] h-[600px]">
+                <!-- Wrapper to constraint size -->
+                <div class="relative w-full" :class="embedded ? 'h-full max-w-full' : 'h-[600px] max-w-[500px]'">
                     <InteractiveSvg 
                         :src="currentSvgParams.file" 
                         :selected-parts="selectedParts"

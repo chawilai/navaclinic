@@ -448,69 +448,81 @@ const patientAge = computed(() => {
                                 <!-- 3. Pain Areas -->
                                 <div v-if="medicalSummary.pain_areas && medicalSummary.pain_areas.length > 0">
                                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                        <div class="w-1 h-3 bg-emerald-500 rounded-full"></div>
+                                        <div class="w-1 h-3 bg-indigo-500 rounded-full"></div>
                                         บริเวณที่รักษา (Treated Areas)
                                     </h4>
                                     
-                                    <div class="rounded-2xl border border-slate-100 bg-slate-50/30 p-6">
-                                        <div class="flex flex-col 2xl:flex-row gap-8 items-start">
+                                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                        <div class="grid grid-cols-1 xl:grid-cols-12 divide-y xl:divide-y-0 xl:divide-x divide-slate-100">
                                             
-                                            <!-- Body Map Card -->
-                                            <div class="w-full 2xl:w-auto flex-shrink-0 sticky top-6">
-                                                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex justify-center">
-                                                     <div class="origin-top scale-90 sm:scale-100">
-                                                         <BodyPartSelector 
-                                                            :modelValue="medicalSummary.pain_areas" 
-                                                            :readonly="true" 
-                                                        />
-                                                     </div>
+                                            <!-- Body Map Section (Fixed Width) -->
+                                            <div class="xl:col-span-5 bg-slate-50 p-2 flex flex-col items-center justify-center border-r border-slate-100">
+                                                <div class="w-full relative min-h-[800px] flex items-center justify-center">
+                                                     <BodyPartSelector 
+                                                        :modelValue="medicalSummary.pain_areas" 
+                                                        :readonly="true" 
+                                                        :embedded="true"
+                                                        class="w-full h-full"
+                                                    />
                                                 </div>
                                             </div>
                                             
-                                            <!-- Details List -->
-                                            <div class="w-full 2xl:flex-1">
-                                                <div class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-1 gap-6 h-full content-start">
-                                                    <div v-for="(item, idx) in medicalSummary.pain_areas" :key="idx" class="bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group border-slate-200 flex flex-col gap-5 relative overflow-hidden">
-                                                         
-                                                         <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-slate-50 to-transparent -mr-8 -mt-8 rounded-full pointer-events-none"></div>
+                                            <!-- Details Table Section (Flexible) -->
+                                            <div class="xl:col-span-7 flex flex-col">
+                                                <div class="p-5 border-b border-slate-100 bg-white flex justify-between items-center">
+                                                    <h5 class="font-bold text-slate-800 flex items-center gap-2">
+                                                        <ClipboardDocumentListIcon class="w-5 h-5 text-indigo-500" />
+                                                        รายการอาการแยกตามจุด (Symptom Details)
+                                                    </h5>
+                                                </div>
 
-                                                         <!-- Header -->
-                                                         <div class="flex items-center gap-3 z-10">
-                                                            <div class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center border border-rose-100 flex-shrink-0">
-                                                                <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
-                                                            </div>
-                                                            <span class="font-bold text-slate-800 text-lg leading-tight">{{ item.area }}</span>
-                                                         </div>
-
-                                                         <!-- Pain Dashboard -->
-                                                         <div v-if="item.pain_level || item.pain_level_after" class="flex items-center justify-between bg-slate-50 rounded-xl p-4 border border-slate-100 z-10 transition-colors group-hover:border-slate-200 group-hover:bg-slate-50/80">
-                                                            <!-- Before -->
-                                                            <div class="flex flex-col items-center px-4 border-r border-slate-200">
-                                                                <span class="text-xs uppercase font-bold text-slate-400 mb-1">ก่อนรักษา</span>
-                                                                <span class="text-3xl font-black text-rose-500 tracking-tight">{{ item.pain_level || '-' }}</span>
-                                                            </div>
-                                                            
-                                                            <!-- Icon -->
-                                                            <div class="text-slate-400">
-                                                                <ArrowLongRightIcon class="w-6 h-6" />
-                                                            </div>
-
-                                                            <!-- After -->
-                                                            <div class="flex flex-col items-center px-4">
-                                                                <span class="text-xs uppercase font-bold text-slate-400 mb-1">หลังรักษา</span>
-                                                                <span class="text-3xl font-black text-emerald-500 tracking-tight">{{ item.pain_level_after || '-' }}</span>
-                                                            </div>
-                                                         </div>
-
-                                                        <!-- Note -->
-                                                        <div class="text-sm text-slate-600 leading-relaxed z-10 pl-1">
-                                                            <span v-if="item.symptom">{{ item.symptom }}</span>
-                                                            <span v-else class="italic text-slate-400 text-xs">ไม่ได้ระบุอาการเพิ่มเติม</span>
-                                                        </div>
-                                                    </div>
+                                                <div class="overflow-x-auto">
+                                                    <table class="w-full text-left text-sm z-0">
+                                                        <thead class="bg-slate-50/70 text-slate-500 text-xs uppercase font-bold border-b border-slate-100">
+                                                            <tr>
+                                                                <th class="px-6 py-4 w-12 text-center">#</th>
+                                                                <th class="px-6 py-4 w-1/4">ตำแหน่ง (Area)</th>
+                                                                <th class="px-6 py-4 col-span-2">อาการ (Symptoms)</th>
+                                                                <th class="px-6 py-4 text-center w-1/4">ระดับความปวด (Pain)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-slate-50">
+                                                            <tr v-for="(item, idx) in medicalSummary.pain_areas" :key="idx" class="hover:bg-indigo-50/30 transition-colors">
+                                                                <td class="px-6 py-4 text-center text-slate-400 font-medium">
+                                                                    {{ idx + 1 }}
+                                                                </td>
+                                                                <td class="px-6 py-4 align-top">
+                                                                    <span class="font-bold text-indigo-900 block">
+                                                                        {{ typeof item.area === 'string' ? item.area.replace(/_/g, ' ') : (item.area?.area || item.area) }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="px-6 py-4 align-top">
+                                                                     <p v-if="item.symptom" class="text-slate-600 leading-relaxed">{{ item.symptom }}</p>
+                                                                     <p v-else class="text-slate-300 italic text-xs">- ไม่ระบุ -</p>
+                                                                </td>
+                                                                <td class="px-6 py-4 align-top text-center">
+                                                                    <div v-if="item.pain_level || item.pain_level_after" class="inline-flex items-center bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+                                                                         <div class="px-3 py-1 flex flex-col items-center border-r border-slate-100">
+                                                                             <span class="text-[9px] text-slate-400 uppercase font-bold">Before</span>
+                                                                             <span class="text-lg font-bold text-rose-500">{{ item.pain_level || '-' }}</span>
+                                                                         </div>
+                                                                         <div class="px-2 text-slate-300">
+                                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                                                               <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+                                                                             </svg>
+                                                                         </div>
+                                                                         <div class="px-3 py-1 flex flex-col items-center">
+                                                                             <span class="text-[9px] text-slate-400 uppercase font-bold">After</span>
+                                                                             <span class="text-lg font-bold text-emerald-500">{{ item.pain_level_after || '-' }}</span>
+                                                                         </div>
+                                                                    </div>
+                                                                    <span v-else class="text-slate-300">-</span>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>

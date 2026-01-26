@@ -169,7 +169,8 @@ watch(() => props.selectedParts, () => {
 /* Global SVG Overrides when inside this container */
 .interactive-svg-container svg {
     max-height: 100%;
-    width: auto;
+    width: 100%;
+    height: auto;
     transition: all 0.3s ease;
 }
 

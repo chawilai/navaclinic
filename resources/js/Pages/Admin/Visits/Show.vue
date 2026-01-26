@@ -315,7 +315,7 @@ const deletePayment = (id) => {
                                     </div>
                                     
                                     <!-- Pain Details List -->
-                                    <div v-if="visit.treatment_record.pain_areas && visit.treatment_record.pain_areas.some(i => i.symptom || i.pain_level)" class="border-t border-slate-100 bg-slate-50/50 p-4 max-h-60 overflow-y-auto custom-scrollbar">
+                                    <div v-if="visit.treatment_record.pain_areas && visit.treatment_record.pain_areas.length > 0" class="border-t border-slate-100 bg-slate-50/50 p-4 max-h-60 overflow-y-auto custom-scrollbar">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             <div v-for="(item, idx) in visit.treatment_record.pain_areas" :key="idx" class="bg-white border-l-4 border-rose-400 shadow-sm rounded-r-xl p-3 flex flex-col gap-2 group hover:shadow-md transition-all">
                                                 <div class="flex justify-between items-start">
