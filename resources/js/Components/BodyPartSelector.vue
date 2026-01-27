@@ -18,6 +18,14 @@ const props = defineProps({
     expandAll: {
         type: Boolean,
         default: false
+    },
+    showAllViews: {
+        type: Boolean,
+        default: false
+    },
+    thumbnail: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -163,10 +171,43 @@ const removeItem = (item) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4" :class="{ 'h-full': thumbnail }">
         
+        <!-- Thumbnail Mode (Tiny Preview for Dashboard) -->
+        <div v-if="thumbnail" class="flex flex-col gap-2 w-full h-full p-1">
+             <!-- Row 1: Body & Head (3 items) -->
+             <div class="grid grid-cols-3 gap-2 flex-1 min-h-0">
+                 <div v-for="view in viewGroups[0].options" :key="view.id" 
+                      class="relative flex flex-col items-center justify-center bg-white rounded-lg border border-slate-100 p-1 shadow-sm hover:border-indigo-200 transition-colors">
+                      <div class="w-full h-full flex items-center justify-center p-1 pointer-events-none">
+                          <InteractiveSvg 
+                             :src="view.file"
+                             :selected-parts="getPartsForView(view)"
+                             class="max-w-full max-h-full w-auto h-auto"
+                          />
+                      </div>
+                      <span class="text-[9px] text-slate-500 font-bold uppercase mb-0.5 leading-none">{{ view.label }}</span>
+                 </div>
+             </div>
+             
+             <!-- Row 2: Hands & Feet (4 items) -->
+             <div class="grid grid-cols-4 gap-2 flex-1 min-h-0">
+                  <div v-for="view in [...viewGroups[1].options, ...viewGroups[2].options]" :key="view.id" 
+                      class="relative flex flex-col items-center justify-center bg-white rounded-lg border border-slate-100 p-1 shadow-sm hover:border-indigo-200 transition-colors">
+                      <div class="w-full h-full flex items-center justify-center p-1 pointer-events-none">
+                          <InteractiveSvg 
+                             :src="view.file"
+                             :selected-parts="getPartsForView(view)"
+                             class="max-w-full max-h-full w-auto h-auto"
+                          />
+                      </div>
+                      <span class="text-[8px] text-slate-400 font-bold uppercase mb-0.5 leading-none">{{ view.label }}</span>
+                 </div>
+             </div>
+        </div>
+
         <!-- Expand All Mode -->
-        <div v-if="expandAll" class="space-y-12 animate-fadeIn py-6">
+        <div v-else-if="expandAll" class="space-y-12 animate-fadeIn py-6">
             <div v-for="(group, gIdx) in viewGroups" :key="gIdx">
                 <!-- Group Header -->
                 <div class="flex items-center gap-4 mb-6">
@@ -204,6 +245,40 @@ const removeItem = (item) => {
                              />
                          </div>
                      </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Show All Views Mode (Compact Grid for Zoom Modal) -->
+        <div v-else-if="showAllViews" class="space-y-8 animate-fadeIn py-4">
+             <div v-for="(group, gIdx) in viewGroups" :key="gIdx">
+                <!-- Group Header -->
+                <div class="flex items-center gap-4 mb-4">
+                     <div class="h-px bg-slate-200 flex-1"></div>
+                     <h4 class="font-bold text-slate-400 text-sm uppercase tracking-wider">{{ group.label }}</h4>
+                     <div class="h-px bg-slate-200 flex-1"></div>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-6">
+                     <div v-for="view in group.options" :key="view.id" 
+                          class="relative flex flex-col items-center bg-white rounded-xl border border-slate-100 p-4 shadow-sm min-w-[300px]">
+                          
+                          <div class="mb-4">
+                             <span class="px-3 py-1 rounded-full bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border border-slate-100">
+                                 {{ view.fullLabel }}
+                             </span>
+                          </div>
+
+                          <!-- SVG Content -->
+                          <div class="w-full flex items-start justify-center">
+                              <InteractiveSvg 
+                                 :src="view.file"
+                                 :selected-parts="getPartsForView(view)"
+                                 @toggle="(name) => handleToggle(name, view)"
+                                 class="w-full h-auto max-h-[500px]"
+                              />
+                          </div>
+                      </div>
                 </div>
             </div>
         </div>

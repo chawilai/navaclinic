@@ -246,12 +246,56 @@ const saveRow = () => {
 
                     <form @submit.prevent="submit" class="p-8 space-y-8">
                         
-                        <!-- 1. Pain Areas (Top Priority) -->
-                        <div class="space-y-6">
-                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-rose-500">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        <!-- 1. Vital Signs (Top Bar) -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                            <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-indigo-500">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                                 </svg>
+                                Vital Signs (สัญญาณชีพ)
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Weight (kg)</label>
+                                    <input type="number" step="0.1" v-model="form.weight" class="w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 text-sm font-semibold text-slate-700 transition-all text-center">
+                                    <InputError class="mt-1" :message="form.errors.weight" />
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Height (cm)</label>
+                                    <input type="number" step="0.1" v-model="form.height" class="w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 text-sm font-semibold text-slate-700 transition-all text-center">
+                                    <InputError class="mt-1" :message="form.errors.height" />
+                                </div>
+                                <div class="col-span-2 md:col-span-1">
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">BP (mmHg)</label>
+                                    <input type="text" v-model="form.blood_pressure" placeholder="120/80" class="w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 text-sm font-semibold text-slate-700 transition-all text-center text-indigo-600">
+                                    <InputError class="mt-1" :message="form.errors.blood_pressure" />
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Temp (°C)</label>
+                                    <input type="number" step="0.01" v-model="form.temperature" class="w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 text-sm font-semibold text-slate-700 transition-all text-center text-rose-500">
+                                    <InputError class="mt-1" :message="form.errors.temperature" />
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Pulse (bpm)</label>
+                                    <input type="number" v-model="form.pulse_rate" class="w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 text-sm font-semibold text-slate-700 transition-all text-center text-blue-500">
+                                    <InputError class="mt-1" :message="form.errors.pulse_rate" />
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-1">Resp (bpm)</label>
+                                    <input type="number" v-model="form.respiratory_rate" class="w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 text-sm font-semibold text-slate-700 transition-all text-center text-emerald-500">
+                                    <InputError class="mt-1" :message="form.errors.respiratory_rate" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Pain Areas (Main Section) -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                            <h4 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <span class="bg-rose-100 text-rose-600 p-1.5 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                    </svg>
+                                </span>
                                 Pain Areas & Symptoms (ตำแหน่งที่ปวด & อาการ)
                             </h4>
 
@@ -268,16 +312,19 @@ const saveRow = () => {
                                 <div class="lg:col-span-3 flex flex-col h-[700px]">
                                     <h5 class="text-sm font-bold text-indigo-900 border-b border-indigo-100 pb-2 mb-3">Symptom Details (รายละเอียดอาการ)</h5>
                                     
-                                    <div v-if="form.pain_areas.length === 0" class="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mx-auto mb-2 text-slate-400">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                                        </svg>
-                                        <p class="text-sm">Click on the body map to add symptoms.</p>
-                                        <p class="text-xs text-slate-400 mt-1">(คลิกที่รูปหุ่นเพื่อระบุอาการ)</p>
+                                    <div v-if="form.pain_areas.length === 0" class="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 text-slate-500 hover:bg-slate-50/80 transition-colors">
+                                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 text-indigo-200">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+                                            </svg>
+                                        </div>
+                                        <p class="font-bold text-slate-600">No pain areas selected</p>
+                                        <p class="text-xs text-slate-400 mt-1">Click on the body map to identify pain locations.</p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">(คลิกที่รูปหุ่นเพื่อระบุตำแหน่งที่ปวด)</p>
                                     </div>
                                     
-                                    <div v-else class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4">
-                                        <div v-for="(item, index) in form.pain_areas" :key="index" class="bg-slate-50 p-4 rounded-xl border border-slate-100 animate-fadeIn relative shadow-sm hover:shadow-md transition-all">
+                                    <div v-else class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                                        <div v-for="(item, index) in form.pain_areas" :key="index" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm animate-fadeIn relative hover:shadow-md transition-all group">
                                             <div class="flex justify-between items-start gap-2 mb-3">
                                                 <div class="flex items-center gap-2 min-w-0 flex-1">
                                                     <span class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs text-indigo-600 font-bold flex-shrink-0 mt-0.5">
@@ -324,108 +371,87 @@ const saveRow = () => {
                             </div>
                         </div>
 
-                        <!-- 2. Vital Signs -->
-                        <div class="space-y-4 pt-6 border-t border-slate-100">
-                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-indigo-600">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                                </svg>
-                                Vital Signs (สัญญาณชีพ)
-                            </h4>
-                            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-600 mb-1">Weight (kg)</label>
-                                    <input type="number" step="0.1" v-model="form.weight" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                    <InputError class="mt-2" :message="form.errors.weight" />
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-600 mb-1">Height (cm)</label>
-                                    <input type="number" step="0.1" v-model="form.height" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                    <InputError class="mt-2" :message="form.errors.height" />
-                                </div>
-                                <div class="col-span-2 md:col-span-1">
-                                    <label class="block text-xs font-medium text-slate-600 mb-1">BP (mmHg)</label>
-                                    <input type="text" v-model="form.blood_pressure" placeholder="120/80" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                    <InputError class="mt-2" :message="form.errors.blood_pressure" />
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-600 mb-1">Temp (°C)</label>
-                                    <input type="number" step="0.01" v-model="form.temperature" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                    <InputError class="mt-2" :message="form.errors.temperature" />
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-600 mb-1">Pulse (bpm)</label>
-                                    <input type="number" v-model="form.pulse_rate" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                    <InputError class="mt-2" :message="form.errors.pulse_rate" />
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-600 mb-1">Resp (bpm)</label>
-                                    <input type="number" v-model="form.respiratory_rate" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                                    <InputError class="mt-2" :message="form.errors.respiratory_rate" />
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- 3. Examination -->
-                        <div class="space-y-6 pt-6 border-t border-slate-100">
-                             <div class="space-y-4">
+
+                        <!-- 3. Examination Details -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                            <h4 class="font-bold text-slate-800 text-lg flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <span class="bg-amber-100 text-amber-600 p-1.5 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                    </svg>
+                                </span>
+                                Clinical Information
+                            </h4>
+
+                            <div class="space-y-6">
                                 <div>
-                                    <label class="block text-sm font-bold text-slate-900 mb-1">Chief Complaint (CC) - อาการสำคัญ</label>
-                                    <textarea v-model="form.chief_complaint" rows="2" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Patient's primary symptom..."></textarea>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Chief Complaint (CC) - อาการสำคัญ</label>
+                                    <textarea v-model="form.chief_complaint" rows="3" class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors" placeholder="Patient's primary symptom..."></textarea>
                                     <InputError class="mt-2" :message="form.errors.chief_complaint" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-bold text-slate-900 mb-1">Physical Examination (PE) - ผลการตรวจร่างกาย</label>
-                                    <textarea v-model="form.physical_exam" rows="3" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Physical exam findings..."></textarea>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Physical Examination (PE) - ผลการตรวจร่างกาย</label>
+                                    <textarea v-model="form.physical_exam" rows="5" class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors" placeholder="Physical exam findings..."></textarea>
                                     <InputError class="mt-2" :message="form.errors.physical_exam" />
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 4. Diagnosis & Treatment -->
-                        <div class="space-y-6 pt-6 border-t border-slate-100">
+                        <!-- 4. Diagnosis & Treatment Plan -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
                              <div>
-                                <label class="block text-sm font-bold text-slate-900 mb-1">Diagnosis (การวินิจฉัยโรค)</label>
-                                <textarea v-model="form.diagnosis" rows="2" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-indigo-50/50" required placeholder="Medical diagnosis..."></textarea>
+                                <h4 class="font-bold text-slate-800 text-lg flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
+                                    <span class="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </span>
+                                    Plan & Treatment
+                                </h4>
+                                <label class="block text-sm font-bold text-slate-900 mb-2">Diagnosis (การวินิจฉัยโรค)</label>
+                                <textarea v-model="form.diagnosis" rows="2" class="w-full rounded-xl border-indigo-200 bg-indigo-50/30 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Medical diagnosis..."></textarea>
                                 <InputError class="mt-2" :message="form.errors.diagnosis" />
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-bold text-slate-900 mb-1">Treatment Procedures (รายละเอียดการรักษา)</label>
-                                    <textarea v-model="form.treatment_details" rows="4" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Treatment steps performed..."></textarea>
+                                    <label class="block text-sm font-bold text-slate-900 mb-2">Treatment Procedures (รายละเอียดการรักษา)</label>
+                                    <textarea v-model="form.treatment_details" rows="6" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500" required placeholder="Treatment steps performed..."></textarea>
                                     <InputError class="mt-2" :message="form.errors.treatment_details" />
                                 </div>
-                                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 h-fit">
-                                    <label class="block text-sm font-bold text-indigo-900 mb-3">Massage Weight (น้ำหนักมือ)</label>
-                                    <div class="space-y-2">
-                                        <label class="flex items-center p-2 bg-white rounded-lg border border-indigo-100 cursor-pointer hover:border-indigo-300 transition-colors">
-                                            <input type="radio" value="light" v-model="form.massage_weight" class="text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                                            <span class="ml-2 text-sm text-slate-700">Light (เบา)</span>
-                                        </label>
-                                        <label class="flex items-center p-2 bg-white rounded-lg border border-indigo-100 cursor-pointer hover:border-indigo-300 transition-colors">
-                                            <input type="radio" value="medium" v-model="form.massage_weight" class="text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                                            <span class="ml-2 text-sm text-slate-700">Medium (ปานกลาง)</span>
-                                        </label>
-                                        <label class="flex items-center p-2 bg-white rounded-lg border border-indigo-100 cursor-pointer hover:border-indigo-300 transition-colors">
-                                            <input type="radio" value="heavy" v-model="form.massage_weight" class="text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                                            <span class="ml-2 text-sm text-slate-700">Heavy (หนัก)</span>
-                                        </label>
-                                    </div>
-                                    <InputError class="mt-2" :message="form.errors.massage_weight" />
-                                </div>
-                                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 h-fit">
-                                    <label class="block text-sm font-bold text-indigo-900 mb-3">Pain Level (ระดับความเจ็บปวด 0-10)</label>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-600 mb-1">Before (ก่อน)</label>
-                                            <input type="number" min="0" max="10" v-model="form.pain_level_before" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm placeholder:text-gray-300" placeholder="0-10">
-                                            <InputError class="mt-2" :message="form.errors.pain_level_before" />
+                                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 h-fit">
+                                    <label class="block text-sm font-bold text-slate-700 mb-3">Settings</label>
+                                    
+                                    <div class="mb-4">
+                                        <p class="text-xs font-bold text-slate-400 uppercase mb-2">Massage Weight</p>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-colors shadow-sm">
+                                                <input type="radio" value="light" v-model="form.massage_weight" class="text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                <span class="ml-2 text-sm text-slate-700 font-medium">Light (เบา)</span>
+                                            </label>
+                                            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-colors shadow-sm">
+                                                <input type="radio" value="medium" v-model="form.massage_weight" class="text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                <span class="ml-2 text-sm text-slate-700 font-medium">Medium (ปานกลาง)</span>
+                                            </label>
+                                            <label class="flex items-center p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-colors shadow-sm">
+                                                <input type="radio" value="heavy" v-model="form.massage_weight" class="text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                                                <span class="ml-2 text-sm text-slate-700 font-medium">Heavy (หนัก)</span>
+                                            </label>
                                         </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-600 mb-1">After (หลัง)</label>
-                                            <input type="number" min="0" max="10" v-model="form.pain_level_after" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm placeholder:text-gray-300" placeholder="0-10">
-                                            <InputError class="mt-2" :message="form.errors.pain_level_after" />
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-400 uppercase mb-2">Pain Level Recall</p>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 mb-1">Before</label>
+                                                <input type="number" min="0" max="10" v-model="form.pain_level_before" class="w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-center font-bold text-rose-500" placeholder="-">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 mb-1">After</label>
+                                                <input type="number" min="0" max="10" v-model="form.pain_level_after" class="w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-center font-bold text-emerald-500" placeholder="-">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -433,21 +459,21 @@ const saveRow = () => {
                         </div>
 
                         <!-- 5. Other -->
-                        <div class="space-y-6 pt-6 border-t border-slate-100">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Price (Total Bill - ยอดรวมค่ารักษา)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                                <label class="block text-sm font-bold text-slate-700 mb-2 whitespace-nowrap">Price (Total Bill - ยอดรวมค่ารักษา)</label>
                                 <div class="relative">
-                                    <input type="number" step="0.01" v-model="form.price" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-12 font-bold text-slate-700" placeholder="0.00">
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <span class="text-slate-500 sm:text-sm">THB</span>
+                                    <input type="number" step="0.01" v-model="form.price" class="w-full rounded-xl border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-12 text-2xl font-black text-indigo-700 tracking-tight" placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-slate-400 font-bold">THB</span>
                                     </div>
                                 </div>
                                 <InputError class="mt-2" :message="form.errors.price" />
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Doctor's Notes (บันทึกเพิ่มเติม)</label>
-                                <textarea v-model="form.notes" rows="2" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                            <div class="p-4">
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Doctor's Notes (บันทึกเพิ่มเติม)</label>
+                                <textarea v-model="form.notes" rows="3" class="w-full rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 bg-white" placeholder="Internal notes..."></textarea>
                                 <InputError class="mt-2" :message="form.errors.notes" />
                             </div>
                         </div>

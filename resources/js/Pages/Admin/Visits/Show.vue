@@ -2,7 +2,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import BodyPartSelector from '@/Components/BodyPartSelector.vue';
-import { computed } from 'vue';
+import Modal from '@/Components/Modal.vue';
+import { computed, ref } from 'vue';
+
+const showBodyMapModal = ref(false);
 
 const statusLabels = {
     pending: 'รอการรักษา',
@@ -129,17 +132,29 @@ const deletePayment = (id) => {
                                 ข้อมูลทั่วไปทางคลินิก
                             </h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">แพทย์ผู้ดูแล (Doctor)</p>
-                                    <p class="text-slate-900 font-medium text-base">{{ visit.doctor?.name || 'ไม่ได้ระบุแพทย์' }}</p>
+                                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">อาการเบื้องต้น (Symptoms / CC)</p>
+                                    <p class="text-slate-900 font-medium leading-relaxed">{{ visit.symptoms || '-' }}</p>
                                 </div>
-                                 <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">อาการเบื้องต้น (Symptoms / CC)</p>
-                                    <p class="text-slate-900 leading-relaxed">{{ visit.symptoms || '-' }}</p>
+                                
+                                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">แพทย์ผู้ดูแล (Doctor)</p>
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                                            {{ visit.doctor?.name ? visit.doctor.name.charAt(0) : 'D' }}
+                                        </div>
+                                        <div>
+                                            <p class="text-slate-900 font-bold text-base">{{ visit.doctor?.name || 'ไม่ได้ระบุแพทย์' }}</p>
+                                            <p class="text-xs text-slate-500">Physician</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="md:col-span-2">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">บันทึกเพิ่มเติม (Notes)</p>
-                                    <p class="text-slate-700">{{ visit.notes || '-' }}</p>
+
+                                <div class="md:col-span-2" v-if="visit.notes">
+                                    <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+                                        <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">บันทึกเพิ่มเติม (Notes)</p>
+                                        <p class="text-slate-700 text-sm">{{ visit.notes }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -189,20 +204,16 @@ const deletePayment = (id) => {
 
                 <!-- Treatment Record Section -->
                 <div v-if="visit.treatment_record" class="mt-8 bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-indigo-100">
-                    <div class="bg-gradient-to-r from-indigo-50 to-white px-8 py-6 border-b border-indigo-100 flex justify-between items-center">
-                        <h3 class="font-bold text-indigo-900 text-xl flex items-center gap-3">
-                            <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                                </svg>
-                            </div>
-                            <div>
-                                บันทึกเวชระเบียน
-                                <div class="text-[10px] uppercase tracking-wider font-semibold text-indigo-400">Medical Record</div>
-                            </div>
-                        </h3>
-                        <Link :href="route('admin.visits.treatment.create', visit.id)" class="group flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-white px-4 py-2 rounded-xl border border-indigo-100 hover:border-indigo-300 transition-all shadow-sm hover:shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:scale-110 transition-transform">
+                    <div class="bg-white px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-black text-slate-800 text-2xl flex items-center gap-3">
+                                <span>บันทึกเวชระเบียน</span>
+                                <span class="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded uppercase tracking-wider font-bold">Medical Record</span>
+                            </h3>
+                            <p class="text-slate-500 text-sm mt-1">รายละเอียดการตรวจรักษา และอาการของผู้ป่วย</p>
+                        </div>
+                        <Link :href="route('admin.visits.treatment.create', visit.id)" class="group flex items-center gap-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-full shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                             </svg>
                             แก้ไขบันทึก
@@ -210,11 +221,11 @@ const deletePayment = (id) => {
                     </div>
                     
                     <div class="p-6">
-                        <!-- 4-Column Grid: Vitals/Clinical (1) | PE (1) | Body Map (2) -->
-                        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
+                        <!-- 3-Column Grid: Left (Vitals, Clinical, PE) spans 2 | Right (Body Map) spans 1 -->
+                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
                             
-                            <!-- Column 1: Vitals & Clinical Assessment -->
-                            <div class="space-y-6">
+                            <!-- Column 1: Vitals, Clinical, PE (Spans 2) -->
+                            <div class="space-y-6 xl:col-span-2">
                                 <!-- Vitals -->
                                 <div>
                                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
@@ -223,37 +234,42 @@ const deletePayment = (id) => {
                                         </svg>
                                         สัญญาณชีพ (VITAL SIGNS)
                                     </h4>
-                                    <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-                                        <div class="grid grid-cols-2 gap-y-4 gap-x-6">
-                                            <div class="flex flex-col items-center p-2 rounded-lg hover:bg-slate-50">
-                                                <span class="text-[10px] text-slate-400 font-bold uppercase">ความดัน (BP)</span>
-                                                <div class="font-bold text-indigo-600 text-lg">{{ visit.treatment_record.blood_pressure || '-' }}</div>
-                                                <span class="text-[10px] text-slate-400">mmHg</span>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <!-- BP -->
+                                        <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-1 hover:border-indigo-200 transition-colors">
+                                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">BP</span>
+                                            <div class="font-bold text-indigo-600 text-xl leading-none">{{ visit.treatment_record.blood_pressure || '-' }}</div>
+                                            <span class="text-[9px] text-slate-400">mmHg</span>
+                                        </div>
+                                        <!-- Temp -->
+                                        <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-1 hover:border-rose-200 transition-colors">
+                                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">TEMP</span>
+                                            <div class="font-bold text-rose-500 text-xl leading-none">{{ visit.treatment_record.temperature || '-' }}</div>
+                                            <span class="text-[9px] text-slate-400">°C</span>
+                                        </div>
+                                        <!-- Pulse -->
+                                        <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-1 hover:border-blue-200 transition-colors">
+                                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">PULSE</span>
+                                            <div class="font-bold text-blue-500 text-xl leading-none">{{ visit.treatment_record.pulse_rate || '-' }}</div>
+                                            <span class="text-[9px] text-slate-400">bpm</span>
+                                        </div>
+                                        <!-- Resp -->
+                                        <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-1 hover:border-emerald-200 transition-colors">
+                                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">RESP</span>
+                                            <div class="font-bold text-emerald-500 text-xl leading-none">{{ visit.treatment_record.respiratory_rate || '-' }}</div>
+                                            <span class="text-[9px] text-slate-400">bpm</span>
+                                        </div>
+                                        
+                                        <!-- W/H -->
+                                        <div class="col-span-2 bg-slate-50 p-3 rounded-xl border border-slate-100 flex justify-around items-center mt-2">
+                                            <div class="flex flex-col items-center">
+                                                <span class="text-[9px] text-slate-400 uppercase font-bold">Weight</span>
+                                                <span class="font-bold text-slate-700">{{ visit.treatment_record.weight || '-' }} <span class="text-[10px] font-normal text-slate-400">kg</span></span>
                                             </div>
-                                            <div class="flex flex-col items-center p-2 rounded-lg hover:bg-slate-50">
-                                                <span class="text-[10px] text-slate-400 font-bold uppercase">อุณหภูมิ (TEMP)</span>
-                                                <div class="font-bold text-rose-500 text-lg">{{ visit.treatment_record.temperature || '-' }}</div>
-                                                <span class="text-[10px] text-slate-400">°C</span>
-                                            </div>
-                                            <div class="flex flex-col items-center p-2 rounded-lg hover:bg-slate-50">
-                                                <span class="text-[10px] text-slate-400 font-bold uppercase">ชีพจร (PULSE)</span>
-                                                <div class="font-bold text-blue-500 text-lg">{{ visit.treatment_record.pulse_rate || '-' }}</div>
-                                                <span class="text-[10px] text-slate-400">bpm</span>
-                                            </div>
-                                            <div class="flex flex-col items-center p-2 rounded-lg hover:bg-slate-50">
-                                                <span class="text-[10px] text-slate-400 font-bold uppercase">หายใจ (RESP)</span>
-                                                <div class="font-bold text-emerald-500 text-lg">{{ visit.treatment_record.respiratory_rate || '-' }}</div>
-                                                <span class="text-[10px] text-slate-400">bpm</span>
-                                            </div>
-                                            <div class="col-span-2 flex items-center justify-center gap-8 pt-2 mt-2 border-t border-slate-100">
-                                                <div class="flex items-baseline gap-2">
-                                                    <span class="text-[10px] font-bold text-slate-400 uppercase">BW</span>
-                                                    <span class="font-bold text-slate-700">{{ visit.treatment_record.weight || '-' }}</span> <span class="text-[10px] text-slate-400">kg</span>
-                                                </div>
-                                                <div class="flex items-baseline gap-2">
-                                                    <span class="text-[10px] font-bold text-slate-400 uppercase">HT</span>
-                                                    <span class="font-bold text-slate-700">{{ visit.treatment_record.height || '-' }}</span> <span class="text-[10px] text-slate-400">cm</span>
-                                                </div>
+                                            <div class="h-8 w-px bg-slate-200"></div>
+                                            <div class="flex flex-col items-center">
+                                                <span class="text-[9px] text-slate-400 uppercase font-bold">Height</span>
+                                                <span class="font-bold text-slate-700">{{ visit.treatment_record.height || '-' }} <span class="text-[10px] font-normal text-slate-400">cm</span></span>
                                             </div>
                                         </div>
                                     </div>
@@ -268,73 +284,94 @@ const deletePayment = (id) => {
                                         การตรวจประเมิน (CLINICAL)
                                     </h4>
                                     <div class="space-y-3">
-                                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-100/50">
-                                            <div class="text-[10px] font-bold text-amber-600 uppercase mb-1">อาการสำคัญ (CC)</div>
-                                            <p class="text-sm text-slate-800 font-medium leading-relaxed">{{ visit.treatment_record.chief_complaint || '-' }}</p>
+                                        <div class="bg-white p-4 rounded-xl border-l-4 border-amber-400 shadow-sm ring-1 ring-slate-100">
+                                            <div class="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">อาการสำคัญ (Chief Complaint)</div>
+                                            <p class="text-sm text-slate-800 font-medium leading-relaxed">
+                                                "{{ visit.treatment_record.chief_complaint || '-' }}"
+                                            </p>
                                         </div>
-                                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100/50">
-                                            <div class="text-[10px] font-bold text-indigo-600 uppercase mb-1">การวินิจฉัย (Dx)</div>
-                                            <p class="text-sm text-indigo-900 font-medium leading-relaxed">{{ visit.treatment_record.diagnosis || '-' }}</p>
+                                        <div class="bg-indigo-600 p-4 rounded-xl shadow-md text-white">
+                                            <div class="text-[10px] font-bold text-indigo-200 uppercase mb-1 tracking-wider">การวินิจฉัย (Diagnosis)</div>
+                                            <p class="text-base font-bold leading-relaxed">{{ visit.treatment_record.diagnosis || '-' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Physical Exam (Moved here) -->
+                                <div class="flex flex-col">
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                        การตรวจร่างกาย (PE)
+                                    </h4>
+                                    <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex-1">
+                                        <div v-if="visit.treatment_record.physical_exam" class="whitespace-pre-wrap text-sm text-slate-700 leading-relaxed font-medium">
+                                            {{ visit.treatment_record.physical_exam }}
+                                        </div>
+                                        <div v-else class="h-16 flex flex-col items-center justify-center text-slate-400 italic text-sm">
+                                            ไม่มีข้อมูลการตรวจร่างกาย
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Column 2: Physical Exam -->
+                            <!-- Column 2: Body Map (Pain Areas) -->
                             <div class="flex flex-col">
-                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-                                    การตรวจร่างกาย (PE)
-                                </h4>
-                                <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex-1">
-                                    <div v-if="visit.treatment_record.physical_exam" class="whitespace-pre-wrap text-sm text-slate-700 leading-relaxed">
-                                        {{ visit.treatment_record.physical_exam }}
-                                    </div>
-                                    <div v-else class="h-full flex flex-col items-center justify-center text-slate-400 italic text-sm">
-                                        ไม่มีข้อมูลการตรวจร่างกาย
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Column 3: Body Map (Pain Areas) - Spans 2 cols -->
-                            <div class="flex flex-col xl:col-span-2">
                                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
                                     ตำแหน่งที่ปวด
                                 </h4>
                                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
-                                    <!-- Body Selector -->
-                                    <div class="p-4 bg-slate-50/30 flex items-center justify-center min-h-[500px]">
-                                         <div v-if="visit.treatment_record.pain_areas && visit.treatment_record.pain_areas.length > 0" class="w-full">
-                                            <BodyPartSelector :model-value="visit.treatment_record.pain_areas" :readonly="true" :expand-all="true" />
+                                    <!-- Body Selector (Preview) -->
+                                    <div class="relative group cursor-pointer bg-slate-50/30 flex items-center justify-center h-96 overflow-hidden" @click="showBodyMapModal = true">
+                                         <div v-if="visit.treatment_record.pain_areas && visit.treatment_record.pain_areas.length > 0" class="w-full h-full p-4 pointer-events-none">
+                                            <BodyPartSelector :model-value="visit.treatment_record.pain_areas" :readonly="true" :thumbnail="true" />
                                         </div>
-                                        <div v-else class="flex flex-col items-center justify-center text-slate-300 gap-2">
+                                        <div v-else class="flex flex-col items-center justify-center text-slate-300 gap-2 h-full">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 opacity-20">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                                             </svg>
                                             <span class="text-xs">ไม่ระบุตำแหน่ง</span>
                                         </div>
+
+                                        <!-- Hover Overlay -->
+                                        <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors flex items-center justify-center">
+                                            <div class="bg-white/90 backdrop-blur text-slate-700 px-4 py-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all font-bold text-xs flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
+                                                </svg>
+                                                คลิกเพื่อดูขยาย
+                                            </div>
+                                        </div>
                                     </div>
+
                                     
                                     <!-- Pain Details List -->
-                                    <div v-if="visit.treatment_record.pain_areas && visit.treatment_record.pain_areas.length > 0" class="border-t border-slate-100 bg-slate-50/50 p-4 max-h-60 overflow-y-auto custom-scrollbar">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <div v-for="(item, idx) in visit.treatment_record.pain_areas" :key="idx" class="bg-white border-l-4 border-rose-400 shadow-sm rounded-r-xl p-3 flex flex-col gap-2 group hover:shadow-md transition-all">
-                                                <div class="flex justify-between items-start">
-                                                    <span class="font-bold text-slate-700 text-sm border-b border-transparent group-hover:border-rose-200 transition-colors">{{ item.area }}</span>
-                                                    <div v-if="item.pain_level || item.pain_level_after" class="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md text-[10px] font-bold border border-slate-200">
-                                                        <div class="flex items-center gap-1">
-                                                            <span class="text-rose-500">ระดับความปวด:</span>
-                                                            <span class="text-slate-700 text-sm">{{ item.pain_level || '-' }}</span>
+                                    <div v-if="visit.treatment_record.pain_areas && visit.treatment_record.pain_areas.length > 0" class="border-t border-slate-100 bg-slate-50/50 flex flex-col flex-1 p-0 overflow-hidden">
+                                        <div class="p-3 bg-slate-100/50 border-b border-slate-200/50 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                            รายการตำแหน่งที่ปวด ({{ visit.treatment_record.pain_areas.length }})
+                                        </div>
+                                        <div class="overflow-y-auto custom-scrollbar p-3 space-y-2 h-60">
+                                            <div v-for="(item, idx) in visit.treatment_record.pain_areas" :key="idx" class="bg-white rounded-lg p-3 border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all group">
+                                                <div class="flex justify-between items-center mb-2">
+                                                    <span class="font-bold text-indigo-900 text-sm flex items-center gap-2">
+                                                        <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] border border-indigo-100">{{ idx + 1 }}</span>
+                                                        {{ item.area }}
+                                                    </span>
+                                                    <div class="flex items-center gap-2">
+                                                        <div v-if="item.pain_level" class="px-2 py-0.5 rounded-md bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold" title="ระดับความปวดก่อนรักษา">
+                                                            VAS: {{ item.pain_level }}
                                                         </div>
-                                                        <template v-if="item.pain_level_after">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3 text-slate-400">
+                                                        <div v-if="item.pain_level_after" class="flex items-center text-slate-300">
+                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
                                                                 <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414-1.414L14.586 11H3a1 1 0 1 1 0-2h11.586l-2.293-2.293a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
                                                             </svg>
-                                                            <span class="text-emerald-600 text-sm">{{ item.pain_level_after }}</span>
-                                                        </template>
+                                                        </div>
+                                                        <div v-if="item.pain_level_after" class="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-bold" title="ระดับความปวดหลังรักษา">
+                                                            {{ item.pain_level_after }}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <p class="text-xs text-slate-500 leading-relaxed font-medium bg-slate-50 p-2 rounded-lg" v-if="item.symptom">{{ item.symptom }}</p>
-                                                <p class="text-xs text-slate-300 italic" v-else>ไม่มีรายละเอียดอาการ</p>
+                                                <div class="text-xs text-slate-600 bg-slate-50 p-2 rounded border border-slate-100 mt-1 leading-relaxed">
+                                                    <span class="text-slate-400 font-bold mr-1">อาการ:</span> {{ item.symptom || '-' }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -560,4 +597,38 @@ const deletePayment = (id) => {
             </div>
         </div>
     </AuthenticatedLayout>
+    
+    <!-- Body Map Zoom Modal -->
+    <Modal :show="showBodyMapModal" @close="showBodyMapModal = false" maxWidth="4xl">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-indigo-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                    Pain Areas Map (แผนภาพตำแหน่งปวด)
+                </h3>
+                <button @click="showBodyMapModal = false" class="text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 p-1 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5">
+                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="flex justify-center items-center bg-slate-50 rounded-xl p-4 min-h-[600px]">
+                <BodyPartSelector 
+                    :model-value="visit.treatment_record.pain_areas" 
+                    :readonly="true" 
+                    :expand-all="true" 
+                    height="600"
+                />
+            </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button @click="showBodyMapModal = false" class="px-5 py-2 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-700 transition-colors shadow-lg">
+                    Close
+                </button>
+            </div>
+        </div>
+    </Modal>
 </template>
