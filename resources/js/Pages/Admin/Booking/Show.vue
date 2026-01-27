@@ -303,7 +303,7 @@ const isDetailedPainArea = (areas) => {
                                     <!-- Body Selector -->
                                     <div class="p-4 bg-slate-50/30 flex items-center justify-center min-h-[500px]">
                                          <div v-if="booking.treatment_record.pain_areas && booking.treatment_record.pain_areas.length > 0" class="w-full">
-                                            <BodyPartSelector :model-value="booking.treatment_record.pain_areas" :readonly="true" :expand-all="true" />
+                                            <BodyPartSelector :model-value="booking.treatment_record.pain_areas" :readonly="true"/>
                                         </div>
                                         <div v-else class="flex flex-col items-center justify-center text-slate-300 gap-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 opacity-20">

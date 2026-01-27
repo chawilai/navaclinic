@@ -257,16 +257,15 @@ const saveRow = () => {
 
                             <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                                 <!-- Col 1: Body Map (2 cols) -->
-                                <div class="lg:col-span-2">
+                                <div class="lg:col-span-2 min-h-[600px]">
                                     <BodyPartSelector 
                                         :model-value="selectedParts"
                                         @update:model-value="updateParts" 
-                                        :expand-all="true"
                                     />
                                 </div>
                                 
                                 <!-- Col 2: Symptom List (3 cols) -->
-                                <div class="lg:col-span-3 flex flex-col h-[calc(100vh-8rem)] sticky top-24">
+                                <div class="lg:col-span-3 flex flex-col h-[700px]">
                                     <h5 class="text-sm font-bold text-indigo-900 border-b border-indigo-100 pb-2 mb-3">Symptom Details (รายละเอียดอาการ)</h5>
                                     
                                     <div v-if="form.pain_areas.length === 0" class="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-500">
