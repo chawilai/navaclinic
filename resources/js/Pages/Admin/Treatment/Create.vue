@@ -201,6 +201,11 @@ const submitForm = () => {
     });
 };
 
+const saveRow = () => {
+    form.save_action = 'stay';
+    submitForm();
+};
+
 // saveRow function removed as per instructions.
 </script>
 
@@ -350,9 +355,14 @@ const submitForm = () => {
                                                     </span>
                                                 </div>
                                                 
-                                                <button type="button" @click="updateParts(selectedParts.filter(p => p !== item.area))" class="text-xs font-medium text-rose-500 hover:text-rose-700 bg-rose-50 px-2 py-1 rounded hover:bg-rose-100 transition-colors flex-shrink-0">
-                                                    ลบ
-                                                </button>
+                                                <div class="flex items-center gap-2 flex-shrink-0">
+                                                    <button type="button" @click="saveRow" class="text-xs font-medium text-emerald-600 hover:text-emerald-800 bg-emerald-50 px-2 py-1 rounded hover:bg-emerald-100 transition-colors">
+                                                        บันทึก
+                                                    </button>
+                                                    <button type="button" @click="updateParts(selectedParts.filter(p => p !== item.area))" class="text-xs font-medium text-rose-500 hover:text-rose-700 bg-rose-50 px-2 py-1 rounded hover:bg-rose-100 transition-colors">
+                                                        ลบ
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div class="grid grid-cols-2 gap-3">
                                                 <div class="col-span-2">
