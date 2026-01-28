@@ -224,15 +224,9 @@ const onSearchInput = () => {
                             <div class="flex space-x-4 mb-6 justify-center">
                                 <button 
                                     @click="userType = 'existing'"
-                                    :class="['px-4 py-2 rounded-lg font-medium transition-colors', userType === 'existing' ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
+                                    class="px-4 py-2 rounded-lg font-medium transition-colors bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500 cursor-default"
                                 >
                                     Existing Member
-                                </button>
-                                <button 
-                                    @click="userType = 'guest'"
-                                    :class="['px-4 py-2 rounded-lg font-medium transition-colors', userType === 'guest' ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']"
-                                >
-                                    Walk-in / Guest
                                 </button>
                             </div>
 
