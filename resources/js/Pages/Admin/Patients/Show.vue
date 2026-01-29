@@ -109,6 +109,17 @@ const patientAge = computed(() => {
     if (!props.patient.date_of_birth) return '-';
     return new Date().getFullYear() - new Date(props.patient.date_of_birth).getFullYear();
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    // Use th-TH for Thai locale (Buddhist year), or en-GB for Christian year but d/m/y order.
+    // User requested "Day/Month/Year", usually implies localized Thai format in this context.
+    return new Date(dateString).toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+};
 </script>
 
 <template>
@@ -659,7 +670,7 @@ const patientAge = computed(() => {
                                     <tbody class="divide-y divide-slate-50">
                                         <tr v-for="visit in visits" :key="visit.id" class="hover:bg-slate-50 transition-colors">
                                             <td class="px-6 py-4">
-                                                <div class="font-bold text-slate-900">{{ new Date(visit.visit_date).toLocaleDateString() }}</div>
+                                                <div class="font-bold text-slate-900">{{ formatDate(visit.visit_date) }}</div>
                                                 <div class="text-xs text-slate-500">{{ new Date(visit.visit_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</div>
                                             </td>
                                             <td class="px-6 py-4 font-medium text-slate-700">
@@ -716,7 +727,7 @@ const patientAge = computed(() => {
                                     <tbody class="divide-y divide-slate-50">
                                         <tr v-for="booking in bookings" :key="booking.id" class="hover:bg-slate-50 transition-colors">
                                             <td class="px-6 py-4">
-                                                <div class="font-bold text-slate-900">{{ booking.appointment_date }}</div>
+                                                <div class="font-bold text-slate-900">{{ formatDate(booking.appointment_date) }}</div>
                                                 <div class="text-xs text-slate-500">{{ booking.start_time }}</div>
                                             </td>
                                             <td class="px-6 py-4 font-medium text-slate-700">
