@@ -139,7 +139,26 @@ const onDateSelected = async (date) => {
 };
 
 const submit = () => {
-    form.patch(route('admin.bookings.update', props.booking.id));
+    import('sweetalert2').then((module) => {
+        const Swal = module.default;
+        Swal.fire({
+            title: 'ยืนยันการบันทึก',
+            text: "ต้องการบันทึกการเปลี่ยนแปลงข้อมูลการจองใช่หรือไม่?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4F46E5',
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.patch(route('admin.bookings.update', props.booking.id), {
+                    onSuccess: () => {
+                        Swal.fire('สำเร็จ', 'บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว', 'success');
+                    }
+                });
+            }
+        });
+    });
 };
 
 const formatTime = (time) => {
@@ -156,12 +175,12 @@ const selectTime = (slot) => {
 </script>
 
 <template>
-    <Head title="Edit Booking" />
+    <Head title="แก้ไขการจอง" />
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Edit Booking #{{ booking.id }}</h2>
-                <Link :href="route('admin.bookings.show', booking.id)" class="text-sm text-gray-600 hover:text-gray-900">&larr; Back</Link>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">แก้ไขการจอง #{{ booking.id }}</h2>
+                <Link :href="route('admin.bookings.show', booking.id)" class="text-sm text-gray-600 hover:text-gray-900">&larr; ย้อนกลับ</Link>
             </div>
         </template>
 
@@ -175,14 +194,14 @@ const selectTime = (slot) => {
                                 <!-- Left Column -->
                                 <div class="space-y-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Patient</label>
+                                        <label class="block text-sm font-medium text-gray-700">ผู้ป่วย</label>
                                         <div class="mt-1 p-2 bg-gray-100 rounded border border-gray-200 text-gray-700">
-                                            {{ booking.user ? booking.user.name : (booking.customer_name || 'Guest') }}
+                                            {{ booking.user ? booking.user.name : (booking.customer_name || 'ลูกค้าทั่วไป') }}
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Symptoms</label>
+                                        <label class="block text-sm font-medium text-gray-700">อาการ</label>
                                         <textarea v-model="form.symptoms" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                                         <div v-if="form.errors.symptoms" class="text-red-500 text-xs mt-1">{{ form.errors.symptoms }}</div>
                                     </div>
@@ -190,7 +209,7 @@ const selectTime = (slot) => {
 
 
                                     <div>
-                                         <label class="block text-sm font-medium text-gray-700">Doctor</label>
+                                         <label class="block text-sm font-medium text-gray-700">แพทย์</label>
                                          <select v-model="form.doctor_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                              <option v-for="doc in doctors" :key="doc.id" :value="doc.id">
                                                  {{ doc.name }} ({{ doc.specialty }})
@@ -201,7 +220,7 @@ const selectTime = (slot) => {
 
                                     <!-- Unavailable Doctors List (Moved Here) -->
                                     <div v-if="unavailableDoctors.length > 0" class="mt-4 pt-4 border-t border-gray-100">
-                                        <h5 class="text-[10px] font-bold text-rose-400 uppercase mb-2">Unavailable Doctors</h5>
+                                        <h5 class="text-[10px] font-bold text-rose-400 uppercase mb-2">แพทย์ที่ไม่ว่าง</h5>
                                         <ul class="space-y-1">
                                             <li v-for="(info, index) in unavailableDoctors" :key="index" class="text-xs text-slate-600 flex items-start gap-1">
                                                 <span class="text-rose-500 font-bold">•</span>
@@ -217,7 +236,7 @@ const selectTime = (slot) => {
                                 <!-- Right Column: Schedule -->
                                 <div class="space-y-6">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Reschedule Date</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">เปลี่ยนวันที่นัดหมาย</label>
                                         <div class="border rounded-lg p-4 bg-gray-50">
                                             <Calendar 
                                                 :availability="monthlyAvailability"
@@ -231,15 +250,15 @@ const selectTime = (slot) => {
 
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">Duration (Minutes)</label>
+                                            <label class="block text-sm font-medium text-gray-700">ระยะเวลา (นาที)</label>
                                             <select v-model="form.duration_minutes" @change="fetchSlots" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                <option :value="30">30 Minutes</option>
-                                                <option :value="60">60 Minutes</option>
-                                                <option :value="90">90 Minutes</option>
+                                                <option :value="30">30 นาที</option>
+                                                <option :value="60">60 นาที</option>
+                                                <option :value="90">90 นาที</option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">Start Time</label>
+                                            <label class="block text-sm font-medium text-gray-700">เวลาเริ่ม</label>
                                             <input type="time" v-model="form.start_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                                             <div v-if="form.errors.start_time" class="text-red-500 text-xs mt-1">{{ form.errors.start_time }}</div>
                                         </div>
@@ -247,9 +266,9 @@ const selectTime = (slot) => {
 
                                     <!-- Available Slots Helper -->
                                     <div class="bg-indigo-50 p-4 rounded-lg">
-                                        <h4 class="text-xs font-bold text-indigo-700 uppercase mb-2">Available Slots for {{ form.appointment_date }}</h4>
+                                        <h4 class="text-xs font-bold text-indigo-700 uppercase mb-2">ช่วงเวลาว่างสำหรับ {{ form.appointment_date }}</h4>
                                         <div v-if="loadingEx" class="flex justify-center p-2"><span class="loading loading-spinner text-indigo-500"></span></div>
-                                        <div v-else-if="availableSlots.length === 0" class="text-xs text-gray-500 italic">No available slots found (or date not selected).</div>
+                                        <div v-else-if="availableSlots.length === 0" class="text-xs text-gray-500 italic">ไม่พบช่วงเวลาว่าง (หรือยังไม่ได้เลือกวันที่)</div>
                                         <div v-else class="space-y-4">
                                             <div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
                                                 <button 
@@ -275,9 +294,9 @@ const selectTime = (slot) => {
                             </div>
 
                             <div class="flex justify-end border-t border-gray-200 pt-6">
-                                <Link :href="route('admin.bookings.show', booking.id)" class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium">Cancel</Link>
+                                <Link :href="route('admin.bookings.show', booking.id)" class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 font-medium">ยกเลิก</Link>
                                 <button type="submit" :disabled="form.processing" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-bold shadow-md">
-                                    Save Changes
+                                    บันทึกการเปลี่ยนแปลง
                                 </button>
                             </div>
                         </form>
