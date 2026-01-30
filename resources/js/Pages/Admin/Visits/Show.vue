@@ -121,10 +121,23 @@ const deletePayment = (id) => {
                                 </span>
                             </h3>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">วันที่รับบริการ (Visit Date)</p>
-                            <p class="font-bold text-slate-900 text-lg">{{ new Date(visit.visit_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
-                            <p class="text-xs text-slate-500">{{ new Date(visit.visit_date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }} น.</p>
+                        <div class="text-right flex flex-col items-end gap-1">
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">เวลานัดหมาย (Scheduled)</p>
+                                <p class="font-bold text-slate-900 text-lg leading-none">
+                                    {{ new Date(visit.visit_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) }}
+                                    <span class="text-indigo-600">{{ new Date(visit.visit_date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }} น.</span>
+                                </p>
+                            </div>
+                            <div v-if="visit.time_in">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 mt-2">เวลามาถึง (Check-in)</p>
+                                <p class="font-medium text-slate-700 text-sm leading-none flex items-center justify-end gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    {{ new Date(visit.time_in).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }} น.
+                                </p>
+                            </div>
                         </div>
                     </div>
                     

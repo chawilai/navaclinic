@@ -670,8 +670,18 @@ const formatDate = (dateString) => {
                                     <tbody class="divide-y divide-slate-50">
                                         <tr v-for="visit in visits" :key="visit.id" class="hover:bg-slate-50 transition-colors">
                                             <td class="px-6 py-4">
-                                                <div class="font-bold text-slate-900">{{ formatDate(visit.visit_date) }}</div>
-                                                <div class="text-xs text-slate-500">{{ new Date(visit.visit_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</div>
+                                                <div class="font-bold text-slate-900 flex items-center gap-2">
+                                                    {{ formatDate(visit.visit_date) }}
+                                                    <span class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-xs">
+                                                        {{ new Date(visit.visit_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }} น.
+                                                    </span>
+                                                </div>
+                                                <div v-if="visit.time_in" class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Check-in: {{ new Date(visit.time_in).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }} น.
+                                                </div>
                                             </td>
                                             <td class="px-6 py-4 font-medium text-slate-700">
                                                 {{ visit.doctor?.name }}

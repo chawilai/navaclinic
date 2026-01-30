@@ -114,9 +114,12 @@ class VisitController extends Controller
                     $booking->update(['user_id' => $patientId]);
                 }
 
+                $bookingStart = \Carbon\Carbon::parse($booking->appointment_date . ' ' . $booking->start_time, 'Asia/Bangkok')->setTimezone('UTC');
+
                 // Create Visit linked to Booking
                 Visit::create([
-                    'visit_date' => now(), // Visit starts now
+                    'visit_date' => $bookingStart, // Scheduled time
+                    'time_in' => now(), // Actual Check-in time
                     'patient_id' => $patientId,
                     'doctor_id' => $booking->doctor_id,
                     'booking_id' => $booking->id,
@@ -128,28 +131,39 @@ class VisitController extends Controller
                 // Update Booking Status to completed
                 $booking->update(['status' => 'completed']);
             } else {
-                // Visit::create([
-                //     'visit_date' => $validated['visit_date'],
-                //     'patient_id' => $patientId,
-                //     'doctor_id' => $validated['doctor_id'],
-                //     'booking_id' => null,
-                //     'symptoms' => $validated['symptoms'],
-                //     'notes' => $validated['notes'] ?? null,
-                //     'status' => 'ongoing',
-                //     'duration_minutes' => $request->input('duration_minutes', 30),
-                // ]);
-
                 // Using array syntax for create to ensure clarity
-                Visit::create([
-                    'visit_date' => $validated['visit_date'],
+                $visit = Visit::create([
+                    'visit_date' => $validated['visit_date'], // Scheduled/Selected time
+                    'time_in' => now(), // Actual Check-in time
                     'patient_id' => $patientId,
                     'doctor_id' => $validated['doctor_id'],
                     'booking_id' => null, // Explicitly null for walk-in
-                    'symptoms' => $validated['symptoms'],
+                    'symptoms' => $validated['symptoms'], // Chief Complaint alias
                     'notes' => $validated['notes'] ?? null,
                     'status' => 'ongoing',
                     'duration_minutes' => $request->integer('duration_minutes', 30),
                 ]);
+
+                // Create Treatment Record if medical data is provided
+                // This allows creating the visit and the medical record context in one go
+                if ($request->hasAny(['weight', 'height', 'blood_pressure', 'temperature', 'pulse_rate', 'respiratory_rate', 'physical_exam', 'treatment_details', 'diagnosis'])) {
+                    $visit->treatmentRecord()->create([
+                        'patient_id' => $patientId,
+                        'doctor_id' => $validated['doctor_id'],
+                        'weight' => $request->input('weight'),
+                        'height' => $request->input('height'),
+                        'blood_pressure' => $request->input('blood_pressure'),
+                        'temperature' => $request->input('temperature'),
+                        'pulse_rate' => $request->input('pulse_rate'),
+                        'respiratory_rate' => $request->input('respiratory_rate'),
+                        'chief_complaint' => $validated['symptoms'], // Sync symptoms to chief_complaint
+                        'physical_exam' => $request->input('physical_exam'),
+                        'treatment_details' => $request->input('treatment_details'),
+                        'diagnosis' => $request->input('diagnosis'),
+                        'pain_areas' => $request->input('pain_areas', []),
+                        'status' => $request->input('treatment_details') ? 'completed' : 'pending',
+                    ]);
+                }
             }
 
             return $patientId;

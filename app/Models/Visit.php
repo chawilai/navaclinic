@@ -8,6 +8,8 @@ class Visit extends Model
 {
     protected $fillable = [
         'visit_date',
+        'time_in',
+        'time_out',
         'patient_id',
         'doctor_id',
         'booking_id',
@@ -21,6 +23,8 @@ class Visit extends Model
 
     protected $casts = [
         'visit_date' => 'datetime',
+        'time_in' => 'datetime',
+        'time_out' => 'datetime',
         'price' => 'decimal:2',
         'doctor_commission' => 'decimal:2',
     ];
