@@ -20,6 +20,7 @@ class Booking extends Model
         'customer_name',
         'customer_phone',
         'price',
+        'is_admin_booked',
     ];
 
     public function doctor()

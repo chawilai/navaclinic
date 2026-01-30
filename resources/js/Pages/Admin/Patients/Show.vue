@@ -27,6 +27,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    appointments: {
+        type: Array,
+        default: () => [],
+    },
     visits: {
         type: Array,
         default: () => [],
@@ -710,10 +714,10 @@ const formatDate = (dateString) => {
                             </div>
                         </div>
 
-                         <!-- Booking History -->
+                        <!-- Appointment History (Admin Booked) -->
                          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                              <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                                <h3 class="font-bold text-slate-800 text-lg">ประวัติการนัดหมาย (Booking History)</h3>
+                                <h3 class="font-bold text-slate-800 text-lg">ประวัติการนัดหมาย (Appointment History)</h3>
                                 <Link 
                                     :href="route('admin.bookings.create', { user_id: patient.id })" 
                                     class="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors flex items-center"
@@ -723,6 +727,52 @@ const formatDate = (dateString) => {
                                     </svg>
                                     นัดหมายใหม่
                                 </Link>
+                            </div>
+                             <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left text-slate-600">
+                                    <thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 font-semibold">วันที่ / เวลา</th>
+                                            <th scope="col" class="px-6 py-3 font-semibold">แพทย์</th>
+                                            <th scope="col" class="px-6 py-3 font-semibold">สถานะ</th>
+                                            <th scope="col" class="px-6 py-3 font-semibold text-right">ดำเนินการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                                        <tr v-for="appointment in appointments" :key="appointment.id" class="hover:bg-slate-50 transition-colors">
+                                            <td class="px-6 py-4">
+                                                <div class="font-bold text-slate-900">{{ formatDate(appointment.appointment_date) }}</div>
+                                                <div class="text-xs text-slate-500">{{ appointment.start_time }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 font-medium text-slate-700">
+                                                {{ appointment.doctor?.name }}
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span :class="getStatusClass(appointment.status)" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide">
+                                                    {{ appointment.status }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <Link :href="route('admin.bookings.show', appointment.id)" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs uppercase tracking-wide border border-indigo-100 px-3 py-1.5 rounded hover:bg-indigo-50 transition-all">
+                                                    ดูรายละเอียด
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="appointments.length === 0">
+                                            <td colspan="4" class="px-6 py-12 text-center text-slate-500">
+                                                ไม่พบประวัติการนัดหมาย
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                         </div>
+
+                         <!-- Queue Booking History (User Booked) -->
+                         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                                <h3 class="font-bold text-slate-800 text-lg">ประวัติการจองคิว (Queue Booking History)</h3>
+                                <!-- No button for user bookings -->
                             </div>
                              <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-left text-slate-600">
@@ -756,7 +806,7 @@ const formatDate = (dateString) => {
                                         </tr>
                                         <tr v-if="bookings.length === 0">
                                             <td colspan="4" class="px-6 py-12 text-center text-slate-500">
-                                                ไม่พบข้อมูลการนัดหมาย
+                                                ไม่พบประวัติการจองคิว
                                             </td>
                                         </tr>
                                     </tbody>

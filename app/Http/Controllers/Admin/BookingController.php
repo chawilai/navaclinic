@@ -107,6 +107,7 @@ class BookingController extends Controller
                 'status' => 'confirmed',
                 'customer_name' => null,
                 'customer_phone' => null,
+                'is_admin_booked' => true,
             ];
 
             $booking = Booking::create($bookingData);

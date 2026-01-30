@@ -153,7 +153,8 @@ class PatientController extends Controller
 
         return Inertia::render('Admin/Patients/Show', [
             'patient' => $user,
-            'bookings' => $user->bookings()->with('doctor')->latest()->get(),
+            'bookings' => $user->bookings()->where('is_admin_booked', false)->with('doctor')->latest()->get(),
+            'appointments' => $user->bookings()->where('is_admin_booked', true)->with('doctor')->latest()->get(),
             'visits' => $user->visits()->with(['doctor', 'booking'])->latest('visit_date')->get(),
             'stats' => $stats,
             'medicalSummary' => $medicalSummary
