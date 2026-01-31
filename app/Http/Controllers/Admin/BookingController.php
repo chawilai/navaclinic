@@ -112,18 +112,8 @@ class BookingController extends Controller
 
             $booking = Booking::create($bookingData);
 
-            // Auto-create visit for confirmed booking? Or wait?
-            // Previous logic was auto-create. I'll keep it for consistency.
-            \App\Models\Visit::create([
-                'visit_date' => $booking->appointment_date . ' ' . $booking->start_time,
-                'patient_id' => $userId,
-                'doctor_id' => $booking->doctor_id,
-                'booking_id' => $booking->id,
-                'symptoms' => $booking->symptoms,
-                'status' => 'pending',
-                'price' => 0,
-                'duration_minutes' => $validated['duration_minutes'],
-            ]);
+            // Visit will be created manually later by the user.
+            // Automatic creation removed.
 
             return redirect()->route('admin.dashboard')->with('success', 'Booking created successfully!');
 
