@@ -76,16 +76,16 @@ const deleteDoctor = () => {
 </script>
 
 <template>
-    <Head title="Doctors" />
+    <Head title="แพทย์" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
                 <h2 class="font-semibold text-xl text-black leading-tight">
-                    All Doctors
+                    แพทย์ทั้งหมด
                 </h2>
                 <PrimaryButton @click="openModal()">
-                    Add Doctor
+                    เพิ่มแพทย์
                 </PrimaryButton>
             </div>
         </template>
@@ -104,16 +104,16 @@ const deleteDoctor = () => {
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors">{{ doctor.name }}</h3>
-                                    <p class="text-slate-500 text-sm">{{ doctor.specialty || 'General Practitioner' }}</p>
+                                    <p class="text-slate-500 text-sm">{{ doctor.specialty || 'แพทย์ทั่วไป' }}</p>
                                 </div>
                             </div>
                             <div class="flex justify-between pt-4 border-t border-slate-50 items-center">
                                 <Link :href="route('admin.doctors.show', doctor.id)" class="text-blue-600 hover:text-blue-800 font-bold transition-colors flex items-center gap-1 group-hover:gap-2 text-sm">
-                                    View Profile <span aria-hidden="true">&rarr;</span>
+                                    ดูประวัติ <span aria-hidden="true">&rarr;</span>
                                 </Link>
                                 <div class="flex gap-2">
-                                    <button @click="openModal(doctor)" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">Edit</button>
-                                    <button @click="confirmDelete(doctor)" class="text-red-600 hover:text-red-900 text-sm font-medium">Delete</button>
+                                    <button @click="openModal(doctor)" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">แก้ไข</button>
+                                    <button @click="confirmDelete(doctor)" class="text-red-600 hover:text-red-900 text-sm font-medium">ลบ</button>
                                 </div>
                             </div>
                         </div>
@@ -121,7 +121,7 @@ const deleteDoctor = () => {
                 </div>
 
                 <div v-if="doctors.length === 0" class="text-center py-12 text-slate-500">
-                    No doctors found.
+                    ไม่พบรายชื่อแพทย์
                 </div>
             </div>
         </div>
@@ -130,12 +130,12 @@ const deleteDoctor = () => {
         <Modal :show="showModal" @close="closeModal">
             <div class="p-6">
                 <h2 class="text-lg font-medium text-gray-900">
-                    {{ editingDoctor ? 'Edit Doctor' : 'Add New Doctor' }}
+                    {{ editingDoctor ? 'แก้ไขข้อมูลแพทย์' : 'เพิ่มแพทย์ใหม่' }}
                 </h2>
 
                 <div class="mt-6">
                     <div class="mb-4">
-                        <InputLabel for="name" value="Name" />
+                        <InputLabel for="name" value="ชื่อ-นามสกุล" />
                         <TextInput
                             id="name"
                             v-model="form.name"
@@ -147,19 +147,19 @@ const deleteDoctor = () => {
                     </div>
 
                     <div class="mb-4">
-                        <InputLabel for="specialty" value="Specialty" />
+                        <InputLabel for="specialty" value="ความเชี่ยวชาญ" />
                         <TextInput
                             id="specialty"
                             v-model="form.specialty"
                             type="text"
                             class="mt-1 block w-full"
-                            placeholder="e.g. Cardiologist, Dentist"
+                            placeholder="เช่น ทันตกรรม, ศัลยกรรม"
                         />
                         <InputError :message="form.errors.specialty" class="mt-2" />
                     </div>
 
                     <div v-if="!editingDoctor" class="mb-4">
-                        <InputLabel for="email" value="Email" />
+                        <InputLabel for="email" value="อีเมล" />
                         <TextInput
                             id="email"
                             v-model="form.email"
@@ -171,21 +171,21 @@ const deleteDoctor = () => {
                     </div>
 
                     <div v-if="!editingDoctor" class="mb-4">
-                        <InputLabel for="password" value="Password" />
+                        <InputLabel for="password" value="รหัสผ่าน" />
                         <TextInput
                             id="password"
                             v-model="form.password"
                             type="password"
                             class="mt-1 block w-full"
-                            placeholder="Min 8 characters"
+                            placeholder="อย่างน้อย 8 ตัวอักษร"
                         />
                         <InputError :message="form.errors.password" class="mt-2" />
                     </div>
 
                     <div class="flex justify-end mt-6">
-                        <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+                        <SecondaryButton @click="closeModal"> ยกเลิก </SecondaryButton>
                         <PrimaryButton class="ml-3" @click="saveDoctor" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                            {{ editingDoctor ? 'Update' : 'Save' }}
+                            {{ editingDoctor ? 'บันทึกการแก้ไข' : 'บันทึก' }}
                         </PrimaryButton>
                     </div>
                 </div>
@@ -196,15 +196,15 @@ const deleteDoctor = () => {
         <Modal :show="showDeleteModal" @close="closeDeleteModal">
             <div class="p-6">
                 <h2 class="text-lg font-medium text-gray-900">
-                    Delete Doctor
+                    ลบรายชื่อแพทย์
                 </h2>
 
                 <p class="mt-1 text-sm text-gray-600">
-                    Are you sure you want to delete {{ doctorToDelete?.name }}? This action cannot be undone.
+                    คุณแน่ใจหรือไม่ที่ต้องการลบ {{ doctorToDelete?.name }}? การกระทำนี้ไม่สามารถย้อนกลับได้
                 </p>
 
                 <div class="mt-6 flex justify-end">
-                    <SecondaryButton @click="closeDeleteModal"> Cancel </SecondaryButton>
+                    <SecondaryButton @click="closeDeleteModal"> ยกเลิก </SecondaryButton>
 
                     <DangerButton
                         class="ml-3"
@@ -212,7 +212,7 @@ const deleteDoctor = () => {
                         :disabled="form.processing"
                         @click="deleteDoctor"
                     >
-                        Delete Doctor
+                        ลบรายชื่อแพทย์
                     </DangerButton>
                 </div>
             </div>
