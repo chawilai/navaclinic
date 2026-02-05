@@ -381,40 +381,7 @@ const formatDate = (dateString) => {
                     <!-- Right Main Content -->
                     <div class="lg:col-span-8 space-y-6">
                         
-                        <!-- Quick Stats Row -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center">
-                                <div class="p-3 bg-indigo-50 rounded-xl text-indigo-600 mr-4">
-                                     <ClipboardDocumentListIcon class="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">จำนวนการเข้าชม</p>
-                                    <p class="text-2xl font-bold text-slate-900">{{ stats?.total_visits || 0 }}</p>
-                                </div>
-                            </div>
-                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center">
-                                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600 mr-4">
-                                     <CalendarIcon class="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">นัดหมายถัดไป</p>
-                                    <div v-if="stats?.next_appointment">
-                                        <p class="text-lg font-bold text-slate-900">{{ stats.next_appointment.appointment_date }}</p>
-                                        <p class="text-xs text-slate-500">{{ stats.next_appointment.start_time }}</p>
-                                    </div>
-                                    <p v-else class="text-lg font-bold text-slate-300">None</p>
-                                </div>
-                            </div>
-                             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center">
-                                <div class="p-3 bg-rose-50 rounded-xl text-rose-600 mr-4">
-                                     <ClockIcon class="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">เข้าชมล่าสุด</p>
-                                    <p class="text-lg font-bold text-slate-900">{{ stats?.last_visit || 'Never' }}</p>
-                                </div>
-                            </div>
-                        </div>
+
 
                         <!-- Medical Overview -->
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
