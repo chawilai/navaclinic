@@ -405,7 +405,7 @@ const formatDate = (dateString) => {
                                         <div class="w-1 h-3 bg-indigo-500 rounded-full"></div>
                                         สัญญาณชีพ
                                     </h4>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         <!-- BP -->
                                         <div class="p-3 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex flex-col items-center justify-center relative overflow-hidden group">
                                             <div class="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -426,32 +426,15 @@ const formatDate = (dateString) => {
                                             <p class="text-lg font-black text-rose-600">{{ medicalSummary.pulse_rate || '-' }}</p>
                                             <p class="text-[10px] text-rose-400 font-medium">bpm</p>
                                         </div>
-                                         <!-- Temp -->
-                                         <div class="p-3 rounded-2xl bg-amber-50/50 border border-amber-100 flex flex-col items-center justify-center">
-                                            <p class="text-[10px] text-amber-400 uppercase font-bold mb-1">อุณหภูมิ</p>
-                                            <p class="text-lg font-black text-amber-600">{{ medicalSummary.temperature || '-' }}</p>
-                                            <p class="text-[10px] text-amber-400 font-medium">°C</p>
-                                        </div>
+
                                         <!-- Weight -->
                                         <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center">
                                             <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">น้ำหนัก</p>
                                             <p class="text-lg font-black text-slate-700">{{ medicalSummary.weight || '-' }}</p>
                                             <p class="text-[10px] text-slate-400 font-medium">kg</p>
                                         </div>
-                                        <!-- Height -->
-                                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center">
-                                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">ส่วนสูง</p>
-                                            <p class="text-lg font-black text-slate-700">{{ medicalSummary.height || '-' }}</p>
-                                            <p class="text-[10px] text-slate-400 font-medium">cm</p>
-                                        </div>
-                                        <!-- BMI -->
-                                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center">
-                                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">ดัชนีมวลกาย</p>
-                                            <p class="text-lg font-black text-slate-700">
-                                                 {{ (medicalSummary.weight && medicalSummary.height) ? (medicalSummary.weight / ((medicalSummary.height / 100) * (medicalSummary.height / 100))).toFixed(1) : '-' }}
-                                            </p>
-                                            <p class="text-[10px] text-slate-400 font-medium">kg/m²</p>
-                                        </div>
+
+
                                     </div>
                                 </div>
 
