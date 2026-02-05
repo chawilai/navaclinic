@@ -5,100 +5,56 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Inertia\Inertia;
-
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Fetch Registered Users (excluding admins and doctors)
-        $users = User::where('is_admin', false)
+        // 1. Base Query for Registered Users (excluding admins and doctors)
+        $query = User::where('is_admin', false)
             ->where('is_doctor', false)
-            ->latest()
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone_number' => $user->phone_number,
-                    'patient_id' => $user->patient_id,
-                    'id_card_number' => $user->id_card_number,
-                    'created_at' => $user->created_at,
-                    'type' => 'user',
-                ];
-            });
+            ->latest();
 
-        // 2. Fetch Guests (Group by Name + Phone)
-        $guests = \App\Models\Booking::whereNull('user_id')
-            ->whereNotNull('customer_name')
-            ->select('customer_name', 'customer_phone')
-            ->selectRaw('MIN(created_at) as created_at')
-            ->selectRaw('MIN(id) as first_booking_id')
-            ->selectRaw('MAX(id) as latest_booking_id')
-            ->groupBy('customer_name', 'customer_phone')
-            ->get()
-            ->map(function ($guest) {
-                // Calculate HN-dmY-XXXX
-                $firstBookingDate = \Carbon\Carbon::parse($guest->created_at);
-
-                // Count bookings in that month up to the first booking ID
-                $monthlySequence = \App\Models\Booking::whereYear('created_at', $firstBookingDate->year)
-                    ->whereMonth('created_at', $firstBookingDate->month)
-                    ->where('id', '<=', $guest->first_booking_id)
-                    ->count();
-
-                $hnId = 'HN-' . $firstBookingDate->format('dmY') . '-' . str_pad($monthlySequence, 4, '0', STR_PAD_LEFT);
-
-                return [
-                    'id' => 'guest_' . $guest->latest_booking_id,
-                    'name' => $guest->customer_name,
-                    'email' => $guest->customer_phone,
-                    'phone_number' => $guest->customer_phone,
-                    'patient_id' => $hnId,
-                    'created_at' => $guest->created_at,
-                    'type' => 'guest',
-                    'booking_id' => $guest->latest_booking_id
-                ];
-            });
-
-        // 3. Merge Collection
-        $allPatients = $users->concat($guests);
-
-        // 4. Filter / Search
+        // 2. Filter / Search
         if ($request->has('search')) {
-            $search = strtolower($request->input('search'));
-            $allPatients = $allPatients->filter(function ($item) use ($search) {
-                return str_contains(strtolower($item['name']), $search) ||
-                    str_contains(strtolower($item['email']), $search) ||
-                    str_contains(strtolower($item['phone_number']), $search) ||
-                    str_contains(strtolower($item['patient_id']), $search) ||
-                    str_contains(strtolower($item['id_card_number'] ?? ''), $search);
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%")
+                    ->orWhere('patient_id', 'like', "%{$search}%")
+                    ->orWhere('id_card_number', 'like', "%{$search}%");
             });
         }
 
-        // 5. Sort by created_at desc
-        $allPatients = $allPatients->sortByDesc('created_at')->values();
+        // 3. Paginate and Transform
+        $patients = $query->paginate(10)->through(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone_number' => $user->phone_number,
+                'patient_id' => $user->patient_id,
+                'id_card_number' => $user->id_card_number,
+                'created_at' => $user->created_at,
+                'type' => 'user',
+            ];
+        });
 
-        // 6. Paginate manually
-        $perPage = 10;
-        $page = $request->input('page', 1);
-        $total = $allPatients->count();
-        $items = $allPatients->slice(($page - 1) * $perPage, $perPage)->values();
-
-        $patients = new \Illuminate\Pagination\LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $page,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+        // 4. Get Unregistered Bookings for the Registration Modal
+        $unregisteredBookings = \App\Models\Booking::whereNull('user_id')
+            ->whereIn('status', ['pending', 'confirmed', 'completed'])
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('start_time', 'asc')
+            ->take(100)
+            ->get(['id', 'customer_name', 'customer_phone', 'appointment_date', 'start_time']);
 
         return Inertia::render('Admin/Patients/Index', [
             'patients' => $patients,
             'filters' => $request->only(['search']),
             'availablePackages' => \App\Models\ServicePackage::where('is_active', true)->get(),
+            'unregisteredBookings' => $unregisteredBookings,
         ]);
     }
 
@@ -221,6 +177,17 @@ class PatientController extends Controller
             'drug_allergy' => $validated['drug_allergy'] ?? null,
             'accident_history' => $validated['accident_history'] ?? null,
         ]);
+
+        // Link Booking if selected
+        if ($request->filled('link_booking_id')) {
+            $booking = \App\Models\Booking::find($request->input('link_booking_id'));
+            if ($booking) {
+                // If the booking had a guest phone/name, we assume this patient REPLACES that identity
+                $booking->update(['user_id' => $user->id]);
+
+                // Optional: You could also fuzzy match other bookings, but let's stick to the explicit selection for now
+            }
+        }
 
         return redirect()->route('admin.patients.index')->with('success', 'Patient registered successfully.');
     }
