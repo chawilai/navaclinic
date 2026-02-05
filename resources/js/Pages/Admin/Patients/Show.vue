@@ -18,7 +18,8 @@ import {
     HeartIcon, 
     ExclamationTriangleIcon,
     ClockIcon,
-    ClipboardDocumentListIcon
+    ClipboardDocumentListIcon,
+    ChevronDownIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -81,6 +82,14 @@ const mapContainer = ref(null);
 const showLens = ref(false);
 const lensX = ref(0);
 const lensY = ref(0);
+
+// Collapse States
+const isMedicalAlertsExpanded = ref(true);
+const isPatientInfoExpanded = ref(true);
+const isVisitsHistoryExpanded = ref(true);
+const isMedicalOverviewExpanded = ref(true);
+const isAppointmentHistoryExpanded = ref(true);
+const isQueueHistoryExpanded = ref(true);
 
 const handleMouseMove = (e) => {
     if (!mapContainer.value) return;
@@ -213,76 +222,23 @@ const formatDate = (dateString) => {
                     
                     <!-- Left Sidebar: Patient Info -->
                     <div class="lg:col-span-4 space-y-6">
-                        <!-- Essential Info Card -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                            <div class="bg-gradient-to-r from-slate-50 to-white px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                                <h3 class="font-bold text-slate-800 flex items-center">
-                                    <UserIcon class="w-5 h-5 mr-2 text-indigo-500" />
-                                    ข้อมูลผู้ป่วย
-                                </h3>
-                            </div>
-                            <div class="p-6 space-y-5">
-                                <div class="flex items-start">
-                                    <PhoneIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
-                                    <div>
-                                        <p class="text-xs text-slate-500 font-medium uppercase">เบอร์โทรศัพท์</p>
-                                        <p class="text-slate-900 font-semibold">{{ patient.phone_number || '-' }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <IdentificationIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
-                                    <div>
-                                        <p class="text-xs text-slate-500 font-medium uppercase">เลขบัตรประชาชน</p>
-                                        <p class="text-slate-900 font-medium">{{ patient.id_card_number || '-' }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <CalendarIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
-                                    <div>
-                                        <p class="text-xs text-slate-500 font-medium uppercase">วันเกิด</p>
-                                        <p class="text-slate-900 font-medium">
-                                            {{ patient.date_of_birth ? new Date(patient.date_of_birth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric'}) : '-' }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <BriefcaseIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
-                                    <div>
-                                        <p class="text-xs text-slate-500 font-medium uppercase">อาชีพ</p>
-                                        <p class="text-slate-900 font-medium">{{ patient.occupation || '-' }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <HomeIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
-                                    <div>
-                                        <p class="text-xs text-slate-500 font-medium uppercase">ที่อยู่</p>
-                                        <p class="text-slate-900 font-medium leading-relaxed text-sm">{{ patient.address || '-' }}</p>
-                                    </div>
-                                </div>
-                                <div class="pt-4 border-t border-slate-100 flex items-start">
-                                    <HeartIcon class="w-5 h-5 text-rose-400 mt-0.5 mr-3 flex-shrink-0" />
-                                    <div>
-                                        <p class="text-xs text-slate-500 font-medium uppercase">ผู้ติดต่อฉุกเฉิน</p>
-                                        <p class="text-slate-900 font-medium">{{ patient.emergency_contact_name || '-' }}</p>
-                                        <a v-if="patient.emergency_contact_phone" :href="'tel:' + patient.emergency_contact_phone" class="text-indigo-600 text-sm hover:underline block mt-1">
-                                            {{ patient.emergency_contact_phone }}
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Medical Alerts (Compact) -->
                         <!-- Medical Alerts (Rich Design) -->
                         <div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden flex flex-col">
-                             <div class="bg-gradient-to-r from-red-50 via-white to-white px-6 py-4 border-b border-red-50 flex items-center justify-between">
+                             <div 
+                                @click="isMedicalAlertsExpanded = !isMedicalAlertsExpanded"
+                                class="bg-gradient-to-r from-red-50 via-white to-white px-6 py-4 border-b border-red-50 flex items-center justify-between cursor-pointer hover:bg-red-50/50 transition-colors"
+                             >
                                 <h3 class="font-bold text-red-900 flex items-center text-sm uppercase tracking-wider">
                                     <ExclamationTriangleIcon class="w-5 h-5 mr-2 text-red-500" />
                                     ข้อมูลสำคัญทางการแพทย์
                                 </h3>
+                                <ChevronDownIcon 
+                                    class="w-5 h-5 text-red-400 transition-transform duration-200"
+                                    :class="{ 'rotate-180': !isMedicalAlertsExpanded }"
+                                />
                             </div>
                             
-                            <div class="p-5 space-y-5">
+                            <div v-show="isMedicalAlertsExpanded" class="p-5 space-y-5 transition-all duration-300">
                                 <!-- 1. Drug Allergies -->
                                 <div>
                                     <div class="flex items-center gap-2 mb-2">
@@ -376,6 +332,72 @@ const formatDate = (dateString) => {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Essential Info Card -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                            <div 
+                                @click="isPatientInfoExpanded = !isPatientInfoExpanded"
+                                class="bg-gradient-to-r from-slate-50 to-white px-6 py-4 border-b border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors"
+                            >
+                                <h3 class="font-bold text-slate-800 flex items-center">
+                                    <UserIcon class="w-5 h-5 mr-2 text-indigo-500" />
+                                    ข้อมูลผู้ป่วย
+                                </h3>
+                                <ChevronDownIcon 
+                                    class="w-5 h-5 text-slate-400 transition-transform duration-200"
+                                    :class="{ 'rotate-180': !isPatientInfoExpanded }"
+                                />
+                            </div>
+                            <div v-show="isPatientInfoExpanded" class="p-6 space-y-5 transition-all duration-300">
+                                <div class="flex items-start">
+                                    <PhoneIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium uppercase">เบอร์โทรศัพท์</p>
+                                        <p class="text-slate-900 font-semibold">{{ patient.phone_number || '-' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <IdentificationIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium uppercase">เลขบัตรประชาชน</p>
+                                        <p class="text-slate-900 font-medium">{{ patient.id_card_number || '-' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <CalendarIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium uppercase">วันเกิด</p>
+                                        <p class="text-slate-900 font-medium">
+                                            {{ patient.date_of_birth ? new Date(patient.date_of_birth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric'}) : '-' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <BriefcaseIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium uppercase">อาชีพ</p>
+                                        <p class="text-slate-900 font-medium">{{ patient.occupation || '-' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <HomeIcon class="w-5 h-5 text-slate-400 mt-0.5 mr-3 flex-shrink-0" />
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium uppercase">ที่อยู่</p>
+                                        <p class="text-slate-900 font-medium leading-relaxed text-sm">{{ patient.address || '-' }}</p>
+                                    </div>
+                                </div>
+                                <div class="pt-4 border-t border-slate-100 flex items-start">
+                                    <HeartIcon class="w-5 h-5 text-rose-400 mt-0.5 mr-3 flex-shrink-0" />
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-medium uppercase">ผู้ติดต่อฉุกเฉิน</p>
+                                        <p class="text-slate-900 font-medium">{{ patient.emergency_contact_name || '-' }}</p>
+                                        <a v-if="patient.emergency_contact_phone" :href="'tel:' + patient.emergency_contact_phone" class="text-indigo-600 text-sm hover:underline block mt-1">
+                                            {{ patient.emergency_contact_phone }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Right Main Content -->
@@ -383,22 +405,109 @@ const formatDate = (dateString) => {
                         
 
 
+                        <!-- Visits History -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                             <div 
+                                @click="isVisitsHistoryExpanded = !isVisitsHistoryExpanded"
+                                class="px-6 py-5 border-b border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                             >
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-slate-800 text-lg">ประวัติการเข้าชม (Visits History)</h3>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button 
+                                        @click.stop="router.get(route('admin.visits.create', { user_id: patient.id }))" 
+                                        class="text-sm font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-lg transition-colors flex items-center"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        เพิ่มการเข้าชม
+                                    </button>
+                                    <ChevronDownIcon 
+                                        class="w-5 h-5 text-slate-400 transition-transform duration-200"
+                                        :class="{ 'rotate-180': !isVisitsHistoryExpanded }"
+                                    />
+                                </div>
+                            </div>
+                            <div v-show="isVisitsHistoryExpanded" class="overflow-x-auto transition-all duration-300">
+                                <table class="w-full text-sm text-left text-slate-600">
+                                    <thead class="text-xs text-slate-500 uppercase bg-emerald-50/50 border-b border-slate-100">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 font-semibold">วันที่ / เวลา</th>
+                                            <th scope="col" class="px-6 py-3 font-semibold">แพทย์</th>
+                                            <th scope="col" class="px-6 py-3 font-semibold">อาการ / หมายเหตุ</th>
+                                            <th scope="col" class="px-6 py-3 font-semibold text-right">ดำเนินการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                                        <tr v-for="visit in visits" :key="visit.id" class="hover:bg-slate-50 transition-colors">
+                                            <td class="px-6 py-4">
+                                                <div class="font-bold text-slate-900 flex items-center gap-2">
+                                                    {{ formatDate(visit.visit_date) }}
+                                                    <span class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-xs">
+                                                        {{ new Date(visit.visit_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }} น.
+                                                    </span>
+                                                </div>
+                                                <div v-if="visit.time_in" class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Check-in: {{ new Date(visit.time_in).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }} น.
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 font-medium text-slate-700">
+                                                {{ visit.doctor?.name }}
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-slate-900 font-medium">
+                                                    {{ visit.symptoms || '-' }}
+                                                </div>
+                                                <div v-if="visit.notes" class="text-xs text-slate-500 mt-1">
+                                                    {{ visit.notes }}
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <Link :href="route('admin.visits.show', visit.id)" class="text-emerald-600 hover:text-emerald-800 font-bold text-xs uppercase tracking-wide border border-emerald-100 px-3 py-1.5 rounded hover:bg-emerald-50 transition-all">
+                                                    ดูรายละเอียด
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="visits.length === 0">
+                                            <td colspan="4" class="px-6 py-12 text-center text-slate-500">
+                                                ไม่พบประวัติการเข้าชม
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <!-- Medical Overview -->
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                             <div 
+                                @click="isMedicalOverviewExpanded = !isMedicalOverviewExpanded"
+                                class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 cursor-pointer hover:bg-slate-100 transition-colors"
+                             >
                                 <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
                                     <HeartIcon class="w-5 h-5 text-rose-500" />
                                     ข้อมูลทางการแพทย์ล่าสุด
                                 </h3>
-                                <div v-if="medicalSummary" class="flex items-center gap-2">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">อัปเดตล่าสุด</span>
-                                    <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-md shadow-sm">
-                                        {{ new Date(medicalSummary.last_updated).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) }}
-                                    </span>
+                                <div class="flex items-center gap-3">
+                                    <div v-if="medicalSummary" class="flex items-center gap-2">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">อัปเดตล่าสุด</span>
+                                        <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-md shadow-sm">
+                                            {{ new Date(medicalSummary.last_updated).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) }}
+                                        </span>
+                                    </div>
+                                    <ChevronDownIcon 
+                                        class="w-5 h-5 text-slate-400 transition-transform duration-200"
+                                        :class="{ 'rotate-180': !isMedicalOverviewExpanded }"
+                                    />
                                 </div>
                             </div>
                             
-                            <div v-if="medicalSummary" class="p-6">
+                            <div v-show="isMedicalOverviewExpanded" v-if="medicalSummary" class="p-6 transition-all duration-300">
                                 <!-- 1. Vitals Row -->
                                 <div class="mb-8">
                                     <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -641,88 +750,33 @@ const formatDate = (dateString) => {
                             </div>
                         </div>
 
-                        <!-- Visits History -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                                <h3 class="font-bold text-slate-800 text-lg">ประวัติการเข้าชม (Visits History)</h3>
-                                <button 
-                                    @click="router.get(route('admin.visits.create', { user_id: patient.id }))" 
-                                    class="text-sm font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-lg transition-colors flex items-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    เพิ่มการเข้าชม
-                                </button>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left text-slate-600">
-                                    <thead class="text-xs text-slate-500 uppercase bg-emerald-50/50 border-b border-slate-100">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 font-semibold">วันที่ / เวลา</th>
-                                            <th scope="col" class="px-6 py-3 font-semibold">แพทย์</th>
-                                            <th scope="col" class="px-6 py-3 font-semibold">อาการ / หมายเหตุ</th>
-                                            <th scope="col" class="px-6 py-3 font-semibold text-right">ดำเนินการ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-50">
-                                        <tr v-for="visit in visits" :key="visit.id" class="hover:bg-slate-50 transition-colors">
-                                            <td class="px-6 py-4">
-                                                <div class="font-bold text-slate-900 flex items-center gap-2">
-                                                    {{ formatDate(visit.visit_date) }}
-                                                    <span class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded text-xs">
-                                                        {{ new Date(visit.visit_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }} น.
-                                                    </span>
-                                                </div>
-                                                <div v-if="visit.time_in" class="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    Check-in: {{ new Date(visit.time_in).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }} น.
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 font-medium text-slate-700">
-                                                {{ visit.doctor?.name }}
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-slate-900 font-medium">
-                                                    {{ visit.symptoms || '-' }}
-                                                </div>
-                                                <div v-if="visit.notes" class="text-xs text-slate-500 mt-1">
-                                                    {{ visit.notes }}
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-right">
-                                                <Link :href="route('admin.visits.show', visit.id)" class="text-emerald-600 hover:text-emerald-800 font-bold text-xs uppercase tracking-wide border border-emerald-100 px-3 py-1.5 rounded hover:bg-emerald-50 transition-all">
-                                                    ดูรายละเอียด
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="visits.length === 0">
-                                            <td colspan="4" class="px-6 py-12 text-center text-slate-500">
-                                                ไม่พบประวัติการเข้าชม
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+
 
                         <!-- Appointment History (Admin Booked) -->
                          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                             <div 
+                                @click="isAppointmentHistoryExpanded = !isAppointmentHistoryExpanded"
+                                class="px-6 py-5 border-b border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                             >
                                 <h3 class="font-bold text-slate-800 text-lg">ประวัติการนัดหมาย (Appointment History)</h3>
-                                <Link 
-                                    :href="route('admin.bookings.create', { user_id: patient.id })" 
-                                    class="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors flex items-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    นัดหมายใหม่
-                                </Link>
+                                <div class="flex items-center gap-3">
+                                    <Link 
+                                        :href="route('admin.bookings.create', { user_id: patient.id })" 
+                                        @click.stop
+                                        class="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors flex items-center"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        นัดหมายใหม่
+                                    </Link>
+                                    <ChevronDownIcon 
+                                        class="w-5 h-5 text-slate-400 transition-transform duration-200"
+                                        :class="{ 'rotate-180': !isAppointmentHistoryExpanded }"
+                                    />
+                                </div>
                             </div>
-                             <div class="overflow-x-auto">
+                             <div v-show="isAppointmentHistoryExpanded" class="overflow-x-auto transition-all duration-300">
                                 <table class="w-full text-sm text-left text-slate-600">
                                     <thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                                         <tr>
@@ -764,11 +818,18 @@ const formatDate = (dateString) => {
 
                          <!-- Queue Booking History (User Booked) -->
                          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                             <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                             <div 
+                                @click="isQueueHistoryExpanded = !isQueueHistoryExpanded"
+                                class="px-6 py-5 border-b border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+                             >
                                 <h3 class="font-bold text-slate-800 text-lg">ประวัติการจองคิว (Queue Booking History)</h3>
+                                <ChevronDownIcon 
+                                    class="w-5 h-5 text-slate-400 transition-transform duration-200"
+                                    :class="{ 'rotate-180': !isQueueHistoryExpanded }"
+                                />
                                 <!-- No button for user bookings -->
                             </div>
-                             <div class="overflow-x-auto">
+                             <div v-show="isQueueHistoryExpanded" class="overflow-x-auto transition-all duration-300">
                                 <table class="w-full text-sm text-left text-slate-600">
                                     <thead class="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-100">
                                         <tr>
