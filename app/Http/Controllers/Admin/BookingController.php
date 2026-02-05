@@ -61,7 +61,7 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
+            'doctor_id' => 'nullable|exists:doctors,id',
             'appointment_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required',
             'duration_minutes' => 'required|in:30,60,90',
@@ -177,7 +177,7 @@ class BookingController extends Controller
     public function update(Request $request, Booking $booking)
     {
         $validated = $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
+            'doctor_id' => 'nullable|exists:doctors,id',
             'appointment_date' => 'required|date',
             'start_time' => 'required',
             'duration_minutes' => 'required|in:30,60,90',
@@ -190,32 +190,33 @@ class BookingController extends Controller
         // For now, let's assume Admin overrides logic or knows what they are doing for Edit.
         // But basic check is good practice.
 
-        // Validation for Availability (Double Check)
-        $doctor = \App\Models\Doctor::find($validated['doctor_id']);
-        $date = $validated['appointment_date'];
-        $startTime = $validated['start_time'];
-        $duration = $validated['duration_minutes'];
+        // Check for overlaps with OTHER bookings (Only if doctor is assigned)
+        if ($validated['doctor_id']) {
+            $doctor = \App\Models\Doctor::find($validated['doctor_id']);
+            $date = $validated['appointment_date'];
+            $startTime = $validated['start_time'];
+            $duration = $validated['duration_minutes'];
 
-        // Check for overlaps with OTHER bookings
-        $start = \Carbon\Carbon::parse("$date $startTime");
-        $end = $start->copy()->addMinutes($duration + 30); // 30 mins buffer
+            $start = \Carbon\Carbon::parse("$date $startTime");
+            $end = $start->copy()->addMinutes($duration + 30); // 30 mins buffer
 
-        $conflictingBooking = \App\Models\Booking::where('doctor_id', $doctor->id)
-            ->where('id', '!=', $booking->id) // Exclude current booking
-            ->where('appointment_date', $date)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->get()
-            ->first(function ($existing) use ($start, $end) {
-                $eStart = \Carbon\Carbon::parse("{$existing->appointment_date} {$existing->start_time}");
-                $eEnd = $eStart->copy()->addMinutes($existing->duration_minutes + 30);
+            $conflictingBooking = \App\Models\Booking::where('doctor_id', $doctor->id)
+                ->where('id', '!=', $booking->id) // Exclude current booking
+                ->where('appointment_date', $date)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->get()
+                ->first(function ($existing) use ($start, $end) {
+                    $eStart = \Carbon\Carbon::parse("{$existing->appointment_date} {$existing->start_time}");
+                    $eEnd = $eStart->copy()->addMinutes($existing->duration_minutes + 30);
 
-                return $start < $eEnd && $end > $eStart;
-            });
+                    return $start < $eEnd && $end > $eStart;
+                });
 
-        if ($conflictingBooking) {
-            return back()->withErrors([
-                'start_time' => 'Doctor is not available at this time (Conflicting booking).'
-            ]);
+            if ($conflictingBooking) {
+                return back()->withErrors([
+                    'start_time' => 'Doctor is not available at this time (Conflicting booking).'
+                ]);
+            }
         }
 
         $booking->update($validated);

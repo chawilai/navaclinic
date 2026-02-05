@@ -19,7 +19,7 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'doctor_id' => 'required|exists:doctors,id',
+            'doctor_id' => 'nullable|exists:doctors,id',
             'appointment_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required',
             'duration_minutes' => 'required|in:30,60,90',

@@ -47,7 +47,7 @@ const form = useForm({
     doctor_id: '',
     appointment_date: '',
     start_time: '',
-    duration_minutes: '',
+    duration_minutes: 90,
     symptoms: '',
 });
 
@@ -74,11 +74,10 @@ watch(selectedPatient, (val) => {
 
 const steps = [
     { number: 1, title: 'ผู้ป่วย (Patient)' },
-    { number: 2, title: 'ระยะเวลา (Duration)' },
-    { number: 3, title: 'วันที่ (Date)' },
-    { number: 4, title: 'เวลา (Time)' },
-    { number: 5, title: 'แพทย์ (Doctor)' },
-    { number: 6, title: 'อาการ (Symptoms)' },
+    { number: 2, title: 'วันที่ (Date)' },
+    { number: 3, title: 'เวลา (Time)' },
+    { number: 4, title: 'แพทย์ (Doctor)' },
+    { number: 5, title: 'อาการ (Symptoms)' },
 ];
 
 const fetchMonthlyAvailability = async (month, year) => {
@@ -91,11 +90,6 @@ const fetchMonthlyAvailability = async (month, year) => {
 };
 
 // --- Step Logic ---
-
-const selectDuration = (minutes) => {
-    form.duration_minutes = minutes;
-    nextStep();
-};
 
 const onDateSelected = async (date) => {
     form.appointment_date = date;
@@ -129,8 +123,29 @@ const fetchSlots = async () => {
 
 const selectTime = (slot) => {
     form.start_time = slot.time;
+    // availableDoctors.value = slot.doctors; // Updating doctors list based on slot
+    // For 1.5hr slot, we might want to filter doctors manually or trust the slot's doctor list
+    // Ideally the backend returns intersection of doctors available for the full 90 mins?
+    // Assuming backend handles it.
     availableDoctors.value = slot.doctors;
-    nextStep();
+};
+
+const isSlotSelected = (slotTime) => {
+    if (!form.start_time) return false;
+    // Compare times. Simple string comparison works for "HH:MM:SS" if format is consistent
+    // But dealing with "Next 2 slots" (assuming 30 min intervals)
+    
+    // Convert to minutes for easier calculation
+    const toMinutes = (t) => {
+        const [h, m] = t.split(':').map(Number);
+        return h * 60 + m;
+    };
+
+    const start = toMinutes(form.start_time);
+    const current = toMinutes(slotTime);
+    const end = start + 90; // duration is fixed 90
+
+    return current >= start && current < end;
 };
 
 const selectDoctor = (doctor) => {
@@ -138,13 +153,25 @@ const selectDoctor = (doctor) => {
     nextStep();
 };
 
+const skipDoctor = () => {
+    form.doctor_id = '';
+    nextStep();
+};
+
+const showDoctorList = ref(false);
+
 const nextStep = () => {
     // Validation before next
     if (currentStep.value === 1) {
         if (userType.value === 'existing' && !selectedPatient.value) return alert('Please select a patient');
         if (userType.value === 'guest' && (!form.customer_name || !form.customer_phone)) return alert('Please enter guest details');
     }
-    if (currentStep.value < 6) currentStep.value++;
+    // Step 3 (Time) check
+    if (currentStep.value === 3) {
+        if (!form.start_time) return alert('Please select a time');
+    }
+    
+    if (currentStep.value < 5) currentStep.value++;
 };
 
 const prevStep = () => {
@@ -298,26 +325,8 @@ const onSearchInput = () => {
                             </div>
                         </div>
 
-                         <!-- Step 2: Duration -->
-                        <div v-if="currentStep === 2" class="w-full">
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                <button @click="selectDuration(30)" class="group p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-lg transition-all text-center">
-                                    <div class="text-4xl font-bold text-gray-700 group-hover:text-indigo-600 mb-2">30</div>
-                                    <div class="text-gray-500">Minutes</div>
-                                </button>
-                                <button @click="selectDuration(60)" class="group p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-lg transition-all text-center">
-                                    <div class="text-4xl font-bold text-gray-700 group-hover:text-indigo-600 mb-2">60</div>
-                                    <div class="text-gray-500">Minutes</div>
-                                </button>
-                                <button @click="selectDuration(90)" class="group p-6 border-2 border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-lg transition-all text-center">
-                                    <div class="text-4xl font-bold text-gray-700 group-hover:text-indigo-600 mb-2">90</div>
-                                    <div class="text-gray-500">Minutes</div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 3: Date -->
-                        <div v-if="currentStep === 3" class="w-full flex justify-center">
+                         <!-- Step 2: Date -->
+                        <div v-if="currentStep === 2" class="w-full flex justify-center">
                             <div class="w-full max-w-md">
                                 <Calendar 
                                     :availability="monthlyAvailability"
@@ -327,8 +336,8 @@ const onSearchInput = () => {
                             </div>
                         </div>
 
-                        <!-- Step 4: Time -->
-                        <div v-if="currentStep === 4" class="w-full">
+                        <!-- Step 3: Time -->
+                        <div v-if="currentStep === 3" class="w-full">
                             <div v-if="loadingEx" class="flex justify-center py-12">
                                 <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -337,41 +346,92 @@ const onSearchInput = () => {
                             </div>
                             <div v-else-if="errorMessage" class="text-red-500 text-center font-bold p-4 bg-red-50 rounded">{{ errorMessage }}</div>
                             <div v-else-if="availableSlots.length === 0" class="text-gray-500 text-center py-12">No available slots used for this date.</div>
-                            <div v-else class="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                                <button v-for="slot in availableSlots" :key="slot.time" @click="selectTime(slot)" class="py-3 px-4 rounded-lg bg-indigo-50 text-indigo-700 font-medium hover:bg-indigo-600 hover:text-white transition-colors">
-                                    {{ formatTime(slot.time) }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 5: Doctor -->
-                        <div v-if="currentStep === 5" class="w-full">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Select Doctor</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div v-else class="flex flex-col items-center w-full"> 
+                                <div class="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-6">
+                                    <button 
+                                        v-for="slot in availableSlots" 
+                                        :key="slot.time" 
+                                        @click="selectTime(slot)"
+                                        :class="['py-3 px-4 rounded-lg font-medium transition-colors', isSlotSelected(slot.time) ? 'bg-indigo-600 text-white shadow-lg transform scale-105' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100']"
+                                    >
+                                        {{ formatTime(slot.time) }}
+                                    </button>
+                                </div>
                                 <button 
-                                    v-for="doctor in availableDoctors" 
-                                    :key="doctor.id" 
-                                    @click="doctor.status === 'available' && selectDoctor(doctor)" 
-                                    :disabled="doctor.status !== 'available'"
-                                    :class="['flex items-start p-4 border rounded-xl transition-all text-left w-full', doctor.status === 'available' ? 'hover:border-indigo-500 hover:bg-indigo-50 bg-white cursor-pointer' : 'bg-gray-50 opacity-75 cursor-not-allowed']"
+                                    @click="nextStep" 
+                                    :disabled="!form.start_time"
+                                    class="w-full max-w-xs py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 disabled:opacity-50"
                                 >
-                                    <div :class="['h-12 w-12 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-xl mr-4', doctor.status === 'available' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-200 text-gray-400']">
-                                        {{ doctor.name.charAt(0) }}
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="font-medium text-gray-900">{{ doctor.name }}</div>
-                                        <div class="text-sm text-gray-500">{{ doctor.specialty || 'General Practitioner' }}</div>
-                                        <div v-if="doctor.status !== 'available'" class="text-xs text-red-500 mt-1">{{ doctor.reason }}</div>
-                                        <div v-if="doctor.busy_slots && doctor.busy_slots.length > 0" class="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
-                                            Busy: {{ doctor.busy_slots.join(', ') }}
-                                        </div>
-                                    </div>
+                                    Select Time
                                 </button>
+                                <p v-if="form.start_time" class="mt-2 text-sm text-gray-500">
+                                    Selected: {{ formatTime(form.start_time) }} - {{ formatTime(availableSlots.find(s=>s.time===form.start_time) ? 
+                                        (() => {
+                                             const [h,m] = form.start_time.split(':').map(Number);
+                                             const endMin = m + 90;
+                                             const endH = h + Math.floor(endMin/60);
+                                             const endM = endMin % 60;
+                                             return `${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
+                                        })()
+                                    : '') }}
+                                </p>
                             </div>
                         </div>
 
-                        <!-- Step 6: Confirmation -->
-                        <div v-if="currentStep === 6" class="w-full max-w-lg">
+                        <!-- Step 4: Doctor -->
+                        <div v-if="currentStep === 4" class="w-full">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Select Doctor</h3>
+                            
+                            <!-- Ask Mode -->
+                            <div v-if="!showDoctorList" class="flex flex-col items-center space-y-4">
+                                <p class="text-gray-600 text-center mb-2">Do you want to specify a doctor for this booking?</p>
+                                <div class="flex space-x-4">
+                                     <button 
+                                        @click="showDoctorList = true"
+                                        class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700"
+                                    >
+                                        Yes, Select Doctor
+                                    </button>
+                                     <button 
+                                        @click="skipDoctor"
+                                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300"
+                                    >
+                                        No, Assign Later
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- List Mode -->
+                            <div v-else>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <button 
+                                        v-for="doctor in availableDoctors" 
+                                        :key="doctor.id" 
+                                        @click="doctor.status === 'available' && selectDoctor(doctor)" 
+                                        :disabled="doctor.status !== 'available'"
+                                        :class="['flex items-start p-4 border rounded-xl transition-all text-left w-full', doctor.status === 'available' ? 'hover:border-indigo-500 hover:bg-indigo-50 bg-white cursor-pointer' : 'bg-gray-50 opacity-75 cursor-not-allowed']"
+                                    >
+                                        <div :class="['h-12 w-12 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-xl mr-4', doctor.status === 'available' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-200 text-gray-400']">
+                                            {{ doctor.name.charAt(0) }}
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-medium text-gray-900">{{ doctor.name }}</div>
+                                            <div class="text-sm text-gray-500">{{ doctor.specialty || 'General Practitioner' }}</div>
+                                            <div v-if="doctor.status !== 'available'" class="text-xs text-red-500 mt-1">{{ doctor.reason }}</div>
+                                            <div v-if="doctor.busy_slots && doctor.busy_slots.length > 0" class="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                                                Busy: {{ doctor.busy_slots.join(', ') }}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="mt-6 flex justify-center">
+                                    <button @click="showDoctorList = false" class="text-indigo-600 underline text-sm">Cancel Selection</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Confirmation -->
+                        <div v-if="currentStep === 5" class="w-full max-w-lg">
                             <div class="bg-gray-50 p-6 rounded-lg mb-6">
                                 <h4 class="font-semibold text-gray-900 mb-2">Summary</h4>
                                 <div class="space-y-2 text-sm">
@@ -389,7 +449,7 @@ const onSearchInput = () => {
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-500">Doctor:</span>
-                                        <span class="font-medium">{{ selectedDoctorName }}</span>
+                                        <span class="font-medium">{{ form.doctor_id ? selectedDoctorName : 'Not Assigned (Admin will assign later)' }}</span>
                                     </div>
                                 </div>
                             </div>
