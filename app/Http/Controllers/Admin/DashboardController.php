@@ -190,6 +190,10 @@ class DashboardController extends Controller
             'bookings' => $latestBookings,
             'latestVisits' => $latestVisits,
             'upcomingBookings' => $upcomingBookings,
+            'newBookings' => Booking::with(['user', 'doctor'])
+                ->where('created_at', '>=', Carbon::now()->subDays(3))
+                ->orderByDesc('created_at')
+                ->get(),
             'stats' => $stats,
             'chartData' => $chartData,
             'visitsChartData' => $visitsChartData,
