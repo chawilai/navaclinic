@@ -24,6 +24,13 @@ class Booking extends Model
         'payment_proof',
     ];
 
+    protected $appends = ['payment_proof_url'];
+
+    public function getPaymentProofUrlAttribute()
+    {
+        return $this->payment_proof ? asset('storage/' . $this->payment_proof) : null;
+    }
+
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);

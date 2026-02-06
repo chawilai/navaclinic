@@ -18,7 +18,19 @@ import { computed, ref } from 'vue';
 import Modal from '@/Components/Modal.vue';
 
 const showConfirmModal = ref(false);
+const showImageModal = ref(false);
+const selectedImageUrl = ref(null);
 const pendingStatus = ref(null);
+
+const openImageModal = (url) => {
+    selectedImageUrl.value = url;
+    showImageModal.value = true;
+};
+
+const closeImageModal = () => {
+    showImageModal.value = false;
+    selectedImageUrl.value = null;
+};
 
 const openConfirmModal = (status) => {
     pendingStatus.value = status;
@@ -163,6 +175,33 @@ const isDetailedPainArea = (areas) => {
                                         </Link>
                                     </div>
                                 </div>
+                                
+                                <div v-if="booking.payment_proof_url" class="mt-8 border-t border-slate-100 pt-6">
+                                    <h4 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-slate-500">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                        </svg>
+                                        หลักฐานการโอนเงิน (Payment Slip)
+                                    </h4>
+                                    <div class="relative group cursor-pointer overflow-hidden rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-all inline-block bg-slate-50">
+                                        <img 
+                                            :src="booking.payment_proof_url" 
+                                            alt="Payment Proof" 
+                                            class="w-full max-w-sm max-h-64 object-contain rounded-lg"
+                                            @click="openImageModal(booking.payment_proof_url)"
+                                        >
+                                        <div 
+                                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white backdrop-blur-[1px]" 
+                                            @click="openImageModal(booking.payment_proof_url)"
+                                        >
+                                            <div class="bg-white/20 p-2 rounded-full backdrop-blur-md">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <h3 class="text-lg font-bold mb-6 pb-3 border-b border-indigo-100 text-indigo-900 flex items-center gap-2">
@@ -183,6 +222,9 @@ const isDetailedPainArea = (areas) => {
                                         </span>
                                     </p>
                                 </div>
+
+                                
+
                             </div>
                         </div>
 
@@ -319,6 +361,21 @@ const isDetailedPainArea = (areas) => {
                         </span>
                         <span v-else>ยืนยันดำเนินการ</span>
                     </button>
+                </div>
+            </div>
+        </Modal>
+
+        <!-- Image Viewer Modal -->
+        <Modal :show="showImageModal" @close="closeImageModal" maxWidth="3xl">
+            <div class="p-4 bg-black/90 flex flex-col items-center justify-center min-h-[50vh] relative">
+                <button @click="closeImageModal" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 p-1 bg-black/20 rounded-full hover:bg-black/50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <img :src="selectedImageUrl" class="max-w-full max-h-[85vh] rounded shadow-2xl object-contain" />
+                <div class="absolute bottom-4 left-0 w-full text-center text-white text-sm opacity-80 pointer-events-none">
+                    คลิกพื้นที่ว่างหรือปุ่มกากบาทเพื่อปิด
                 </div>
             </div>
         </Modal>
