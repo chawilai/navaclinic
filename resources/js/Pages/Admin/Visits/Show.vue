@@ -48,7 +48,8 @@ const totalPaid = computed(() => {
 
 const remainingAmount = computed(() => {
     const price = props.visit.price ? Number(props.visit.price) : 0;
-    return Math.max(0, price - totalPaid.value);
+    const tip = props.visit.tip ? Number(props.visit.tip) : 0;
+    return Math.max(0, (price + tip) - totalPaid.value);
 });
 
 const submitPayment = () => {
@@ -428,9 +429,27 @@ const deletePayment = (id) => {
 
                                     <!-- Total Bill Highlight -->
                                     <div class="lg:col-span-1 bg-indigo-50/50 rounded-xl flex flex-col items-center justify-center p-6 border border-indigo-100 text-center">
-                                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">ยอดรวมค่ารักษา (TOTAL BILL)</span>
+                                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">ยอดสุทธิ (NET TOTAL)</span>
                                         <div class="text-3xl font-black text-indigo-600 tracking-tight">
                                            {{ visit.price ? Number(visit.price).toLocaleString() : '0' }} <span class="text-base font-bold text-indigo-400">฿</span>
+                                        </div>
+                                        
+                                        <div v-if="visit.treatment_fee > visit.price" class="mt-2 text-xs text-slate-500">
+                                            <div class="flex justify-between w-full gap-4">
+                                                <span>ค่ารักษา:</span>
+                                                <span class="font-bold">{{ Number(visit.treatment_fee).toLocaleString() }}</span>
+                                            </div>
+                                            <div class="flex justify-between w-full gap-4 text-rose-500">
+                                                <span>ต่วนลด:</span>
+                                                <span class="font-bold">-{{ (visit.treatment_fee - visit.price).toLocaleString() }}</span>
+                                            </div>
+                                        </div>
+                                        
+                                         <div v-if="visit.tip > 0" class="mt-2 pt-2 border-t border-indigo-100 w-full">
+                                            <div class="flex justify-between w-full text-xs text-amber-600 font-bold">
+                                                <span>ทริป (Tip):</span>
+                                                <span>+{{ Number(visit.tip).toLocaleString() }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -447,7 +466,7 @@ const deletePayment = (id) => {
                         <h3 class="font-bold text-emerald-900 text-xl flex items-center gap-3">
                             <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.1.171 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                 </svg>
                             </div>
                             <div>
@@ -457,7 +476,7 @@ const deletePayment = (id) => {
                         </h3>
                         <div class="flex items-center gap-4">
                             <div class="text-right hidden sm:block">
-                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">ยอดค่ารักษา</div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">ยอดสุทธิ (Net)</div>
                                 <div class="text-xl font-bold text-slate-700 leading-none">
                                     {{ visit.price ? Number(visit.price).toLocaleString() : '0' }} ฿
                                 </div>
@@ -539,6 +558,21 @@ const deletePayment = (id) => {
                             <div class="space-y-6">
                                 <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest">เพิ่มรายการชำระ</h4>
                                 <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
+
+                                    <div class="mb-4 space-y-2 text-sm border-b border-indigo-200 pb-3">
+                                         <div v-if="visit.treatment_fee" class="flex justify-between items-center text-slate-500">
+                                           <span>ค่ารักษา</span>
+                                           <span class="font-bold">{{ Number(visit.treatment_fee).toLocaleString() }} ฿</span>
+                                        </div>
+                                         <div v-if="visit.treatment_fee > visit.price" class="flex justify-between items-center text-rose-500">
+                                           <span>ส่วนลด</span>
+                                           <span class="font-bold">-{{ Number(visit.treatment_fee - visit.price).toLocaleString() }} ฿</span>
+                                        </div>
+                                        <div class="flex justify-between items-center text-indigo-900 text-base">
+                                           <span class="font-bold">ยอดสุทธิ (Net)</span>
+                                           <span class="font-black">{{ Number(visit.price).toLocaleString() }} ฿</span>
+                                        </div>
+                                    </div>
 
                                     <div class="mb-4 flex justify-between items-center text-sm">
                                        <span class="font-bold text-slate-500">คงเหลือที่ต้องชำระ</span>

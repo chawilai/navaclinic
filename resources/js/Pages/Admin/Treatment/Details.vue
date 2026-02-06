@@ -25,10 +25,35 @@ const form = useForm({
     massage_weight: props.treatmentRecord.massage_weight || 'medium',
     pain_level_before: props.treatmentRecord.pain_level_before || '',
     pain_level_after: props.treatmentRecord.pain_level_after || '',
-    price: props.entity.price || '',
-    doctor_commission: props.entity.doctor_commission || '',
+    
+    // Financials
+    // Financials
+    treatment_fee: Number(props.entity.treatment_fee || props.entity.price) > 0 ? (props.entity.treatment_fee || props.entity.price) : '', 
+    discount_type: props.entity.discount_type || 'amount',
+    discount_value: Number(props.entity.discount_value) > 0 ? props.entity.discount_value : '',
+    price: props.entity.price || 0, // Final Price (Net)
+    tip: Number(props.entity.tip) > 0 ? props.entity.tip : '',
+    
+
     notes: props.treatmentRecord.notes || '',
     save_action: 'exit',
+});
+
+import { watch } from 'vue';
+
+watch(() => [form.treatment_fee, form.discount_type, form.discount_value], () => {
+    let fee = parseFloat(form.treatment_fee) || 0;
+    let discVal = parseFloat(form.discount_value) || 0;
+    let finalPrice = fee;
+
+    if (form.discount_type === 'percent') {
+        const discountAmount = fee * (discVal / 100);
+        finalPrice = fee - discountAmount;
+    } else {
+        finalPrice = fee - discVal;
+    }
+
+    form.price = Math.max(0, finalPrice).toFixed(2);
 });
 
 const submit = () => {
@@ -228,29 +253,65 @@ const submitForm = () => {
 
                                 <!-- Price & Notes -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
-                                        <label class="block text-sm font-bold text-indigo-900 mb-2">Total Bill (ยอดรวมค่ารักษา)</label>
-                                        <div class="relative">
-                                            <input type="number" step="0.01" v-model="form.price" class="w-full rounded-xl border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-12 text-2xl font-black text-indigo-700 tracking-tight" placeholder="0.00">
-                                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                                <span class="text-indigo-400 font-bold">THB</span>
-                                            </div>
-                                        </div>
-                                        <InputError class="mt-2" :message="form.errors.price" />
+                                    <div class="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100 space-y-4">
+                                        <h5 class="text-sm font-bold text-indigo-900 border-b border-indigo-200 pb-2 mb-2 flex justify-between items-center">
+                                            <span>Financials (ค่ารักษา & บริการ)</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </h5>
 
-                                        <div class="mt-4 pt-4 border-t border-indigo-100">
-                                            <label class="block text-sm font-bold text-indigo-900 mb-2">Doctor Fee (ค่ามือหมอ)</label>
+                                        <!-- 1. Treatment Fee -->
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ค่ารักษา (Treatment Fee)</label>
                                             <div class="relative">
-                                                <input type="number" step="0.01" v-model="form.doctor_commission" class="w-full rounded-xl border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-12 text-lg font-bold text-indigo-700 tracking-tight" placeholder="ระบุหากต้องการกำหนดเอง">
-                                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                                    <span class="text-indigo-400 font-bold">THB</span>
+                                                <input type="number" step="0.01" v-model="form.treatment_fee" class="w-full rounded-lg border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-3 pr-10 font-bold text-slate-700" placeholder="0.00">
+                                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span class="text-xs text-slate-400 font-bold">THB</span>
                                                 </div>
                                             </div>
-                                            <InputError class="mt-2" :message="form.errors.doctor_commission" />
-                                            <p class="text-xs text-indigo-500 mt-1">
-                                                * ถ้าไม่ระบุ จะคิด 50%
-                                            </p>
                                         </div>
+
+                                        <!-- 2. Discount -->
+                                        <div class="flex gap-3">
+                                            <div class="w-2/5">
+                                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ประเภทส่วนลด</label>
+                                                <select v-model="form.discount_type" class="w-full rounded-lg border-indigo-200 bg-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                    <option value="amount">ลดบาท (฿)</option>
+                                                    <option value="percent">ลดเปอร์เซ็นต์ (%)</option>
+                                                </select>
+                                            </div>
+                                            <div class="w-3/5">
+                                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">มูลค่าส่วนลด</label>
+                                                <input type="number" step="0.01" v-model="form.discount_value" class="w-full rounded-lg border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-rose-500 font-bold placeholder-rose-200" placeholder="0">
+                                            </div>
+                                        </div>
+
+                                        <!-- 3. Net Price -->
+                                        <div class="bg-white rounded-xl p-3 border border-indigo-100 shadow-sm text-center">
+                                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">ยอดสุทธิ (Net Price)</label>
+                                            <div class="font-black text-3xl text-indigo-600 tracking-tight leading-none">
+                                                {{ Number(form.price).toLocaleString() }} <span class="text-sm font-bold text-indigo-300">฿</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- 4. Tip -->
+                                        <div>
+                                             <label class="block text-xs font-bold text-amber-500 uppercase mb-1 flex items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                                </svg>
+                                                ทริป (Tip)
+                                            </label>
+                                             <div class="relative">
+                                                <input type="number" step="0.01" v-model="form.tip" class="w-full rounded-lg border-amber-200 bg-amber-50 focus:border-amber-500 focus:ring-amber-500 text-amber-800 font-bold pl-3 pr-10" placeholder="0.00">
+                                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <span class="text-xs text-amber-400 font-bold">THB</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                     </div>
 
                                     <div>

@@ -164,29 +164,26 @@ class TreatmentController extends Controller
             'pain_level_before' => 'nullable|integer|between:0,10',
             'pain_level_after' => 'nullable|integer|between:0,10',
             'notes' => 'nullable|string',
-            'price' => 'nullable|numeric|min:0',
-            'doctor_commission' => 'nullable|numeric|min:0',
+            'price' => 'nullable|numeric|min:0', // Final Price
+            'treatment_fee' => 'nullable|numeric|min:0', // Base Price
+            'discount_type' => 'nullable|string|in:amount,percent',
+            'discount_value' => 'nullable|numeric|min:0',
+            'tip' => 'nullable|numeric|min:0',
+
         ]);
 
-        // Update Price if present
-        if ($request->has('price')) {
-            if ($treatmentRecord->visit) {
-                $treatmentRecord->visit->update(['price' => $request->price]);
-            } elseif ($treatmentRecord->booking) {
-                $treatmentRecord->booking->update(['price' => $request->price]);
-            }
-        }
-
-        if ($request->has('doctor_commission')) {
-            $visit = $treatmentRecord->visit;
-            if (!$visit && $treatmentRecord->booking_id) {
-                // Try to find visit associated with this booking
-                $visit = \App\Models\Visit::where('booking_id', $treatmentRecord->booking_id)->first();
-            }
-
-            if ($visit) {
-                $visit->update(['doctor_commission' => $request->doctor_commission]);
-            }
+        // Update Financials if present
+        if ($treatmentRecord->visit) {
+            $treatmentRecord->visit->update([
+                'price' => $request->input('price', 0),
+                'treatment_fee' => $request->input('treatment_fee', 0),
+                'discount_type' => $request->input('discount_type', 'amount'),
+                'discount_value' => $request->input('discount_value', 0),
+                'tip' => $request->input('tip', 0),
+            ]);
+        } elseif ($treatmentRecord->booking) {
+            // Fallback for Booking (Only supports price as per schema for now)
+            $treatmentRecord->booking->update(['price' => $request->price]);
         }
 
         $treatmentRecord->update(collect($validated)->except('price')->toArray());

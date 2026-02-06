@@ -19,6 +19,10 @@ class Visit extends Model
         'price',
         'doctor_commission',
         'duration_minutes',
+        'treatment_fee',
+        'discount_type',
+        'discount_value',
+        'tip',
     ];
 
     protected $casts = [
@@ -27,6 +31,9 @@ class Visit extends Model
         'time_out' => 'datetime',
         'price' => 'decimal:2',
         'doctor_commission' => 'decimal:2',
+        'treatment_fee' => 'decimal:2',
+        'discount_value' => 'decimal:2',
+        'tip' => 'decimal:2',
     ];
 
     public function patient()
