@@ -180,16 +180,24 @@ const peakHoursChartOptions = {
                         <div class="text-indigo-100 text-sm font-medium uppercase tracking-wider mb-4">ภาพรวมวันนี้</div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <div class="text-xs text-indigo-200">รายได้</div>
-                                <div class="text-xl font-bold">{{ formatCurrency(financial_overview.today.revenue) }}</div>
+                                <div class="text-xs text-indigo-200">ค่ารักษา (ก่อนลด)</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.today.revenue) }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-indigo-200">ส่วนลด</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.today.discount) }}</div>
                             </div>
                             <div>
                                 <div class="text-xs text-indigo-200">ค่ามือแพทย์</div>
-                                <div class="text-xl font-bold">{{ formatCurrency(financial_overview.today.doctor_fee) }}</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.today.doctor_fee) }}</div>
+                            </div>
+                             <div>
+                                <div class="text-xs text-indigo-200">รายได้สุทธิ</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.today.net_revenue) }}</div>
                             </div>
                             <div class="col-span-2 border-t border-indigo-400/30 pt-2 mt-2">
                                 <div class="flex justify-between items-center">
-                                    <div class="text-xs text-indigo-200">กำไรสุทธิ</div>
+                                    <div class="text-xs text-indigo-200">กำไรสุทธิ (หลังหักค่ามือ)</div>
                                     <div class="text-2xl font-bold">{{ formatCurrency(financial_overview.today.net_profit) }}</div>
                                 </div>
                             </div>
@@ -200,17 +208,25 @@ const peakHoursChartOptions = {
                     <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
                         <div class="text-emerald-100 text-sm font-medium uppercase tracking-wider mb-4">เดือนนี้</div>
                         <div class="grid grid-cols-2 gap-4">
+                             <div>
+                                <div class="text-xs text-emerald-200">ค่ารักษา (ก่อนลด)</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.month.revenue) }}</div>
+                            </div>
                             <div>
-                                <div class="text-xs text-emerald-200">รายได้</div>
-                                <div class="text-xl font-bold">{{ formatCurrency(financial_overview.month.revenue) }}</div>
+                                <div class="text-xs text-emerald-200">ส่วนลด</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.month.discount) }}</div>
                             </div>
                             <div>
                                 <div class="text-xs text-emerald-200">ค่ามือแพทย์</div>
-                                <div class="text-xl font-bold">{{ formatCurrency(financial_overview.month.doctor_fee) }}</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.month.doctor_fee) }}</div>
+                            </div>
+                             <div>
+                                <div class="text-xs text-emerald-200">รายได้สุทธิ</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.month.net_revenue) }}</div>
                             </div>
                             <div class="col-span-2 border-t border-emerald-400/30 pt-2 mt-2">
                                 <div class="flex justify-between items-center">
-                                    <div class="text-xs text-emerald-200">กำไรสุทธิ</div>
+                                    <div class="text-xs text-emerald-200">กำไรสุทธิ (หลังหักค่ามือ)</div>
                                     <div class="text-2xl font-bold">{{ formatCurrency(financial_overview.month.net_profit) }}</div>
                                 </div>
                             </div>
@@ -222,16 +238,24 @@ const peakHoursChartOptions = {
                         <div class="text-purple-100 text-sm font-medium uppercase tracking-wider mb-4">ปีนี้</div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <div class="text-xs text-purple-200">รายได้</div>
-                                <div class="text-xl font-bold">{{ formatCurrency(financial_overview.year.revenue) }}</div>
+                                <div class="text-xs text-purple-200">ค่ารักษา (ก่อนลด)</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.year.revenue) }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-purple-200">ส่วนลด</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.year.discount) }}</div>
                             </div>
                             <div>
                                 <div class="text-xs text-purple-200">ค่ามือแพทย์</div>
-                                <div class="text-xl font-bold">{{ formatCurrency(financial_overview.year.doctor_fee) }}</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.year.doctor_fee) }}</div>
+                            </div>
+                             <div>
+                                <div class="text-xs text-purple-200">รายได้สุทธิ</div>
+                                <div class="text-lg font-bold">{{ formatCurrency(financial_overview.year.net_revenue) }}</div>
                             </div>
                             <div class="col-span-2 border-t border-purple-400/30 pt-2 mt-2">
                                 <div class="flex justify-between items-center">
-                                    <div class="text-xs text-purple-200">กำไรสุทธิ</div>
+                                    <div class="text-xs text-purple-200">กำไรสุทธิ (หลังหักค่ามือ)</div>
                                     <div class="text-2xl font-bold">{{ formatCurrency(financial_overview.year.net_profit) }}</div>
                                 </div>
                             </div>
@@ -384,6 +408,10 @@ const peakHoursChartOptions = {
                                     <div class="text-xs text-slate-500 uppercase tracking-wide">ระยะเวลารวม</div>
                                     <div class="font-bold text-slate-700">{{ formatDuration(doctor.total_duration) }}</div>
                                 </div>
+                                <div class="text-right">
+                                    <div class="text-xs text-slate-500 uppercase tracking-wide">ส่วนลดรวม</div>
+                                    <div class="font-bold text-rose-500">{{ formatCurrency(doctor.total_discount) }}</div>
+                                </div>
                             </div>
                         </div>
                         
@@ -395,7 +423,8 @@ const peakHoursChartOptions = {
                                         <th class="px-6 py-3">เวลา</th>
                                         <th class="px-6 py-3">ผู้ป่วย</th>
                                         <th class="px-6 py-3">ระยะเวลา</th>
-                                        <th class="px-6 py-3 text-right">ค่ารักษา</th>
+                                        <th class="px-6 py-3 text-right">ค่ารักษา (Gross)</th>
+                                        <th class="px-6 py-3 text-right">ส่วนลด</th>
                                         <th class="px-6 py-3 text-right">ค่ามือแพทย์</th>
                                     </tr>
                                 </thead>
@@ -405,7 +434,8 @@ const peakHoursChartOptions = {
                                         <td class="px-6 py-4 whitespace-nowrap text-slate-500">{{ visit.visit_time }}</td>
                                         <td class="px-6 py-4 font-medium text-slate-900">{{ visit.patient_name }}</td>
                                         <td class="px-6 py-4">{{ visit.duration_minutes }} นาที</td>
-                                        <td class="px-6 py-4 text-right font-medium text-slate-900">{{ formatCurrency(visit.price) }}</td>
+                                        <td class="px-6 py-4 text-right font-medium text-slate-900">{{ formatCurrency(visit.treatment_fee) }}</td>
+                                        <td class="px-6 py-4 text-right font-medium text-rose-500">{{ visit.discount > 0 ? formatCurrency(visit.discount) : '-' }}</td>
                                         <td class="px-6 py-4 text-right font-medium text-emerald-600">{{ formatCurrency(visit.doctor_fee) }}</td>
                                     </tr>
                                 </tbody>

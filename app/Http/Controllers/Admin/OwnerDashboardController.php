@@ -50,14 +50,28 @@ class OwnerDashboardController extends Controller
             ->get();
 
         // --- Aggregates ---
-        $totalRevenue = $visits->sum('price');
+        $totalRevenue = $visits->sum('treatment_fee'); // Gross Revenue
+        $totalDiscount = $visits->reduce(function ($carry, $visit) {
+            $fee = $visit->treatment_fee ?? $visit->price;
+            $val = $visit->discount_value ?? 0;
+            $type = $visit->discount_type ?? 'amount';
+            if ($type === 'percent') {
+                return $carry + ($fee * ($val / 100));
+            }
+            return $carry + $val;
+        }, 0);
+
         $totalDuration = $visits->sum('duration_minutes');
         $totalVisits = $visits->count();
         $totalPatients = $visits->unique('patient_id')->count();
-        $avgTicketSize = $totalVisits > 0 ? $totalRevenue / $totalVisits : 0;
+        $avgTicketSize = $totalVisits > 0 ? $visits->sum('price') / $totalVisits : 0; // Avg Net Paid
 
-        // --- Revenue Chart Data ---
-        // Group by date/time part
+        // --- Revenue Chart Data (Gross) -> User asked for Treatment Fee based on pre-discount
+        // But maybe chart should remain Net (Cash flow)? Let's assume Gross for "Revenue" consistency if label is "Revenue".
+        // However, "Revenue" usually means Net.
+        // User request: "ค่ารักษา ... ไม่ใช่เลขหลังลด" (Treatment fee ... not the number after discount).
+        // I will make the chart data reflect 'treatment_fee' (Gross).
+
         $revenueData = $visits->groupBy(function ($date) use ($period) {
             if ($period === 'daily') {
                 return $date->visit_date->format('H:00');
@@ -66,7 +80,7 @@ class OwnerDashboardController extends Controller
             }
             return $date->visit_date->format('Y-m-d');
         })->map(function ($dayVisits) {
-            return $dayVisits->sum('price');
+            return $dayVisits->sum('treatment_fee');
         });
 
         // Fill in missing slots for the chart
@@ -104,7 +118,7 @@ class OwnerDashboardController extends Controller
                 return [
                     'id' => $patient ? $patient->id : null,
                     'name' => $patient ? $patient->name : 'Unknown',
-                    'total_spent' => $patientVisits->sum('price'),
+                    'total_spent' => $patientVisits->sum('price'), // Keep as Net Spent by patient? Yes.
                     'visits_count' => $patientVisits->count(),
                 ];
             })
@@ -115,21 +129,42 @@ class OwnerDashboardController extends Controller
         // --- Doctor Stats ---
         $doctorStats = $visits->groupBy('doctor_id')->map(function ($doctorVisits) {
             $doctor = $doctorVisits->first()->doctor;
+
+            $gross = $doctorVisits->sum('treatment_fee');
+            $discount = $doctorVisits->reduce(function ($carry, $visit) {
+                $fee = $visit->treatment_fee ?? $visit->price;
+                $val = $visit->discount_value ?? 0;
+                $type = $visit->discount_type ?? 'amount';
+                return $carry + ($type === 'percent' ? ($fee * ($val / 100)) : $val);
+            }, 0);
+            $net = $doctorVisits->sum('price');
+            $doctorFee = $doctorVisits->sum(function ($visit) {
+                return $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100);
+            });
+
             return [
                 'doctor_id' => $doctor->id,
                 'doctor_name' => $doctor->name,
-                'total_revenue' => $doctorVisits->sum('price'),
+                'total_revenue' => $gross, // Modified to Gross as requested for "Treatment Fee" context
+                'total_discount' => $discount,
+                'net_revenue' => $net,
                 'total_duration' => $doctorVisits->sum('duration_minutes'),
-                'total_doctor_fee' => $doctorVisits->sum(function ($visit) {
-                    return $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100);
-                }),
+                'total_doctor_fee' => $doctorFee,
                 'visits' => $doctorVisits->map(function ($visit) {
+                    // Calc discount for this visit
+                    $fee = $visit->treatment_fee ?? $visit->price;
+                    $val = $visit->discount_value ?? 0;
+                    $type = $visit->discount_type ?? 'amount';
+                    $discAmt = ($type === 'percent' ? ($fee * ($val / 100)) : $val);
+
                     return [
                         'patient_name' => $visit->patient ? $visit->patient->name : 'Unknown',
                         'visit_date' => $visit->visit_date->format('d M Y'),
                         'visit_time' => $visit->visit_date->format('H:i'),
                         'duration_minutes' => $visit->duration_minutes,
-                        'price' => $visit->price,
+                        'price' => $visit->price, // Net
+                        'treatment_fee' => $visit->treatment_fee ?? $visit->price, // Gross
+                        'discount' => $discAmt,
                         'doctor_fee' => $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100),
                     ];
                 })
@@ -198,7 +233,17 @@ class OwnerDashboardController extends Controller
             ->get();
 
         $calculateMetrics = function ($visitsCollection) {
-            $revenue = $visitsCollection->sum('price');
+            $grossRevenue = $visitsCollection->sum('treatment_fee');
+
+            $discount = $visitsCollection->reduce(function ($carry, $visit) {
+                $fee = $visit->treatment_fee ?? $visit->price;
+                $val = $visit->discount_value ?? 0;
+                $type = $visit->discount_type ?? 'amount';
+                return $carry + ($type === 'percent' ? ($fee * ($val / 100)) : $val);
+            }, 0);
+
+            $netRevenue = $visitsCollection->sum('price');
+
             $doctorFee = $visitsCollection->reduce(function ($carry, $visit) {
                 if ($visit->doctor_commission !== null) {
                     return $carry + $visit->doctor_commission;
@@ -206,10 +251,13 @@ class OwnerDashboardController extends Controller
                 $rate = $visit->doctor ? $visit->doctor->commission_rate : 50; // Default 50%
                 return $carry + ($visit->price * $rate / 100);
             }, 0);
+
             return [
-                'revenue' => $revenue,
+                'revenue' => $grossRevenue, // Showing Gross as requested
+                'discount' => $discount,
+                'net_revenue' => $netRevenue,
                 'doctor_fee' => $doctorFee,
-                'net_profit' => $revenue - $doctorFee
+                'net_profit' => $netRevenue - $doctorFee
             ];
         };
 
@@ -226,6 +274,7 @@ class OwnerDashboardController extends Controller
         return Inertia::render('Admin/Owner/Dashboard', [
             'stats' => [
                 'total_revenue' => $totalRevenue,
+                'total_discount' => $totalDiscount,
                 'total_duration' => $totalDuration,
                 'total_patients' => $totalPatients,
                 'avg_ticket_size' => $avgTicketSize,
