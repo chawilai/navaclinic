@@ -221,7 +221,7 @@ const formatDate = (dateString) => {
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     
                     <!-- Left Sidebar: Patient Info -->
-                    <div class="lg:col-span-4 space-y-6">
+                    <div class="lg:col-span-3 space-y-6">
                         <!-- Medical Alerts (Rich Design) -->
                         <div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden flex flex-col">
                              <div 
@@ -401,7 +401,7 @@ const formatDate = (dateString) => {
                     </div>
 
                     <!-- Right Main Content -->
-                    <div class="lg:col-span-8 space-y-6">
+                    <div class="lg:col-span-9 space-y-6">
                         
 
 
@@ -508,231 +508,198 @@ const formatDate = (dateString) => {
                             </div>
                             
                             <div v-show="isMedicalOverviewExpanded" v-if="medicalSummary" class="p-6 transition-all duration-300">
-                                <!-- 1. Vitals Row -->
-                                <div class="mb-8">
-                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                        <div class="w-1 h-3 bg-indigo-500 rounded-full"></div>
-                                        สัญญาณชีพ
-                                    </h4>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        <!-- BP -->
-                                        <div class="p-3 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex flex-col items-center justify-center relative overflow-hidden group">
-                                            <div class="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                <HeartIcon class="w-8 h-8 text-indigo-600" />
-                                            </div>
-                                            <p class="text-[10px] text-indigo-400 uppercase font-bold mb-1">ความดันโลหิต</p>
-                                            <p class="text-lg font-black text-indigo-700">{{ medicalSummary.blood_pressure || '-' }}</p>
-                                            <p class="text-[10px] text-indigo-400 font-medium">mmHg</p>
-                                        </div>
-                                         <!-- Pulse -->
-                                         <div class="p-3 rounded-2xl bg-rose-50/50 border border-rose-100 flex flex-col items-center justify-center relative overflow-hidden group">
-                                            <div class="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-rose-600">
-                                                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                                                </svg>
-                                            </div>
-                                            <p class="text-[10px] text-rose-400 uppercase font-bold mb-1">อัตราการเต้นหัวใจ</p>
-                                            <p class="text-lg font-black text-rose-600">{{ medicalSummary.pulse_rate || '-' }}</p>
-                                            <p class="text-[10px] text-rose-400 font-medium">bpm</p>
-                                        </div>
-
-                                        <!-- Weight -->
-                                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center">
-                                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">น้ำหนัก</p>
-                                            <p class="text-lg font-black text-slate-700">{{ medicalSummary.weight || '-' }}</p>
-                                            <p class="text-[10px] text-slate-400 font-medium">kg</p>
-                                        </div>
-
-
-                                    </div>
-                                </div>
-
-                                <!-- 2. Clinical Info Row -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-                                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
-                                        <h5 class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                            </svg>
-                                            อาการสำคัญ (Chief Complaint)
-                                        </h5>
-                                        <p class="text-slate-700 font-medium text-sm leading-relaxed pl-1">
-                                            {{ medicalSummary.chief_complaint || '-' }}
-                                        </p>
-                                    </div>
+                                <!-- Premium Dashboard Layout -->
+                                <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
                                     
-                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-                                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
-                                        <h5 class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            การวินิจฉัย (Diagnosis)
-                                        </h5>
-                                        <p class="text-slate-700 font-medium text-sm leading-relaxed pl-1">
-                                            {{ medicalSummary.diagnosis || '-' }}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <!-- 3. Pain Areas (Premium Redesign) -->
-                                <div v-if="medicalSummary.pain_areas && medicalSummary.pain_areas.length > 0" class="space-y-4">
-                                    
-                                    <div class="flex items-center justify-between px-1">
-                                         <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                                            <div class="p-1.5 bg-indigo-100 rounded-lg text-indigo-600">
-                                                 <UserIcon class="w-4 h-4" />
-                                            </div>
-                                            บริเวณที่รักษา (Treated Areas)
-                                        </h4>
-                                        <span class="text-[10px] font-bold px-2.5 py-1 bg-white text-slate-500 rounded-full border border-slate-200 shadow-sm">
-                                            {{ medicalSummary.pain_areas.length }} จุด
-                                        </span>
-                                    </div>
-
-                                    <div class="bg-white rounded-3xl shadow-[0_4px_20px_-4px_rgba(99,102,241,0.1)] border border-slate-100 overflow-hidden ring-1 ring-slate-900/5 relative group/container">
+                                    <!-- LEFT: Interactive Body Map (Visual Centerpiece) -->
+                                    <div class="xl:col-span-5 bg-gradient-to-b from-slate-50/50 to-white rounded-3xl border border-slate-100 relative min-h-[500px] flex flex-col shadow-sm overflow-hidden group/map">
                                         
-                                        <!-- Decoration background -->
-                                        <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-transparent rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-60"></div>
+                                        <!-- Header within Map -->
+                                        <div class="absolute top-4 left-4 z-10 flex items-center justify-between w-[calc(100%-32px)] pointer-events-none">
+                                            <div class="flex flex-col">
+                                                <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 pointer-events-auto">
+                                                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                                                    Body Map
+                                                </h4>
+                                                <span class="text-[10px] text-slate-400 font-medium ml-4">{{ medicalSummary.pain_areas?.length || 0 }} Areas Marked</span>
+                                            </div>
+                                            <button @click="showBodyMapModal = true" class="pointer-events-auto p-2 bg-white/80 backdrop-blur text-indigo-600 rounded-xl shadow-sm border border-slate-200/60 hover:border-indigo-300 hover:shadow-md hover:text-indigo-700 transition-all duration-300">
+                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
+                                                </svg>
+                                            </button>
+                                        </div>
 
-                                        <div class="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
-                                            
-                                            <!-- Left: Body Map Visualizer (5 columns) -->
-                                            <div class="lg:col-span-5 bg-gradient-to-b from-slate-50/30 to-white relative min-h-[500px] flex flex-col">
-                                                <div class="p-4 flex justify-between items-start absolute w-full z-10 pointer-events-none">
-                                                     <div class="pointer-events-auto">
-                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/90 backdrop-blur border border-slate-200/60 rounded-full text-[10px] font-bold text-slate-600 shadow-sm uppercase tracking-wide">
-                                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                                                            Body Map
-                                                        </span>
-                                                     </div>
-                                                     <button @click="showBodyMapModal = true" class="pointer-events-auto p-2 bg-white text-indigo-600 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 hover:shadow-md hover:text-indigo-700 transition-all duration-300 group/btn">
-                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4 group-hover/btn:scale-110 transition-transform">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
-                                                        </svg>
-                                                     </button>
-                                                </div>
+                                        <!-- The Map -->
+                                        <div class="flex-1 flex items-center justify-center p-4 cursor-pointer relative" 
+                                             ref="mapContainer"
+                                             @mousemove="handleMouseMove"
+                                             @mouseenter="showLens = true"
+                                             @mouseleave="handleMouseLeave"
+                                             @click="showBodyMapModal = true">
+                                             
+                                             <div class="w-full h-full max-h-[500px] transition-transform duration-500 group-hover/map:scale-105">
+                                                  <BodyPartSelector 
+                                                    :modelValue="medicalSummary.pain_areas" 
+                                                    :readonly="true" 
+                                                    :thumbnail="true"
+                                                />
+                                             </div>
 
-                                                <div class="flex-1 flex items-center justify-center p-6 cursor-pointer relative" 
-                                                     ref="mapContainer"
-                                                     @mousemove="handleMouseMove"
-                                                     @mouseenter="showLens = true"
-                                                     @mouseleave="handleMouseLeave"
-                                                     @click="showBodyMapModal = true">
-                                                     
-                                                     <div class="w-full h-full max-h-[500px]">
-                                                          <BodyPartSelector 
-                                                            :modelValue="medicalSummary.pain_areas" 
-                                                            :readonly="true" 
-                                                            :thumbnail="true"
-                                                        />
-                                                     </div>
-
-                                                    <!-- Magnifying Lens -->
-                                                    <div v-show="showLens" 
-                                                         class="absolute z-20 w-32 h-32 rounded-xl border-2 border-indigo-500 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] overflow-hidden pointer-events-none transition-opacity duration-200"
-                                                         :style="{ 
-                                                             left: (lensX - 64) + 'px', 
-                                                             top: (lensY - 64) + 'px',
-                                                         }">
-                                                         
-                                                         <!-- Inner Container for Zoomed Content -->
-                                                         <div class="absolute bg-slate-50"
-                                                              :style="{
-                                                                  width: (mapContainer?.offsetWidth || 0) + 'px',
-                                                                  height: (mapContainer?.offsetHeight || 0) + 'px',
-                                                                  transform: 'scale(2.5)',
-                                                                  transformOrigin: '0 0',
-                                                                  left: (-lensX * 2.5 + 64) + 'px',
-                                                                  top: (-lensY * 2.5 + 64) + 'px'
-                                                              }">
-                                                              <div class="w-full h-full flex items-center justify-center p-6">
-                                                                 <div class="w-full h-full max-h-[500px]">
-                                                                      <BodyPartSelector 
-                                                                        :modelValue="medicalSummary.pain_areas" 
-                                                                        :readonly="true" 
-                                                                        :thumbnail="true"
-                                                                    />
-                                                                 </div>
-                                                              </div>
+                                            <!-- Magnifying Lens -->
+                                            <div v-show="showLens" 
+                                                 class="absolute z-20 w-32 h-32 rounded-full border-2 border-indigo-500 bg-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] overflow-hidden pointer-events-none transition-opacity duration-200"
+                                                 :style="{ 
+                                                     left: (lensX - 64) + 'px', 
+                                                     top: (lensY - 64) + 'px',
+                                                 }">
+                                                 
+                                                 <div class="absolute bg-slate-50"
+                                                      :style="{
+                                                          width: (mapContainer?.offsetWidth || 0) + 'px',
+                                                          height: (mapContainer?.offsetHeight || 0) + 'px',
+                                                          transform: 'scale(2.5)',
+                                                          transformOrigin: '0 0',
+                                                          left: (-lensX * 2.5 + 64) + 'px',
+                                                          top: (-lensY * 2.5 + 64) + 'px'
+                                                      }">
+                                                      <div class="w-full h-full flex items-center justify-center p-6">
+                                                         <div class="w-full h-full max-h-[500px]">
+                                                              <BodyPartSelector 
+                                                                :modelValue="medicalSummary.pain_areas" 
+                                                                :readonly="true" 
+                                                                :thumbnail="true"
+                                                            />
                                                          </div>
-                                                         
-                                                         <!-- Grid/Crosshair overlay for tech feel -->
-                                                         <div class="absolute inset-0 bg-indigo-500/5 mix-blend-overlay pointer-events-none"></div>
-                                                         <div class="absolute inset-0 flex items-center justify-center opacity-20">
-                                                             <div class="w-full h-px bg-indigo-500"></div>
-                                                             <div class="h-full w-px bg-indigo-500 absolute"></div>
-                                                         </div>
-                                                    </div>
+                                                      </div>
+                                                 </div>
+                                                 <div class="absolute inset-0 bg-indigo-500/10 mix-blend-overlay pointer-events-none"></div>
+                                                 <div class="absolute inset-0 flex items-center justify-center opacity-40">
+                                                     <div class="w-2 h-2 border border-indigo-500 rounded-full"></div>
+                                                 </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="pb-3 text-center">
+                                            <p class="text-[10px] text-slate-400 font-medium uppercase tracking-widest opacity-60">Click to Expand</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- RIGHT: Medical Data Console -->
+                                    <div class="xl:col-span-7 space-y-5">
+                                        
+                                        <!-- 1. Vitals Strip (Compact) -->
+                                        <div class="bg-white rounded-2xl border border-slate-100 p-1 shadow-sm grid grid-cols-3 divide-x divide-slate-100">
+                                            <!-- BP -->
+                                            <div class="py-3 px-4 flex flex-col justify-center items-center text-center group">
+                                                <div class="flex items-center gap-1.5 mb-1 text-slate-400 group-hover:text-indigo-500 transition-colors">
+                                                    <HeartIcon class="w-3.5 h-3.5" />
+                                                    <span class="text-[10px] font-bold uppercase tracking-wider">BP</span>
                                                 </div>
-                                                
-                                                <div class="pb-4 text-center">
-                                                    <p class="text-[10px] text-slate-300 font-medium uppercase tracking-widest group-hover/container:text-indigo-300 transition-colors">
-                                                        Click map to expand
-                                                    </p>
+                                                <div class="flex items-baseline gap-1">
+                                                    <span class="text-xl font-black text-slate-700">{{ medicalSummary.blood_pressure || '-' }}</span>
+                                                    <span class="text-[10px] text-slate-400 font-medium">mmHg</span>
                                                 </div>
                                             </div>
-
-                                            <!-- Right: Symptom Details List (7 columns) -->
-                                            <div class="lg:col-span-7 bg-white flex flex-col h-full max-h-[600px] overflow-y-auto custom-scrollbar">
-                                                
-                                                <!-- Sticky Header -->
-                                                <div class="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-slate-50 px-6 py-4 flex items-center justify-between">
-                                                     <h5 class="font-bold text-slate-800 flex items-center gap-2 text-sm">
-                                                        <ClipboardDocumentListIcon class="w-5 h-5 text-indigo-500" />
-                                                        รายการอาการแยกตามจุด (Symptom Details)
-                                                    </h5>
+                                            <!-- Pulse -->
+                                            <div class="py-3 px-4 flex flex-col justify-center items-center text-center group">
+                                                <div class="flex items-center gap-1.5 mb-1 text-slate-400 group-hover:text-rose-500 transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5">
+                                                        <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                                    </svg>
+                                                    <span class="text-[10px] font-bold uppercase tracking-wider">Pulse</span>
                                                 </div>
+                                                <div class="flex items-baseline gap-1">
+                                                    <span class="text-xl font-black text-slate-700">{{ medicalSummary.pulse_rate || '-' }}</span>
+                                                    <span class="text-[10px] text-slate-400 font-medium">bpm</span>
+                                                </div>
+                                            </div>
+                                            <!-- Weight -->
+                                            <div class="py-3 px-4 flex flex-col justify-center items-center text-center group">
+                                                 <div class="flex items-center gap-1.5 mb-1 text-slate-400 group-hover:text-emerald-500 transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm0 8.66c-.673 0-1.22.56-1.205 1.235a.732.732 0 0 1-.014.12 1.5 1.5 0 1 0 1.22.42V10.91Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span class="text-[10px] font-bold uppercase tracking-wider">Weight</span>
+                                                </div>
+                                                <div class="flex items-baseline gap-1">
+                                                    <span class="text-xl font-black text-slate-700">{{ medicalSummary.weight || '-' }}</span>
+                                                    <span class="text-[10px] text-slate-400 font-medium">kg</span>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                                <div class="p-5 space-y-3 bg-slate-50/30 min-h-full">
+                                        <!-- 2. Clinical Highlights (Grid) -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="p-4 bg-amber-50/50 rounded-2xl border border-amber-100/60 relative group hover:bg-amber-50 transition-colors">
+                                                <div class="absolute top-2 right-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                </div>
+                                                <h5 class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Chief Complaint</h5>
+                                                <p class="text-sm text-slate-700 font-semibold line-clamp-2">{{ medicalSummary.chief_complaint || '-' }}</p>
+                                            </div>
+                                            
+                                            <div class="p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100/60 relative group hover:bg-indigo-50/50 transition-colors">
+                                                 <div class="absolute top-2 right-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                </div>
+                                                <h5 class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-2">Diagnosis</h5>
+                                                <p class="text-sm text-slate-700 font-semibold line-clamp-2">{{ medicalSummary.diagnosis || '-' }}</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- 3. Scrollable Symptom List -->
+                                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden max-h-[300px]">
+                                            <div class="px-4 py-3 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+                                                <h5 class="font-bold text-slate-700 text-xs flex items-center gap-2">
+                                                    <ClipboardDocumentListIcon class="w-4 h-4 text-slate-400" />
+                                                    Detail List
+                                                </h5>
+                                                <span class="text-[10px] font-medium text-slate-400 px-2 py-0.5 bg-white border border-slate-200 rounded-md">
+                                                    Scrollable
+                                                </span>
+                                            </div>
+                                            <div class="overflow-y-auto custom-scrollbar p-1">
+                                                <div v-if="medicalSummary.pain_areas && medicalSummary.pain_areas.length > 0" class="divide-y divide-slate-50">
                                                     <div v-for="(item, idx) in medicalSummary.pain_areas" :key="idx" 
-                                                        class="group relative bg-white rounded-xl border border-slate-100 p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_16px_-4px_rgba(99,102,241,0.08)] hover:border-indigo-100 transition-all duration-300">
-                                                        
-                                                        <div class="flex flex-col sm:flex-row gap-4">
-                                                            <!-- Number & Content -->
-                                                            <div class="flex-1 flex gap-3">
-                                                                <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100 group-hover:bg-indigo-600 group-hover:text-white group-hover:ring-indigo-600 transition-all">
-                                                                    {{ idx + 1 }}
-                                                                </div>
-                                                                
-                                                                <div class="space-y-1.5 flex-1">
-                                                                    <h4 class="font-bold text-slate-800 text-sm group-hover:text-indigo-700 transition-colors">
-                                                                        {{ typeof item.area === 'string' ? item.area.replace(/_/g, ' ') : (item.area?.area || item.area) }}
-                                                                    </h4>
-                                                                    <p class="text-xs text-slate-500 leading-relaxed font-medium">
-                                                                        <span v-if="item.symptom">{{ item.symptom }}</span>
-                                                                        <span v-else class="text-slate-300 italic">- ไม่ระบุอาการ -</span>
-                                                                    </p>
+                                                         class="p-3 hover:bg-slate-50 transition-colors flex items-start gap-3 group">
+                                                        <div class="w-6 h-6 rounded flex-shrink-0 bg-slate-100 text-[10px] font-bold text-slate-500 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                                                            {{ idx + 1 }}
+                                                        </div>
+                                                        <div class="flex-1 min-w-0">
+                                                            <div class="flex justify-between items-start">
+                                                                <h4 class="text-xs font-bold text-slate-800 truncate">
+                                                                    {{ typeof item.area === 'string' ? item.area.replace(/_/g, ' ') : (item.area?.area || item.area) }}
+                                                                </h4>
+                                                                <!-- Mini Bars -->
+                                                                <div v-if="item.pain_level || item.pain_level_after" class="flex gap-2 items-center">
+                                                                     <div class="flex flex-col items-center ml-2">
+                                                                        <div class="h-1.5 w-8 bg-slate-100 rounded-full overflow-hidden">
+                                                                            <div class="h-full bg-rose-400 rounded-full" :style="{ width: (item.pain_level || 0) * 10 + '%' }"></div>
+                                                                        </div>
+                                                                     </div>
+                                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-slate-300" viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                                     </svg>
+                                                                     <div class="flex flex-col items-center">
+                                                                        <div class="h-1.5 w-8 bg-slate-100 rounded-full overflow-hidden">
+                                                                            <div class="h-full bg-emerald-400 rounded-full" :style="{ width: (item.pain_level_after || 0) * 10 + '%' }"></div>
+                                                                        </div>
+                                                                     </div>
                                                                 </div>
                                                             </div>
-
-                                                            <!-- Pain Stats -->
-                                                            <div class="sm:w-36 flex-shrink-0 flex flex-col justify-center pl-11 sm:pl-4 sm:border-l sm:border-slate-100">
-                                                                <div v-if="item.pain_level || item.pain_level_after" class="space-y-2.5">
-                                                                    <!-- Before -->
-                                                                    <div class="flex items-center gap-2">
-                                                                        <div class="w-10 text-[9px] font-bold text-slate-400 uppercase text-right">Before</div>
-                                                                        <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                                            <div class="h-full bg-rose-500 rounded-full" :style="{ width: (item.pain_level || 0) * 10 + '%' }"></div>
-                                                                        </div>
-                                                                         <div class="w-4 text-[10px] font-bold text-slate-700 text-right">{{ item.pain_level || 0 }}</div>
-                                                                    </div>
-                                                                     <!-- After -->
-                                                                    <div class="flex items-center gap-2">
-                                                                         <div class="w-10 text-[9px] font-bold text-slate-400 uppercase text-right">After</div>
-                                                                        <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                                            <div class="h-full bg-emerald-500 rounded-full" :style="{ width: (item.pain_level_after || 0) * 10 + '%' }"></div>
-                                                                        </div>
-                                                                        <div class="w-4 text-[10px] font-bold text-slate-700 text-right">{{ item.pain_level_after || 0 }}</div>
-                                                                    </div>
-                                                                </div>
-                                                                <div v-else class="text-center py-1">
-                                                                    <span class="text-[10px] text-slate-300 italic bg-slate-50 px-2 py-1 rounded-full">No Pain Data</span>
-                                                                </div>
-                                                            </div>
+                                                            <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                                                                {{ item.symptom || 'No details provided' }}
+                                                            </p>
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div v-else class="text-center py-6 text-xs text-slate-400 italic">
+                                                    No specific areas recorded
                                                 </div>
                                             </div>
                                         </div>
