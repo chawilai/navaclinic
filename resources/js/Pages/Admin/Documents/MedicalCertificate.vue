@@ -7,16 +7,25 @@ const props = defineProps({
     clinic: Object
 });
 
+const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const day = d.getDate();
+    const month = d.toLocaleDateString('th-TH', { month: 'long' });
+    const year = d.toLocaleDateString('th-TH', { year: 'numeric' });
+    return `วันที่ ${day} เดือน ${month} พ.ศ. ${year}`;
+};
+
 const form = ref({
-    date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
-    doctor_name: props.visit.doctor?.name || 'นายสังวรณ์ เชื้อเต๊ะ', // Default doctor if missing
-    license_no: props.visit.doctor?.license_number || '3597', // Default license
+    date: formatDate(new Date()),
+    doctor_name: props.visit.doctor?.name || 'นายสังวรณ์ เชื้อเต๊ะ',
+    license_no: props.visit.doctor?.license_number || '3597',
     patient_name: props.visit.patient.name,
-    exam_date: new Date(props.visit.visit_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
+    exam_date: formatDate(props.visit.visit_date),
     diagnosis: [
-        props.visit.treatment_record?.chief_complaint ? `อาการสำคัญ: ${props.visit.treatment_record.chief_complaint}` : '',
-        props.visit.treatment_record?.diagnosis ? `การวินิจฉัย: ${props.visit.treatment_record.diagnosis}` : ''
-    ].filter(Boolean).join('\n'),
+        props.visit.treatment_record?.chief_complaint,
+        props.visit.treatment_record?.diagnosis
+    ].filter(Boolean).join(' ') || 'ออฟฟิศซินโดรม (Office Syndrome)',
     comment: 'ขอรับรองว่าผู้ป่วยได้มารับการตรวจรักษาจริง',
     doctor_title: 'แพทย์แผนไทยผู้ตรวจ'
 });
@@ -45,83 +54,83 @@ const print = () => {
         </div>
 
         <!-- A4 Paper -->
-        <div class="bg-white shadow-xl print:shadow-none max-w-[210mm] min-h-[297mm] mx-auto p-[25mm] relative print:p-0">
+        <div class="bg-white shadow max-w-[210mm] min-h-[297mm] mx-auto p-[20mm] pt-[15mm] relative font-sarabun text-black print:p-0 print:shadow-none print:m-0">
             
             <!-- Logo -->
-            <div class="flex justify-center mb-6">
-                 <div class="w-24 h-24 rounded-full border-2 border-slate-200 flex items-center justify-center bg-slate-50 print:border-none">
-                     <img src="/images/logo_bw.png" alt="Logo" class="w-20 h-20 object-contain filter grayscale contrast-125 opacity-80" onerror="this.style.display='none'">
+            <div class="flex flex-col items-center justify-center mb-6">
+                 <div class="w-24 h-24 flex items-center justify-center mb-2">
+                     <img src="/images/logo.png" alt="Logo" class="w-full h-full object-contain filter grayscale contrast-125">
                 </div>
+                <h2 class="font-normal text-base">{{ clinic.name_th }}</h2>
+                <h3 class="text-sm font-normal text-gray-600">541/13 ต.หนองหอย อ.เมือง จ.เชียงใหม่ 50000 โทร 062 278 1007</h3>
             </div>
 
-            <!-- Header -->
-            <div class="text-center mb-12 space-y-1">
-                <h2 class="font-bold text-lg">{{ clinic.name_th }}</h2>
-                <h3 class="text-sm font-medium text-slate-600">{{ clinic.name_en }}</h3>
-                <p class="text-xs text-slate-500">{{ clinic.address_line }}</p>
+            <!-- Title -->
+            <div class="text-center mb-10 mt-6 relative">
+                <h1 class="text-3xl font-bold tracking-wide">ใบรับรองแพทย์</h1>
             </div>
 
-            <div class="text-center mb-12">
-                <h1 class="text-2xl font-bold mb-2">ใบรับรองแพทย์</h1>
-                <h2 class="text-sm font-medium text-slate-500 uppercase tracking-widest">Medical Certificate</h2>
-            </div>
-            
-            <div class="flex justify-end mb-12">
-                <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm">วันที่:</span>
-                    <input v-model="form.date" class="text-right border-b border-dotted border-slate-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none w-40 text-sm">
-                </div>
+            <!-- Date -->
+            <div class="flex justify-end mb-8 pr-12 w-full">
+                 <input v-model="form.date" class="text-right border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 text-base font-normal w-72 print:border-none">
             </div>
 
             <!-- Content -->
-            <div class="space-y-8 text-base leading-loose px-8">
-                <!-- Doctor Info -->
-                <div class="flex flex-wrap items-baseline gap-2">
-                    <span>ข้าพเจ้า</span>
-                    <input v-model="form.doctor_name" class="flex-1 min-w-[200px] border-b border-dotted border-slate-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-2 font-bold text-center">
+            <div class="space-y-4 text-base pl-8 pr-8 leading-loose">
+                
+                <div class="flex flex-wrap items-baseline">
+                    <span class="mr-2">ข้าพเจ้า</span>
+                    <input v-model="form.doctor_name" class="font-bold border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 text-base h-8 flex-1 min-w-[200px] print:border-none">
                 </div>
 
-                <div class="flex flex-wrap items-baseline gap-2">
-                     <span>เป็นแพทย์ได้ขึ้นทะเบียน ได้รับอนุญาตให้เป็นผู้ประกอบวิชาชีพการแพทย์แผนไทย สาขา นวดไทย</span>
+                <div class="pl-0">
+                     เป็นแพทย์ได้ขึ้นทะเบียน ได้รับอนุญาตให้เป็นผู้ประกอบวิชาชีพการแพทย์แผนไทย สาขา นวดไทย
                 </div>
                 
-                 <div class="flex flex-wrap items-baseline gap-2">
-                     <span>เลขที่ พท.น.</span>
-                    <input v-model="form.license_no" class="w-32 border-b border-dotted border-slate-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-2 font-bold text-center">
+                 <div class="flex flex-wrap items-baseline">
+                     <span class="mr-2">เลขที่ พท.น.</span>
+                    <input v-model="form.license_no" class="border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 h-8 w-48 font-bold text-base print:border-none">
                 </div>
 
-                <div class="flex flex-wrap items-baseline gap-2 mt-4">
-                    <span>ได้ทำการตรวจร่างกายของ</span>
-                    <input v-model="form.patient_name" class="flex-1 min-w-[250px] border-b border-dotted border-slate-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-2 font-bold text-center">
+                <div class="flex flex-wrap items-baseline w-full">
+                    <span class="mr-2 shrink-0">ได้ทำการตรวจร่างกายของ</span>
+                    <input v-model="form.patient_name" class="flex-1 border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 h-8 min-w-[300px] font-bold text-base print:border-none">
+                </div>
+                
+                 <div class="flex flex-wrap items-baseline w-full">
+                    <span class="mr-2 shrink-0">เมื่อวันที่</span>
+                    <input v-model="form.exam_date" class="flex-1 border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 h-8 min-w-[200px] font-bold text-base print:border-none">
                 </div>
 
-                <div class="flex flex-wrap items-baseline gap-2">
-                    <span>เมื่อวันที่</span>
-                    <input v-model="form.exam_date" class="flex-1 min-w-[200px] border-b border-dotted border-slate-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-2 font-bold text-center">
+                <div class="w-full flex flex-wrap items-baseline">
+                    <span class="mr-2 shrink-0">พบว่ามีอาการ/โรค</span>
+                    <input v-model="form.diagnosis" class="flex-1 border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 h-8 font-bold text-base min-w-[300px] print:border-none">
                 </div>
 
-                <div class="w-full mt-6">
-                    <div class="font-bold mb-2">พบว่ามีอาการ / โรค :</div>
-                    <textarea v-model="form.diagnosis" rows="4" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-indigo-500 focus:border-indigo-500 print:border-none print:resize-none print:p-0 print:bg-transparent leading-relaxed"></textarea>
-                </div>
-
-                <div class="flex flex-wrap items-baseline gap-2 mt-8 justify-center">
-                    <input v-model="form.comment" class="w-full text-center border-b border-dotted border-slate-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-2 font-medium">
+                <div class="flex justify-end mt-12 pr-12 w-full">
+                     <input v-model="form.comment" class="text-right border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 text-base font-normal w-full max-w-lg print:border-none">
                 </div>
             </div>
 
             <!-- Signatures -->
-             <div class="flex justify-between mt-24 px-12">
-                <div class="text-center w-64 pt-8">
-                     <div class="border-b border-dotted border-slate-400 mb-2 h-8"></div>
-                     <p class="text-sm text-slate-500">ผู้รับการตรวจ</p>
+             <div class="flex justify-between mt-32 px-16 items-end">
+                <div class="text-center w-64">
+                     <div class="border-b border-dotted border-black/50 mb-2 h-10 w-full"></div>
+                     <p class="text-sm">ผู้รับการตรวจ</p>
                 </div>
 
                 <div class="text-center w-64">
-                    <!-- Signature Line -->
-                    <div class="border-b border-dotted border-slate-400 mb-2 h-16"></div> 
-                    <p class="font-bold text-sm mb-1">({{ form.doctor_name }})</p>
-                    <input v-model="form.doctor_title" class="text-center text-xs text-slate-500 w-full border-none bg-transparent focus:ring-0 p-0">
+                     <div class="border-b border-dotted border-black/50 mb-2 h-10 w-full"></div>
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center justify-center mb-1">
+                            <span class="mr-1">(</span>
+                            <div class="border-b border-dotted border-gray-400 h-5 w-48 print:border-none">
+                                <input v-model="form.doctor_name" class="text-center border-none bg-transparent focus:ring-0 p-0 w-full h-full text-sm">
+                            </div>
+                            <span class="ml-1">)</span>
+                        </div>
+                        <input v-model="form.doctor_title" class="text-center text-sm w-full border-none bg-transparent focus:ring-0 p-0">
+                    </div>
                 </div>
             </div>
 
@@ -130,7 +139,7 @@ const print = () => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
 
 .font-sarabun {
     font-family: 'Sarabun', sans-serif;

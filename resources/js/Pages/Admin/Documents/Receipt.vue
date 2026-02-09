@@ -63,18 +63,20 @@ const print = () => {
         </div>
 
         <!-- A4 Paper -->
-        <div class="bg-white shadow-xl print:shadow-none max-w-[210mm] min-h-[297mm] mx-auto p-[15mm] print:p-0 relative font-sarabun">
+        <div class="bg-white shadow-xl print:shadow-none max-w-[210mm] min-h-[297mm] mx-auto p-[20mm] print:p-0 relative font-sarabun text-black">
             
             <!-- Header -->
-            <div class="flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
-                <!-- Logo & Clinic Info -->
-                <div class="flex gap-4">
-                    <div class="w-24 h-24 flex-shrink-0">
-                         <img src="/images/logo_bw.png" alt="Logo" class="w-full h-full object-contain filter grayscale contrast-125 opacity-80" onerror="this.style.display='none'">
-                    </div>
-                    <div class="text-sm space-y-1">
-                        <h2 class="font-bold text-lg">{{ clinic.name_th }}</h2>
-                        <h3 class="font-bold text-gray-600 mb-2">{{ clinic.name_en }}</h3>
+            <div class="flex justify-between items-start mb-10 border-b-2 border-black pb-6">
+                <!-- Logo -->
+                <div class="w-24 h-24 flex-shrink-0 mr-6">
+                     <img src="/images/logo.png" alt="Logo" class="w-full h-full object-contain filter grayscale contrast-125">
+                </div>
+                
+                <!-- Clinic Info -->
+                <div class="flex-1 space-y-1 pt-1">
+                    <h2 class="font-bold text-xl">{{ clinic.name_th }}</h2>
+                    <h3 class="font-bold text-lg mb-2">{{ clinic.name_en }}</h3>
+                    <div class="text-sm leading-tight">
                         <p>{{ clinic.address_1 }}</p>
                         <p>{{ clinic.address_2 }}</p>
                         <p>{{ clinic.phone }}</p>
@@ -82,88 +84,91 @@ const print = () => {
                 </div>
 
                 <!-- License Box -->
-                <div class="border border-gray-300 p-2 text-[10px] text-right rounded w-[220px]">
-                    <p class="whitespace-pre-line leading-relaxed">{{ clinic.license }}</p>
+                <div class="border border-black p-2 text-[10px] text-right rounded w-[200px] mt-2">
+                    <p class="whitespace-pre-line leading-relaxed font-medium">{{ clinic.license }}</p>
                 </div>
             </div>
 
             <!-- Title -->
-            <div class="text-center mb-8">
-                <h1 class="text-xl font-bold">ใบเสร็จรับเงิน</h1>
-                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">RECEIPT</h2>
+            <div class="text-center mb-10">
+                <h1 class="text-2xl font-bold">ใบเสร็จรับเงิน</h1>
+                <h2 class="text-base font-bold uppercase tracking-widest mt-1">RECEIPT</h2>
             </div>
 
             <!-- Customer Info -->
-            <div class="flex justify-between items-start mb-6 text-sm">
-                <div class="space-y-2 flex-1">
-                    <div class="flex">
-                        <span class="w-24 font-bold">ชื่อ-สกุล :</span>
-                        <input v-model="form.customer_name" class="flex-1 border-b border-dotted border-gray-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-1">
-                    </div>
-                    <div class="flex">
-                        <span class="w-24 font-bold">CN :</span>
-                        <input v-model="form.cn" class="flex-1 border-b border-dotted border-gray-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-1">
-                    </div>
-                    <div class="flex">
-                        <span class="w-24 font-bold">เลขบัตรประชาชน :</span>
-                        <input v-model="form.customer_id" class="flex-1 border-b border-dotted border-gray-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-1">
+            <div class="grid grid-cols-2 gap-x-12 gap-y-4 mb-4 text-base">
+                <div class="col-span-2 flex items-baseline">
+                    <span class="w-24 font-bold flex-shrink-0">ชื่อ-สกุล :</span>
+                    <input v-model="form.customer_name" class="flex-1 border-b border-dotted border-black/30 focus:outline-none focus:border-black bg-transparent print:border-none px-2 font-medium">
+                </div>
+                
+                <div class="flex items-baseline">
+                    <span class="w-24 font-bold flex-shrink-0">CN :</span>
+                    <input v-model="form.cn" class="flex-1 border-b border-dotted border-black/30 focus:outline-none focus:border-black bg-transparent print:border-none px-2 font-medium">
+                </div>
+
+                 <div class="flex items-baseline justify-end">
+                    <span class="font-bold mr-2">วันที่ :</span>
+                    <div class="flex text-right">
+                         <input v-model="form.date" class="text-right border-b border-dotted border-black/30 focus:outline-none focus:border-black bg-transparent print:border-none px-2 w-48 font-medium">
                     </div>
                 </div>
-                <div class="space-y-2 w-[250px] text-right flex flex-col items-end">
-                    <div class="flex items-center justify-end w-full">
-                        <span class="font-bold mr-2">วันที่ :</span>
-                        <input v-model="form.date" class="text-right border-b border-dotted border-gray-300 focus:outline-none focus:border-indigo-500 bg-transparent print:border-none px-1 w-40">
-                    </div>
+                
+                <div class="col-span-2 flex items-baseline">
+                    <span class="w-44 font-bold flex-shrink-0">เลขบัตรประจำตัวประชาชน :</span>
+                    <input v-model="form.customer_id" class="flex-1 border-b border-dotted border-black/30 focus:outline-none focus:border-black bg-transparent print:border-none px-2 font-medium">
                 </div>
             </div>
 
             <!-- Items Table -->
-            <div class="border border-black mb-4 min-h-[400px] flex flex-col">
+            <div class="mt-8 border border-black min-h-[500px] flex flex-col">
                 <!-- Header -->
                 <div class="flex border-b border-black text-sm font-bold bg-gray-50 print:bg-transparent">
-                    <div class="w-16 border-r border-black p-2 text-center">ลำดับ<br><span class="text-[10px] font-normal uppercase">NO.</span></div>
-                    <div class="flex-1 border-r border-black p-2 text-center">รายการ<br><span class="text-[10px] font-normal uppercase">ITEMS</span></div>
-                    <div class="w-32 p-2 text-center">จำนวนเงิน<br><span class="text-[10px] font-normal uppercase">AMOUNT</span></div>
+                    <div class="w-20 border-r border-black p-3 text-center">ลำดับ<br><span class="text-[10px] font-normal uppercase">NO.</span></div>
+                    <div class="flex-1 border-r border-black p-3 text-center">รายการ<br><span class="text-[10px] font-normal uppercase">ITEMS</span></div>
+                    <div class="w-40 p-3 text-center">จำนวนเงิน<br><span class="text-[10px] font-normal uppercase">AMOUNT</span></div>
                 </div>
 
                 <!-- Rows -->
                 <div class="flex-1 relative">
-                    <div v-for="(item, index) in form.items" :key="index" class="flex text-sm group">
-                        <div class="w-16 p-2 text-center pt-3 relative">
+                    <div v-for="(item, index) in form.items" :key="index" class="flex text-base group">
+                        <div class="w-20 p-3 text-center pt-4 relative">
                             {{ index + 1 }}
-                            <button @click="removeItem(index)" class="print:hidden absolute left-1 top-3 text-red-300 hover:text-red-500 text-xs">x</button>
+                            <button @click="removeItem(index)" class="print:hidden absolute left-1 top-4 text-red-300 hover:text-red-500 text-xs">x</button>
                         </div>
-                        <div class="flex-1 p-2 pt-3 border-l border-r border-black/10 print:border-none relative">
-                            <input v-model="item.name" class="w-full bg-transparent border-none p-0 focus:ring-0 text-sm placeholder-gray-300" placeholder="รายการ">
+                        <div class="flex-1 p-3 pt-4 border-l border-r border-black print:border-none relative">
+                            <input v-model="item.name" class="w-full bg-transparent border-none p-0 focus:ring-0 text-base placeholder-gray-300 font-medium" placeholder="รายการ">
                         </div>
-                        <div class="w-32 p-2 pt-3 text-right relative">
-                            <input type="number" v-model="item.amount" step="0.01" class="w-full bg-transparent border-none p-0 focus:ring-0 text-sm text-right" @input="updateItem(index, 'amount', $event.target.value)">
+                        <div class="w-40 p-3 pt-4 text-right relative">
+                            <input type="number" v-model="item.amount" step="0.01" class="w-full bg-transparent border-none p-0 focus:ring-0 text-base text-right font-medium" @input="updateItem(index, 'amount', $event.target.value)">
                         </div>
                     </div>
                     
-                    <!-- Vertical Lines for print structure (visual only) -->
+                    <!-- Vertical Lines for print structure -->
                     <div class="absolute inset-0 pointer-events-none flex">
-                        <div class="w-16 border-r border-black h-full"></div>
+                        <div class="w-20 border-r border-black h-full"></div>
                         <div class="flex-1 border-r border-black h-full"></div>
-                        <div class="w-32 h-full"></div>
+                        <div class="w-40 h-full"></div>
                     </div>
                 </div>
 
                 <!-- Total -->
-                <div class="border-t border-black flex text-sm">
-                    <div class="flex-1 border-r border-black p-2 text-right font-bold flex items-center justify-end">รวมทั้งสิ้น TOTAL</div>
-                    <div class="w-32 p-2 text-right font-bold bg-gray-50 print:bg-transparent">
+                <div class="border-t border-black flex text-base h-12">
+                    <div class="flex-1 border-r border-black px-4 flex items-center justify-end font-bold">รวมทั้งสิ้น TOTAL</div>
+                    <div class="w-40 px-4 flex items-center justify-end font-bold bg-gray-50 print:bg-transparent">
                         {{ Number(form.total).toLocaleString('th-TH', { minimumFractionDigits: 2 }) }}
                     </div>
                 </div>
             </div>
 
             <!-- Footer Signatures -->
-            <div class="flex justify-end mt-16 px-8">
+             <div class="flex justify-end mt-20 px-8">
                 <div class="text-center w-64">
                     <div class="border-b border-dotted border-black mb-2 h-8"></div>
-                    <p class="font-bold text-sm mb-1">สังวรณ์ เชื้อเต๊ะ</p>
-                    <input v-model="form.cashier" class="text-center text-xs text-gray-500 w-full border-none bg-transparent focus:ring-0 p-0">
+                    <div class="flex flex-col gap-1">
+                        <input v-model="form.cashier" class="text-center text-xs font-bold text-black w-full border-none bg-transparent focus:ring-0 p-0 placeholder-gray-400" placeholder="ชื่อผู้รับเงิน">
+                         <p class="text-[10px] text-gray-500">(เจ้าหน้าที่การเงิน/Cashier)</p>
+                    </div>
                 </div>
             </div>
 
