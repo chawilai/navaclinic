@@ -150,6 +150,7 @@ class OwnerDashboardController extends Controller
                 'net_revenue' => $net,
                 'total_duration' => $doctorVisits->sum('duration_minutes'),
                 'total_doctor_fee' => $doctorFee,
+                'total_tip' => $doctorVisits->sum('tip'),
                 'visits' => $doctorVisits->map(function ($visit) {
                     // Calc discount for this visit
                     $fee = $visit->treatment_fee ?? $visit->price;
@@ -166,8 +167,10 @@ class OwnerDashboardController extends Controller
                         'treatment_fee' => $visit->treatment_fee ?? $visit->price, // Gross
                         'discount' => $discAmt,
                         'doctor_fee' => $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100),
+                        'tip' => $visit->tip ?? 0,
                     ];
                 })
+
             ];
         })->values();
 

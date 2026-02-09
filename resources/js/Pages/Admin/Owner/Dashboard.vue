@@ -412,6 +412,10 @@ const peakHoursChartOptions = {
                                     <div class="text-xs text-slate-500 uppercase tracking-wide">ส่วนลดรวม</div>
                                     <div class="font-bold text-rose-500">{{ formatCurrency(doctor.total_discount) }}</div>
                                 </div>
+                                <div class="text-right">
+                                    <div class="text-xs text-slate-500 uppercase tracking-wide">ทิปรวม</div>
+                                    <div class="font-bold text-amber-500">{{ formatCurrency(doctor.total_tip || 0) }}</div>
+                                </div>
                             </div>
                         </div>
                         
@@ -426,6 +430,7 @@ const peakHoursChartOptions = {
                                         <th class="px-6 py-3 text-right">ค่ารักษา (Gross)</th>
                                         <th class="px-6 py-3 text-right">ส่วนลด</th>
                                         <th class="px-6 py-3 text-right">ค่ามือแพทย์</th>
+                                        <th class="px-6 py-3 text-right">ทิป</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -437,6 +442,7 @@ const peakHoursChartOptions = {
                                         <td class="px-6 py-4 text-right font-medium text-slate-900">{{ formatCurrency(visit.treatment_fee) }}</td>
                                         <td class="px-6 py-4 text-right font-medium text-rose-500">{{ visit.discount > 0 ? formatCurrency(visit.discount) : '-' }}</td>
                                         <td class="px-6 py-4 text-right font-medium text-emerald-600">{{ formatCurrency(visit.doctor_fee) }}</td>
+                                        <td class="px-6 py-4 text-right font-medium text-amber-500">{{ visit.tip > 0 ? formatCurrency(visit.tip) : '-' }}</td>
                                     </tr>
                                 </tbody>
                             </table>
