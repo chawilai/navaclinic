@@ -257,75 +257,10 @@ const formatDateTime = (dateString) => {
             </h2>
         </template>
 
+
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 
-                <!-- New Bookings Notification -->
-                <div v-if="newBookings.length > 0" class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm mb-6 transition-all duration-300">
-                    <div class="flex items-center justify-between cursor-pointer" @click="toggleNewBookings">
-                        <div class="flex items-center">
-                            <div class="bg-blue-100 p-2 rounded-full mr-3 relative">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75 top-0 left-0"></span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-blue-900 text-lg">
-                                    มีการจองเข้ามาใหม่ {{ newBookings.length }} คิว
-                                </h3>
-                                <p class="text-sm text-blue-700">ในช่วง 3 วันที่ผ่านมา</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="text-sm font-medium text-blue-600 hover:text-blue-800 mr-2 transition-colors">
-                                {{ showNewBookings ? 'ซ่อนรายละเอียด' : 'กดเพื่อดูรายละเอียด' }}
-                            </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 transform transition-transform duration-200" :class="{'rotate-180': showNewBookings}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </div>
-                    
-                    <div v-show="showNewBookings" class="mt-4 pt-4 border-t border-blue-200 space-y-2">
-                        <div v-for="booking in newBookings" :key="booking.id" class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-lg border border-blue-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all">
-                            <div class="flex items-start gap-3 mb-2 sm:mb-0">
-                                <div class="bg-blue-50 p-2 rounded-full hidden sm:block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-slate-800 text-base">
-                                        {{ booking.user?.name || booking.customer_name || 'ลูกค้า Walk-in' }}
-                                    </span>
-                                    <span class="text-xs text-slate-500 flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        จองเมื่อ: {{ formatDateTime(booking.created_at) }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between w-full sm:w-auto gap-4 pl-12 sm:pl-0">
-                                 <div class="text-right">
-                                    <div class="text-sm font-semibold text-blue-900 bg-blue-50 px-3 py-1 rounded-full">
-                                        {{ formatDate(booking.appointment_date) }}
-                                    </div>
-                                    <div class="text-xs text-slate-500 mt-1 text-right pr-2">
-                                        เวลา: {{ booking.start_time }} น.
-                                    </div>
-                                 </div>
-                                 <Link :href="route('admin.bookings.show', booking.id)" class="bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 hover:border-blue-400 p-2 rounded-lg transition-colors group" title="ดูรายละเอียด">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                 </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">

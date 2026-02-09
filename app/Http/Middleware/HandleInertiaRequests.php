@@ -29,11 +29,31 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $unreadBookingsCount = 0;
+        $latestUnreadBookings = [];
+
+        if ($user && $user->is_admin) {
+            $unreadBookingsCount = \App\Models\Booking::where('admin_acknowledged', false)->count();
+            if ($unreadBookingsCount > 0) {
+                // Eager load only necessary data
+                // Make sure to select or load relationships properly
+                // Using limit(5) directly on Eloquent builder before get() works fine.
+                $latestUnreadBookings = \App\Models\Booking::with(['user:id,name,phone_number', 'doctor:id,name'])
+                    ->where('admin_acknowledged', false)
+                    ->orderByDesc('created_at')
+                    ->limit(5)
+                    ->get();
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
+            'unreadBookingsCount' => $unreadBookingsCount,
+            'latestUnreadBookings' => $latestUnreadBookings, // Pass the collection directly, Inertia handles serialization
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
