@@ -249,15 +249,49 @@ const formatDateTime = (dateString) => {
 
 const showingSlip = ref(false);
 const selectedSlipUrl = ref(null);
+const selectedBooking = ref(null);
 
-const openSlip = (url) => {
-    selectedSlipUrl.value = url;
+const openSlip = (booking) => {
+    selectedBooking.value = booking;
+    selectedSlipUrl.value = booking.payment_proof_url;
     showingSlip.value = true;
 };
 
 const closeSlip = () => {
     showingSlip.value = false;
-    setTimeout(() => selectedSlipUrl.value = null, 300);
+    setTimeout(() => {
+        selectedSlipUrl.value = null;
+        selectedBooking.value = null;
+    }, 300);
+};
+
+const showConfirmDialog = ref(false);
+const showSuccessDialog = ref(false);
+
+const confirmBooking = () => {
+    if (!selectedBooking.value) return;
+    showConfirmDialog.value = true;
+};
+
+const processBookingConfirmation = () => {
+    if (!selectedBooking.value) return;
+
+    router.patch(route('admin.bookings.update-status', selectedBooking.value.id), {
+        status: 'confirmed'
+    }, {
+        onSuccess: () => {
+            showConfirmDialog.value = false;
+            closeSlip();
+            
+            // Show success modal
+            showSuccessDialog.value = true;
+            // Auto close after 2 seconds
+            setTimeout(() => {
+                showSuccessDialog.value = false;
+            }, 2000);
+        },
+        preserveScroll: true
+    });
 };
 </script>
 
@@ -475,7 +509,7 @@ const closeSlip = () => {
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-2">
                                                 <button v-if="booking.payment_proof_url" 
-                                                        @click="openSlip(booking.payment_proof_url)"
+                                                        @click="openSlip(booking)"
                                                         class="inline-flex items-center p-1.5 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
                                                         title="ดูสลิปโอนเงิน">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -575,10 +609,49 @@ const closeSlip = () => {
                         <div v-else class="text-slate-400 py-10">ไม่พบรูปภาพ</div>
                     </div>
                     <div class="mt-6 flex justify-end">
+                        <button v-if="selectedBooking && selectedBooking.status === 'pending'"
+                                @click="confirmBooking"
+                                class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 mr-2">
+                            ยืนยันการจอง
+                        </button>
                         <button @click="closeSlip" class="inline-flex items-center px-4 py-2 bg-slate-200 border border-transparent rounded-md font-semibold text-xs text-slate-700 uppercase tracking-widest hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             ปิด
                         </button>
                     </div>
+                </div>
+            </Modal>
+
+            <!-- Confirm Dialog Modal -->
+            <Modal :show="showConfirmDialog" @close="showConfirmDialog = false" maxWidth="sm">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">ยืนยันการจอง</h3>
+                    <p class="text-sm text-gray-500 mb-6">คุณต้องการยืนยันการจองนี้ใช่หรือไม่?</p>
+                    <div class="flex justify-center gap-3">
+                        <button @click="showConfirmDialog = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-medium">
+                            ยกเลิก
+                        </button>
+                        <button @click="processBookingConfirmation" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium shadow-sm">
+                            ยืนยัน
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            <!-- Success Modal -->
+            <Modal :show="showSuccessDialog" @close="showSuccessDialog = false" maxWidth="sm">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 animate-bounce">
+                        <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">บันทึกข้อมูลสำเร็จ</h3>
+                    <p class="text-gray-500">ระบบได้ทำการบันทึกข้อมูลเรียบร้อยแล้ว</p>
                 </div>
             </Modal>
     </AuthenticatedLayout>
