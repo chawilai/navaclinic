@@ -266,6 +266,7 @@ const closeSlip = () => {
 };
 
 const showConfirmDialog = ref(false);
+const showCancelDialog = ref(false);
 const showSuccessDialog = ref(false);
 
 const confirmBooking = () => {
@@ -286,6 +287,31 @@ const processBookingConfirmation = () => {
             // Show success modal
             showSuccessDialog.value = true;
             // Auto close after 2 seconds
+            setTimeout(() => {
+                showSuccessDialog.value = false;
+            }, 2000);
+        },
+        preserveScroll: true
+    });
+};
+
+const cancelBooking = () => {
+    if (!selectedBooking.value) return;
+    showCancelDialog.value = true;
+};
+
+const processBookingCancellation = () => {
+    if (!selectedBooking.value) return;
+
+    router.patch(route('admin.bookings.update-status', selectedBooking.value.id), {
+        status: 'cancelled'
+    }, {
+        onSuccess: () => {
+            showCancelDialog.value = false;
+            closeSlip();
+            
+            // Show success modal (maybe with different text, but reusing generic success for now)
+            showSuccessDialog.value = true;
             setTimeout(() => {
                 showSuccessDialog.value = false;
             }, 2000);
@@ -614,6 +640,11 @@ const processBookingConfirmation = () => {
                                 class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 mr-2">
                             ยืนยันการจอง
                         </button>
+                        <button v-if="selectedBooking && (selectedBooking.status === 'pending' || selectedBooking.status === 'confirmed')"
+                                @click="cancelBooking"
+                                class="inline-flex items-center px-4 py-2 bg-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 transition ease-in-out duration-150 mr-2">
+                            ยกเลิกการจอง
+                        </button>
                         <button @click="closeSlip" class="inline-flex items-center px-4 py-2 bg-slate-200 border border-transparent rounded-md font-semibold text-xs text-slate-700 uppercase tracking-widest hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             ปิด
                         </button>
@@ -637,6 +668,27 @@ const processBookingConfirmation = () => {
                         </button>
                         <button @click="processBookingConfirmation" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium shadow-sm">
                             ยืนยัน
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            <!-- Cancel Dialog Modal -->
+            <Modal :show="showCancelDialog" @close="showCancelDialog = false" maxWidth="sm">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-100 mb-4">
+                        <svg class="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">ยกเลิกการจอง</h3>
+                    <p class="text-sm text-gray-500 mb-6">คุณต้องการยกเลิกการจองนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+                    <div class="flex justify-center gap-3">
+                        <button @click="showCancelDialog = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-medium">
+                            ไม่, กลับไป
+                        </button>
+                        <button @click="processBookingCancellation" class="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors text-sm font-medium shadow-sm">
+                            ยืนยันการยกเลิก
                         </button>
                     </div>
                 </div>
