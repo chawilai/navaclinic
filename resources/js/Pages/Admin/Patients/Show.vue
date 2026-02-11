@@ -94,7 +94,7 @@ const isAppointmentHistoryExpanded = ref(true);
 const isQueueHistoryExpanded = ref(true);
 
 // View Modes
-const isFullBodyView = ref(false);
+const isFullBodyView = ref(true);
 
 const handleMouseMove = (e) => {
     if (!mapContainer.value) return;
