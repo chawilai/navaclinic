@@ -267,6 +267,36 @@ const props = defineProps({
                         </div>
                      </div>
 
+
+                     <!-- Payment Info -->
+                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 shrink-0 flex flex-col gap-2">
+                        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ยอดชำระ (Payment)</h3>
+                        
+                        <div class="flex flex-col gap-1">
+                             <div class="flex justify-between items-center text-xs text-slate-500">
+                                <span>ค่ารักษา:</span>
+                                <span class="font-bold">{{ visit.treatment_fee ? Number(visit.treatment_fee).toLocaleString() : '0' }}</span>
+                            </div>
+                            
+                            <div v-if="visit.treatment_fee > visit.price" class="flex justify-between items-center text-xs text-rose-500">
+                                <span>ส่วนลด:</span>
+                                <span class="font-bold">-{{ (visit.treatment_fee - visit.price).toLocaleString() }}</span>
+                            </div>
+
+                             <div v-if="visit.tip > 0" class="flex justify-between items-center text-xs text-amber-600">
+                                <span>ทริป (Tip):</span>
+                                <span class="font-bold">+{{ Number(visit.tip).toLocaleString() }}</span>
+                            </div>
+                            
+                            <div class="border-t border-slate-100 mt-1 pt-1 flex justify-between items-end">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">ยอดสุทธิ</span>
+                                <span class="font-black text-indigo-600 text-lg leading-none">
+                                    {{ visit.price ? Number(visit.price).toLocaleString() : '0' }} <span class="text-[10px]">฿</span>
+                                </span>
+                            </div>
+                        </div>
+                     </div>
+
                      <!-- Payment & Docs -->
                      <!-- Docs Only -->
                      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 shrink-0">
