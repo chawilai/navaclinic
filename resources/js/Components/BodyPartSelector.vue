@@ -177,23 +177,20 @@ const emit = defineEmits(['update:modelValue']);
         <div class="flex flex-col gap-4" :class="{ 'h-full': thumbnail || compactGrid }">
             
             <!-- Compact Grid Mode (Updated for new assets) -->
-            <div v-if="compactGrid" class="flex flex-col gap-4 w-full h-full p-2 overflow-y-auto custom-scrollbar">
-                <div v-for="(group, gIdx) in viewGroups" :key="gIdx" class="space-y-2">
-                     <h4 class="font-bold text-slate-400 text-[10px] uppercase tracking-wider pl-1">{{ group.label }}</h4>
-                     <div class="grid grid-cols-4 gap-2">
-                         <div v-for="view in group.options" :key="view.id" 
-                              class="relative flex flex-col items-center justify-center bg-white rounded-lg border border-slate-100 p-1 shadow-sm hover:border-indigo-200 transition-colors aspect-square">
-                              <div class="w-full h-full flex items-center justify-center pointer-events-none p-1">
-                                  <InteractiveSvg 
-                                     :src="view.file"
-                                     :selected-parts="getPartsForView(view)"
-                                     class="max-w-full max-h-full w-auto h-auto"
-                                  />
-                              </div>
-                              <span class="text-[8px] text-slate-500 font-bold uppercase mt-0.5 leading-none text-center line-clamp-1">{{ view.label }}</span>
-                         </div>
+            <div v-if="compactGrid" class="w-full h-full p-2 overflow-y-auto custom-scrollbar">
+                 <div class="grid grid-cols-4 gap-2">
+                     <div v-for="view in allViews" :key="view.id" 
+                          class="relative flex flex-col items-center justify-center bg-white rounded-lg border border-slate-100 p-1 shadow-sm hover:border-indigo-200 transition-colors aspect-square">
+                          <div class="w-full h-full flex items-center justify-center pointer-events-none p-1">
+                              <InteractiveSvg 
+                                 :src="view.file"
+                                 :selected-parts="getPartsForView(view)"
+                                 class="max-w-full max-h-full w-auto h-auto"
+                              />
+                          </div>
+                          <span class="text-[8px] text-slate-500 font-bold uppercase mt-0.5 leading-none text-center line-clamp-1">{{ view.label }}</span>
                      </div>
-                </div>
+                 </div>
             </div>
             
             <!-- Thumbnail Mode (Tiny Preview) -->
@@ -211,23 +208,20 @@ const emit = defineEmits(['update:modelValue']);
             </div>
     
             <!-- Overview Mode (Medium size for Dashboard) -->
-            <div v-else-if="overview" class="flex flex-col gap-6 w-full px-2 py-4 animate-fadeIn">
-                 <div v-for="(group, gIdx) in viewGroups" :key="gIdx">
-                     <h4 class="font-bold text-slate-400 text-xs uppercase tracking-wider mb-3 pl-2">{{ group.label }}</h4>
-                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                         <div v-for="view in group.options" :key="view.id" 
-                              class="relative flex flex-col items-center justify-center bg-white/50 rounded-xl border border-slate-100 p-2 shadow-sm hover:border-indigo-200 transition-colors h-[180px]">
-                              <div class="absolute top-2 right-2 z-10">
-                                  <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ view.label }}</span>
-                              </div>
-                              <div class="w-full h-full flex items-center justify-center p-1 pointer-events-none">
-                                  <InteractiveSvg 
-                                     :src="view.file"
-                                     :selected-parts="getPartsForView(view)"
-                                     class="max-w-full max-h-full w-auto h-auto"
-                                  />
-                              </div>
-                         </div>
+            <div v-else-if="overview" class="w-full px-2 py-4 animate-fadeIn">
+                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                     <div v-for="view in allViews" :key="view.id" 
+                          class="relative flex flex-col items-center justify-center bg-white/50 rounded-xl border border-slate-100 p-2 shadow-sm hover:border-indigo-200 transition-colors h-[180px]">
+                          <div class="absolute top-2 right-2 z-10">
+                              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ view.label }}</span>
+                          </div>
+                          <div class="w-full h-full flex items-center justify-center p-1 pointer-events-none">
+                              <InteractiveSvg 
+                                 :src="view.file"
+                                 :selected-parts="getPartsForView(view)"
+                                 class="max-w-full max-h-full w-auto h-auto"
+                              />
+                          </div>
                      </div>
                  </div>
             </div>
