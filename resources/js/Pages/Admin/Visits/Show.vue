@@ -26,59 +26,9 @@ const isDetailedPainArea = (areas) => {
 };
 
 
-const paymentMethodLabels = {
-    cash: 'เงินสด',
-    transfer: 'โอนเงิน',
-    credit_card: 'บัตรเครดิต',
-};
-
-const getPaymentMethodLabel = (method) => paymentMethodLabels[method] || method;
-
 const props = defineProps({
     visit: Object,
 });
-
-const paymentForm = useForm({
-    amount: '',
-    payment_method: 'cash',
-    notes: '',
-    payment_date: new Date().toISOString().slice(0, 16),
-    package_id: '',
-});
-
-const totalPaid = computed(() => {
-    if (!props.visit.payments) return 0;
-    return props.visit.payments.reduce((sum, payment) => sum + Number(payment.amount), 0);
-});
-
-const remainingAmount = computed(() => {
-    const price = props.visit.price ? Number(props.visit.price) : 0;
-    const tip = props.visit.tip ? Number(props.visit.tip) : 0;
-    return Math.max(0, (price + tip) - totalPaid.value);
-});
-
-const submitPayment = () => {
-    if (!paymentForm.amount) return;
-    
-    if (Number(paymentForm.amount) > remainingAmount.value) {
-        alert(`ยอดชำระเกินกว่าที่ต้องชำระ (สูงสุด ${remainingAmount.value.toLocaleString()} ฿)`);
-        return;
-    }
-    paymentForm.post(route('admin.visits.payments.store', props.visit.id), {
-        onSuccess: () => {
-            paymentForm.reset('amount', 'notes');
-            paymentForm.payment_method = 'cash';
-        }
-    });
-};
-
-const deletePayment = (id) => {
-    if (confirm('ยืนยันลบรายการชำระเงินนี้?')) {
-        useForm({}).delete(route('admin.payments.destroy', id), {
-             preserveScroll: true
-        });
-    }
-};
 </script>
 
 <template>
@@ -277,7 +227,7 @@ const deletePayment = (id) => {
                 <div class="col-span-4 flex flex-col gap-3 h-full overflow-y-auto custom-scrollbar pr-1">
                     
                     <!-- Treatment Plan -->
-                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col shrink-0 h-48 overflow-hidden">
+                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden">
                         <div class="px-3 py-2 border-b border-slate-100 bg-slate-50 flex justify-between items-center sticky top-0 shrink-0">
                             <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">แผนการรักษา (Treatment Plan)</h3>
                              <Link
@@ -318,87 +268,15 @@ const deletePayment = (id) => {
                      </div>
 
                      <!-- Payment & Docs -->
-                     <div class="bg-white rounded-xl border border-emerald-100 shadow-sm flex-1 p-4 ring-1 ring-emerald-50">
-                          <!-- Summary Header -->
-                          <div class="grid grid-cols-3 gap-2 mb-3 pb-3 border-b border-emerald-50 shrink-0">
-                              <div>
-                                  <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ราคา (Total)</div>
-                                  <div class="text-sm font-bold text-slate-700">{{ Number(visit.price).toLocaleString() }} ฿</div>
-                              </div>
-                              <div>
-                                  <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ชำระแล้ว (Paid)</div>
-                                  <div class="text-sm font-bold text-emerald-600">{{ totalPaid.toLocaleString() }} ฿</div>
-                              </div>
-                               <div class="text-right">
-                                  <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">ค้างชำระ (Due)</div>
-                                  <div :class="remainingAmount > 0 ? 'text-rose-600' : 'text-slate-400'" class="text-lg font-black leading-none mt-0.5">
-                                      {{ remainingAmount.toLocaleString() }} <span class="text-xs font-bold">฿</span>
-                                  </div>
-                              </div>
-                          </div>
-
-                          <!-- Payment History List -->
-                          <div class="flex-1 overflow-y-auto min-h-0 mb-3 border border-slate-100 rounded-lg bg-slate-50/30 relative">
-                              <table v-if="visit.payments && visit.payments.length > 0" class="w-full text-xs text-left">
-                                  <thead class="bg-slate-50 text-slate-500 font-bold sticky top-0 shadow-sm z-10">
-                                      <tr>
-                                          <th class="px-2 py-1.5 font-bold text-[10px] uppercase">วันที่</th>
-                                          <th class="px-2 py-1.5 font-bold text-[10px] uppercase">วิธี</th>
-                                          <th class="px-2 py-1.5 font-bold text-[10px] uppercase text-right">ยอด</th>
-                                           <th class="px-2 py-1.5 w-6"></th>
-                                      </tr>
-                                  </thead>
-                                  <tbody class="divide-y divide-slate-100 bg-white">
-                                      <tr v-for="payment in visit.payments" :key="payment.id" class="hover:bg-indigo-50/30 transition-colors group">
-                                          <td class="px-2 py-1.5 text-slate-600">{{ new Date(payment.created_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) }}</td>
-                                          <td class="px-2 py-1.5 text-slate-600">{{ getPaymentMethodLabel(payment.payment_method) }}</td>
-                                          <td class="px-2 py-1.5 text-right font-bold text-slate-700">{{ Number(payment.amount).toLocaleString() }}</td>
-                                           <td class="px-2 py-1.5 text-right">
-                                              <button type="button" @click="deletePayment(payment.id)" class="text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100">
-                                                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                              </button>
-                                          </td>
-                                      </tr>
-                                  </tbody>
-                              </table>
-                              <div v-else class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 pointer-events-none p-4 text-center">
-                                  <svg class="w-8 h-8 opacity-20 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                                  <span class="text-[10px]">ยังไม่มีประวัติการชำระเงิน</span>
-                              </div>
-                          </div>
-                          
-                          <!-- Payment Form (Compact) -->
-                          <div v-if="remainingAmount > 0" class="mt-auto shrink-0 pt-3 border-t border-slate-100">
-                              <form @submit.prevent="submitPayment" class="flex flex-col gap-2">
-                                  <div class="flex gap-2">
-                                      <div class="relative flex-1">
-                                          <span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">฿</span>
-                                          <input type="number" v-model="paymentForm.amount" class="w-full text-xs rounded-lg border-slate-200 py-1.5 pl-6 pr-2 bg-slate-50 focus:bg-white transition-colors font-bold text-slate-700 placeholder-slate-400" placeholder="ระบุยอด">
-                                      </div>
-                                      <select v-model="paymentForm.payment_method" class="text-xs rounded-lg border-slate-200 py-1.5 px-2 w-[35%] bg-slate-50 text-slate-600">
-                                         <option value="cash">เงินสด</option>
-                                         <option value="transfer">โอน</option>
-                                         <option value="credit_card">บัตรเครดิต</option>
-                                      </select>
-                                  </div>
-                                  <button type="submit" class="w-full bg-emerald-600 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-emerald-700 shadow-sm transition-all whitespace-nowrap flex items-center justify-center gap-1">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                    บันทึกรับเงิน
-                                  </button>
-                              </form>
-                          </div>
-                          <div v-else class="text-center text-xs text-emerald-600 font-bold bg-emerald-50 py-2 rounded-lg border border-emerald-100 flex items-center justify-center gap-1 shrink-0 mt-auto">
-                              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                              ชำระครบถ้วนแล้ว
-                          </div>
-
-                          <!-- Docs Links -->
-                          <div class="flex gap-2 mt-2 pt-2 border-t border-slate-100 shrink-0">
-                              <a :href="route('admin.documents.receipt', visit.id)" target="_blank" class="flex-1 text-center py-1.5 text-[10px] font-bold bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-lg text-slate-600 hover:text-indigo-600 transition-all uppercase tracking-wide flex items-center justify-center gap-1">
+                     <!-- Docs Only -->
+                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 shrink-0">
+                          <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">เอกสาร (Documents)</h3>
+                          <div class="flex gap-2">
+                              <a :href="route('admin.documents.receipt', visit.id)" target="_blank" class="flex-1 text-center py-2 text-[10px] font-bold bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg text-slate-600 hover:text-indigo-600 transition-all uppercase tracking-wide flex items-center justify-center gap-1">
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                 ใบเสร็จ
                               </a>
-                              <a :href="route('admin.documents.medical-certificate', visit.id)" target="_blank" class="flex-1 text-center py-1.5 text-[10px] font-bold bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-lg text-slate-600 hover:text-indigo-600 transition-all uppercase tracking-wide">ใบรับรองแพทย์</a>
+                              <a :href="route('admin.documents.medical-certificate', visit.id)" target="_blank" class="flex-1 text-center py-2 text-[10px] font-bold bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg text-slate-600 hover:text-indigo-600 transition-all uppercase tracking-wide">ใบรับรองแพทย์</a>
                           </div>
                      </div>
                 </div>
@@ -773,184 +651,7 @@ const deletePayment = (id) => {
 
                     <!-- Right: Financial & Docs -->
                     <div :class="viewMode === 'compact' ? 'col-span-4 h-full overflow-y-auto pl-1 flex flex-col gap-4 pb-2' : 'contents'">
-                        <!-- Financial & Payments Section -->
-                        <div :class="viewMode === 'compact' ? 'mt-0' : 'mt-8'" class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-emerald-100">
-                    <div :class="viewMode === 'compact' ? 'px-4 py-3' : 'px-8 py-6'" class="bg-gradient-to-r from-emerald-50 to-white border-b border-emerald-100 flex justify-between items-center">
-                        <h3 class="font-bold text-emerald-900 text-xl flex items-center gap-3">
-                            <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.1.171 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                </svg>
-                            </div>
-                            <div>
-                                การเงิน & การชำระเงิน
-                                <div class="text-[10px] uppercase tracking-wider font-semibold text-emerald-400">Financial</div>
-                            </div>
-                        </h3>
-                        <div class="flex items-center gap-4">
-                            <div class="text-right hidden sm:block">
-                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">ยอดสุทธิ (Net)</div>
-                                <div class="text-xl font-bold text-slate-700 leading-none">
-                                    {{ visit.price ? Number(visit.price).toLocaleString() : '0' }} ฿
-                                </div>
-                            </div>
-                            
-                            <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
 
-                            <div class="text-right mr-2 hidden sm:block">
-                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">ยอดที่ต้องชำระ</div>
-                                <div v-if="remainingAmount > 0" class="text-xl font-bold text-rose-600 leading-none">
-                                    {{ remainingAmount.toLocaleString() }} ฿
-                                </div>
-                                <div v-else class="text-base font-bold text-emerald-600 flex items-center justify-end gap-1 leading-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
-                                      <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
-                                    </svg>
-                                    ชำระครบแล้ว
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div :class="viewMode === 'compact' ? 'p-4' : 'p-8'">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <!-- Payment History -->
-                            <div class="lg:col-span-2 space-y-6">
-                                <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest">ประวัติการชำระเงิน</h4>
-                                
-                                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                                    <table class="w-full text-sm text-left text-slate-600">
-                                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
-                                            <tr>
-                                                <th class="px-4 py-3">วันที่</th>
-                                                <th class="px-4 py-3">รายการ/วิธีชำระ</th>
-                                                <th class="px-4 py-3 text-right">ยอดเงิน</th>
-                                                <th class="px-4 py-3 text-center">จัดการ</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-slate-100">
-                                            <tr v-if="visit.payments && visit.payments.length > 0" v-for="payment in visit.payments" :key="payment.id" class="hover:bg-slate-50 transition-colors">
-                                                <td class="px-4 py-3">
-                                                    {{ new Date(payment.payment_date).toLocaleDateString('th-TH') }} 
-                                                    <span class="text-xs text-slate-400 block">{{ new Date(payment.payment_date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }}</span>
-                                                </td>
-                                                <td class="px-4 py-3">
-                                                    <span class="font-medium text-slate-800 capitalize">{{ getPaymentMethodLabel(payment.payment_method) }}</span>
-                                                    <div v-if="payment.notes" class="text-xs text-slate-500">{{ payment.notes }}</div>
-                                                </td>
-                                                <td class="px-4 py-3 text-right font-bold text-emerald-600">+{{ Number(payment.amount).toLocaleString() }} ฿</td>
-                                                <td class="px-4 py-3 text-center">
-                                                    <button @click="deletePayment(payment.id)" class="text-slate-400 hover:text-rose-500 transition-colors">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
-                                                          <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.1499.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149-.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 0 0 1.5.06l.3-7.5Z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr v-else>
-                                                <td colspan="4" class="px-4 py-8 text-center text-slate-400 italic">ยังไม่มีประวัติการชำระเงิน</td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot class="bg-slate-50 border-t border-slate-200">
-                                            <tr>
-                                                <td colspan="2" class="px-4 py-4 text-right font-bold text-slate-600">รวมที่ชำระแล้ว (Total Paid):</td>
-                                                <td class="px-4 py-4 text-right font-bold text-emerald-700 text-lg">{{ totalPaid.toLocaleString() }} ฿</td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                 <td colspan="2" class="px-4 py-2 text-right font-bold text-slate-500 text-xs">คงเหลือที่ต้องชำระ:</td>
-                                                 <td class="px-4 py-2 text-right font-bold text-slate-500 text-xs">{{ remainingAmount.toLocaleString() }} ฿</td>
-                                                 <td></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <!-- Add Payment Form -->
-                            <div class="space-y-6">
-                                <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest">เพิ่มรายการชำระ</h4>
-                                <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
-
-                                    <div class="mb-4 space-y-2 text-sm border-b border-indigo-200 pb-3">
-                                         <div v-if="visit.treatment_fee" class="flex justify-between items-center text-slate-500">
-                                           <span>ค่ารักษา</span>
-                                           <span class="font-bold">{{ Number(visit.treatment_fee).toLocaleString() }} ฿</span>
-                                        </div>
-                                         <div v-if="visit.treatment_fee > visit.price" class="flex justify-between items-center text-rose-500">
-                                           <span>ส่วนลด</span>
-                                           <span class="font-bold">-{{ Number(visit.treatment_fee - visit.price).toLocaleString() }} ฿</span>
-                                        </div>
-                                        <div class="flex justify-between items-center text-indigo-900 text-base">
-                                           <span class="font-bold">ยอดสุทธิ (Net)</span>
-                                           <span class="font-black">{{ Number(visit.price).toLocaleString() }} ฿</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4 flex justify-between items-center text-sm">
-                                       <span class="font-bold text-slate-500">คงเหลือที่ต้องชำระ</span>
-                                       <span :class="remainingAmount > 0 ? 'text-rose-600' : 'text-emerald-600'" class="font-bold">
-                                         {{ remainingAmount.toLocaleString() }} ฿
-                                       </span>
-                                    </div>
-
-                                    <form @submit.prevent="submitPayment" class="space-y-4 mt-6">
-                                        <div>
-                                            <label class="block text-xs font-bold text-indigo-700 mb-1">จำนวนเงินที่ชำระ (Amount)</label>
-                                            <input type="number" v-model="paymentForm.amount" 
-                                                class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500" 
-                                                placeholder="0.00" 
-                                                step="0.01"
-                                                min="0"
-                                                :max="remainingAmount"
-                                                required>
-                                            <div v-if="paymentForm.amount > remainingAmount" class="text-rose-500 text-xs mt-1">
-                                                ยอดชำระเกินกว่าที่ต้องชำระ (สูงสุด {{ remainingAmount.toLocaleString() }} ฿)
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-bold text-indigo-700 mb-1">วิธีชำระ (Method)</label>
-                                            <select v-model="paymentForm.payment_method" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500">
-                                                <option value="cash">เงินสด (Cash)</option>
-                                                <option value="transfer">เงินโอน (Transfer)</option>
-                                                <option value="credit_card">บัตรเครดิต (Credit Card)</option>
-                                                <option value="package">ตัดแพ็กเกจ (Use Package)</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Package Selection (Conditional) -->
-                                        <div v-if="paymentForm.payment_method === 'package'">
-                                            <label class="block text-xs font-bold text-indigo-700 mb-1">เลือกแพ็กเกจ (Select Package)</label>
-                                            <select v-model="paymentForm.package_id" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500">
-                                                <option value="" disabled>-- เลือกแพ็กเกจที่มี --</option>
-                                                <option 
-                                                    v-for="pkg in visit.patient.patient_packages?.filter(p => p.remaining_sessions > 0 && p.status === 'active')" 
-                                                    :key="pkg.id" 
-                                                    :value="pkg.id"
-                                                >
-                                                    {{ pkg.service_package?.name }} (คงเหลือ {{ pkg.remaining_sessions }} ครั้ง)
-                                                </option>
-                                            </select>
-                                            <div v-if="paymentForm.payment_method === 'package' && (!visit.patient.patient_packages || visit.patient.patient_packages.filter(p => p.remaining_sessions > 0 && p.status === 'active').length === 0)" class="text-rose-500 text-xs mt-1">
-                                                ไม่มีแพ็กเกจที่ใช้งานได้
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-bold text-indigo-700 mb-1">หมายเหตุ (Note)</label>
-                                            <input type="text" v-model="paymentForm.notes" class="w-full rounded-lg border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500" placeholder="ระบุหมายเหตุ (ถ้ามี)">
-                                        </div>
-                                        <button type="submit" :disabled="paymentForm.processing" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                            </svg>
-                                            บันทึกรับเงิน
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
 
                         <!-- Documents Section -->
                         <div :class="viewMode === 'compact' ? 'mt-0 mb-0' : 'mt-8 mb-8'" class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-100">
