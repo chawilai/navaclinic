@@ -130,19 +130,24 @@ const emit = defineEmits(['update:modelValue']);
                 const threshold = svgRect.width * 0.05; // 5% center zone
                 
                 if (Math.abs(elemX - centerX) > threshold) {
-                    const isScreenLeft = elemX < centerX;
-                    
-                    // Determine contextual Left/Right
-                    // Front View: Screen Left = Patient Right
-                    // Back View: Screen Left = Patient Left
-                    const isFrontView = viewParams.label.includes('หน้า') || viewParams.fullLabel.includes('หน้า');
-                    
-                    if (isFrontView) {
-                         partName += isScreenLeft ? '_R' : '_L';
+                    // Skip L/R logic for Head Side view as it's a profile view (ambiguous or irrelevant L/R)
+                    if (viewParams.id.includes('head_side')) {
+                         // Do nothing
                     } else {
-                         // Back or maybe side (default to screen logic??)
-                         // For Back view: Screen Left is Patient Left.
-                         partName += isScreenLeft ? '_L' : '_R';
+                        const isScreenLeft = elemX < centerX;
+                        
+                        // Determine contextual Left/Right
+                        // Front View: Screen Left = Patient Right
+                        // Back View: Screen Left = Patient Left
+                        const isFrontView = viewParams.label.includes('หน้า') || viewParams.fullLabel.includes('หน้า');
+                        
+                        if (isFrontView) {
+                             partName += isScreenLeft ? '_R' : '_L';
+                        } else {
+                             // Back or maybe side leg (default to screen logic?)
+                             // Stick to standard for now.
+                             partName += isScreenLeft ? '_L' : '_R';
+                        }
                     }
                 }
             }

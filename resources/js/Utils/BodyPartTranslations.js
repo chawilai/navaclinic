@@ -46,27 +46,36 @@ const dictionary = {
     'MidFront_Abs': 'หน้าท้อง',
     'MidFront_Ribs': 'ซี่โครง (หน้า)',
 
-    'Head_Forehead': 'หน้าผาก',
-    'Head_Eye': 'ตา',
-    'Head_Nose': 'จมูก',
-    'Head_Mouth': 'ปาก',
-    'Head_Chin': 'คาง',
-    'Head_Cheek': 'แก้ม',
-    'Head_Ear': 'หู',
-    'Head_Hair': 'ศีรษะ (ผม)',
-    'Head_Head_Top': 'กลางกระหม่อม',
-    'Head_Neck': 'คอ',
+    'Head_eye_area': 'ตา',
+    'Head_mouth_area': 'ปาก',
+    'Head_forehead': 'หน้าผาก',
+    'Head_ear_right': 'หู (ขวา)',
+    'Head_ear_left': 'หู (ซ้าย)',
+    'Head_cheeks_lower_face': 'แก้ม',
+    'Head_neck': 'คอ',
+    'Head_head_top': 'ศีรษะด้านบน',
+    'Head_hair_left': 'ศีรษะด้านบน (ซ้าย)',
+    'Head_hair_right': 'ศีรษะด้านบน (ขวา)',
 
-    'HeadSide_Temple': 'ขมับ',
-    'HeadSide_Jaw': 'กราม',
-    'HeadSide_Ear': 'หู',
-    'HeadSide_Neck': 'คอ (ข้าง)',
+
+    'side_front_hair': 'ศีรษะด้านข้าง: หน้าผาก',
+    'side_top_head': 'ศีรษะด้านข้าง: กระหม่อม',
+    'side_cheeks_lower_face': 'ศีรษะด้านข้าง: แก้ม/ขากรรไกร',
+    'side_back_head': 'ศีรษะด้านข้าง: ศีรษะด้านหลัง',
+    'side_ear': 'ศีรษะด้านข้าง: หู',
+    'side_head_upper': 'ศีรษะด้านข้าง: เหนือหู',
+    'side_head_lower': 'ศีรษะด้านข้าง: ขมับ',
+
+    // Adjusted based on user feedback
+    'side_neck_front': 'ศีรษะด้านข้าง: ปาก',
+    'side_neck_mid': 'ศีรษะด้านข้าง: คอด้านข้าง',
+    'side_neck_back': 'ศีรษะด้านข้าง: คอด้านหลัง',
 
     // ----------------------------------------------------
     // 2. VIEW PREFIXES (With Directions)
     // ----------------------------------------------------
     'Head_': 'ศีรษะ (หน้า) ',
-    'HeadSide_': 'ศีรษะ (ข้าง) ',
+    'HeadSide_': '',
     'UpperFront_': 'ลำตัวบน (หน้า) ',
     'MidFront_': 'ลำตัวกลาง (หน้า) ',
     'UpperBack_': 'หลังบน ',
@@ -107,14 +116,7 @@ export const translateBodyPart = (partName) => {
     let name = partName;
 
     // ----------------------------------------------------
-    // Step 1: Handle Known Specific IDs
-    // ----------------------------------------------------
-    if (name.includes('cheeks_lower_face')) name = name.replace('cheeks_lower_face', 'แก้มล่าง');
-    if (name.includes('head_top')) name = name.replace('head_top', 'กลางกระหม่อม');
-    if (name.includes('hair')) name = name.replace('hair', 'ศีรษะ');
-
-    // ----------------------------------------------------
-    // Step 2: Handle "Part X" Patterns
+    // Step 1: Handle "Part X" Patterns
     // ----------------------------------------------------
     // Map generic parts to "Point X"
     const partReplacer = (match, p1) => `จุดที่ ${p1}`;
