@@ -25,6 +25,20 @@ const isDetailedPainArea = (areas) => {
     return Array.isArray(areas) && areas.length > 0 && typeof areas[0] !== 'string';
 };
 
+const getPainLevelStyle = (level) => {
+    const val = parseInt(level);
+    if (!val && val !== 0) return {}; 
+    
+    // Green (130) -> Red (0)
+    const hue = Math.max(0, 130 - ((val - 1) * (130 / 9)));
+    
+    return {
+        backgroundColor: `hsl(${hue}, 85%, 96%)`,
+        color: `hsl(${hue}, 80%, 40%)`,
+        borderColor: `hsl(${hue}, 60%, 85%)`
+    };
+};
+
 
 const props = defineProps({
     visit: Object,
@@ -207,10 +221,10 @@ const props = defineProps({
                                             <td class="pl-3 py-2 font-bold text-indigo-700">{{ area.area }}</td>
                                             <td class="py-2 text-slate-600 truncate max-w-[100px]">{{ area.symptom }}</td>
                                             <td class="py-2 text-center">
-                                                <span class="bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded font-bold text-[10px] border border-rose-100">{{ area.pain_level }}</span>
+                                                <span class="px-1.5 py-0.5 rounded font-bold text-[10px] border transition-colors" :style="getPainLevelStyle(area.pain_level)">{{ area.pain_level }}</span>
                                             </td>
                                             <td class="pr-3 py-2 text-center">
-                                                <span class="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-bold text-[10px] border border-emerald-100">{{ area.pain_level_after }}</span>
+                                                <span class="px-1.5 py-0.5 rounded font-bold text-[10px] border transition-colors" :style="getPainLevelStyle(area.pain_level_after)">{{ area.pain_level_after }}</span>
                                             </td>
                                         </tr>
                                         <tr v-if="!visit.treatment_record?.pain_areas?.length">
@@ -586,7 +600,7 @@ const props = defineProps({
                                                         {{ item.area }}
                                                     </span>
                                                     <div class="flex items-center gap-2">
-                                                        <div v-if="item.pain_level" class="px-2 py-0.5 rounded-md bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold" title="ระดับความปวดก่อนรักษา">
+                                                        <div v-if="item.pain_level" class="px-2 py-0.5 rounded-md border text-[10px] font-bold" :style="getPainLevelStyle(item.pain_level)" title="ระดับความปวดก่อนรักษา">
                                                             VAS: {{ item.pain_level }}
                                                         </div>
                                                         <div v-if="item.pain_level_after" class="flex items-center text-slate-300">
@@ -594,7 +608,7 @@ const props = defineProps({
                                                                 <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414-1.414L14.586 11H3a1 1 0 1 1 0-2h11.586l-2.293-2.293a1 1 0 0 1 0-1.414Z" clip-rule="evenodd" />
                                                             </svg>
                                                         </div>
-                                                        <div v-if="item.pain_level_after" class="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-bold" title="ระดับความปวดหลังรักษา">
+                                                        <div v-if="item.pain_level_after" class="px-2 py-0.5 rounded-md border text-[10px] font-bold" :style="getPainLevelStyle(item.pain_level_after)" title="ระดับความปวดหลังรักษา">
                                                             {{ item.pain_level_after }}
                                                         </div>
                                                     </div>
@@ -628,14 +642,14 @@ const props = defineProps({
                                                 <span class="capitalize font-bold text-slate-700">{{ visit.treatment_record.massage_weight || '-' }}</span>
                                             </div>
                                             
-                                            <div class="px-4 py-3 bg-rose-50 rounded-xl border border-rose-100 flex flex-col items-center min-w-[100px]">
-                                                <span class="text-[10px] font-bold text-rose-400 uppercase">ระดับความปวด (ก่อน)</span>
-                                                <span class="font-bold text-rose-600">{{ visit.treatment_record.pain_level_before || '-' }}</span>
+                                            <div class="px-4 py-3 rounded-xl border flex flex-col items-center min-w-[100px]" :style="getPainLevelStyle(visit.treatment_record.pain_level_before)">
+                                                <span class="text-[10px] font-bold uppercase opacity-70">ระดับความปวด (ก่อน)</span>
+                                                <span class="font-bold">{{ visit.treatment_record.pain_level_before || '-' }}</span>
                                             </div>
                                             
-                                            <div class="px-4 py-3 bg-emerald-50 rounded-xl border border-emerald-100 flex flex-col items-center min-w-[100px]">
-                                                <span class="text-[10px] font-bold text-emerald-400 uppercase">ระดับความปวด (หลัง)</span>
-                                                <span class="font-bold text-emerald-600">{{ visit.treatment_record.pain_level_after || '-' }}</span>
+                                            <div class="px-4 py-3 rounded-xl border flex flex-col items-center min-w-[100px]" :style="getPainLevelStyle(visit.treatment_record.pain_level_after)">
+                                                <span class="text-[10px] font-bold uppercase opacity-70">ระดับความปวด (หลัง)</span>
+                                                <span class="font-bold">{{ visit.treatment_record.pain_level_after || '-' }}</span>
                                             </div>
                                         </div>
                                     
