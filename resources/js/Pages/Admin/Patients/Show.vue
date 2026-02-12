@@ -537,7 +537,7 @@ const formatDate = (dateString) => {
                                                     <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
                                                     Body Map
                                                 </h4>
-                                                <span class="text-[10px] text-slate-400 font-medium ml-4">{{ medicalSummary.pain_areas?.length || 0 }} Areas Marked</span>
+                                                
                                             </div>
                                             <button v-if="!isFullBodyView" @click="showBodyMapModal = true" class="pointer-events-auto p-2 bg-white/80 backdrop-blur text-indigo-600 rounded-xl shadow-sm border border-slate-200/60 hover:border-indigo-300 hover:shadow-md hover:text-indigo-700 transition-all duration-300">
                                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">

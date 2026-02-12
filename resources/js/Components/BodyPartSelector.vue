@@ -74,7 +74,7 @@ const emit = defineEmits(['update:modelValue']);
         }
     ];
     
-    const allViews = computed(() => viewGroups.flatMap(g => g.options));
+    const allViews = computed(() => viewGroups.flatMap(g => g.options.map(o => ({ ...o, group: g.label }))));
     
     const currentSvgParams = computed(() => {
         return allViews.value.find(v => v.id === currentView.value) || allViews.value[0];
@@ -251,10 +251,33 @@ const emit = defineEmits(['update:modelValue']);
             <div v-else-if="overview" class="w-full px-2 py-4 animate-fadeIn">
                  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                      <div v-for="view in allViews" :key="view.id" 
-                          class="relative flex flex-col items-center justify-center bg-white/50 rounded-xl border border-slate-100 p-2 shadow-sm hover:border-indigo-200 transition-colors h-[180px]">
-                          <div class="absolute top-2 right-2 z-10">
-                              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ view.label }}</span>
+                          class="relative flex flex-col items-center justify-center rounded-xl border p-2 shadow-sm transition-all duration-300 h-[180px] group"
+                          :class="[
+                              view.group === 'ด้านหน้า' ? 'bg-blue-50/40 border-blue-100 hover:border-blue-300 hover:bg-blue-50' :
+                              view.group === 'ด้านหลัง' ? 'bg-orange-50/40 border-orange-100 hover:border-orange-300 hover:bg-orange-50' :
+                              'bg-white/50 border-slate-100 hover:border-indigo-200 hover:bg-white'
+                          ]">
+                          
+                          <!-- Label & Count -->
+                          <div class="absolute top-2 right-2 z-10 flex flex-col items-end gap-1">
+                              <span class="text-[9px] font-bold uppercase tracking-widest"
+                                    :class="view.group === 'ด้านหน้า' ? 'text-blue-300' : (view.group === 'ด้านหลัง' ? 'text-orange-300' : 'text-slate-400')">
+                                    {{ view.label }}
+                              </span>
+                              
+                              <!-- Pain Count Badge -->
+                              <div v-if="getPartsForView(view).length > 0" 
+                                   class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-red-400 animate-pulse">
+                                  {{ getPartsForView(view).length }} จุด
+                              </div>
                           </div>
+
+                          <!-- Orientation Marker (Optional purely for aesthetics) -->
+                           <div class="absolute top-2 left-2 z-10">
+                                <div v-if="view.group === 'ด้านหน้า'" class="w-1.5 h-1.5 rounded-full bg-blue-200"></div>
+                                <div v-else-if="view.group === 'ด้านหลัง'" class="w-1.5 h-1.5 rounded-full bg-orange-200"></div>
+                           </div>
+
                           <div class="w-full h-full flex items-center justify-center p-1">
                               <InteractiveSvg 
                                  :src="view.file"
