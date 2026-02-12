@@ -21,13 +21,19 @@ const emit = defineEmits(['update:modelValue']);
 const levels = Array.from({ length: 10 }, (_, i) => i + 1);
 
 const getStyle = (level) => {
-    // Green (120) -> Red (0)
-    // 1 -> 120 (Green)
-    // 5 -> ~67 (Yellow)
-    // 10 -> 0 (Red)
-    // Formula: 120 - ((level - 1) * (120 / 9))
-    
-    // Let's tweak for better visuals
+    const isSelected = parseInt(props.modelValue) === level;
+    const hasSelection = props.modelValue !== '' && props.modelValue !== null;
+
+    // If something is selected, but not this one -> Gray out
+    if (hasSelection && !isSelected) {
+        return {
+            backgroundColor: '#f1f5f9', // slate-100
+            color: '#cbd5e1', // slate-400
+            borderColor: '#e2e8f0', // slate-200
+        };
+    }
+
+    // Default (colorful) state
     // 1 = 130 (Green)
     // 10 = 0 (Red)
     const hue = Math.max(0, 130 - ((level - 1) * (130 / 9)));
@@ -84,7 +90,7 @@ const badgeStyle = computed(() => {
                 :class="[
                     parseInt(modelValue) === level 
                         ? 'ring-2 ring-offset-2 ring-indigo-100 scale-110 z-10 font-bold shadow-md brightness-110' 
-                        : 'opacity-40 hover:opacity-100 hover:scale-105 hover:shadow-sm grayscale-[0.3] hover:grayscale-0'
+                        : (modelValue ? '' : 'opacity-40 hover:opacity-100 hover:scale-105 hover:shadow-sm grayscale-[0.3] hover:grayscale-0')
                 ]"
             >
                 {{ level }}
