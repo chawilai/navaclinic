@@ -115,6 +115,11 @@ export const translateBodyPart = (partName) => {
     if (!partName) return '';
     let name = partName;
 
+    // Normalize: Replace spaces with underscores and trim
+    // This fixes issues where data might have been saved with spaces (e.g. "UpperLegB upper leg back part 6 R")
+    name = name.trim().replace(/\s+/g, '_');
+
+
     // ----------------------------------------------------
     // Step 1: Handle "Part X" Patterns
     // ----------------------------------------------------

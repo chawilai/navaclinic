@@ -23,6 +23,7 @@ import {
     ArrowsPointingOutIcon,
     ArrowsPointingInIcon
 } from '@heroicons/vue/24/outline';
+import { translateBodyPart } from '@/Utils/BodyPartTranslations';
 
 const props = defineProps({
     patient: {
@@ -533,10 +534,6 @@ const formatDate = (dateString) => {
                                         <!-- Header within Map -->
                                         <div class="absolute top-4 left-4 z-10 flex items-center justify-between w-[calc(100%-32px)] pointer-events-none">
                                             <div class="flex flex-col">
-                                                <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 pointer-events-auto">
-                                                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-                                                    Body Map
-                                                </h4>
                                                 
                                             </div>
                                             <button v-if="!isFullBodyView" @click="showBodyMapModal = true" class="pointer-events-auto p-2 bg-white/80 backdrop-blur text-indigo-600 rounded-xl shadow-sm border border-slate-200/60 hover:border-indigo-300 hover:shadow-md hover:text-indigo-700 transition-all duration-300">
@@ -599,8 +596,8 @@ const formatDate = (dateString) => {
                                         </div>
                                         
                                         <div class="pb-3 text-center">
-                                            <p v-if="!isFullBodyView" class="text-[10px] text-slate-400 font-medium uppercase tracking-widest opacity-60">Click to Expand</p>
-                                            <p v-else class="text-[10px] text-slate-400 font-medium uppercase tracking-widest opacity-60">Full Body View Enabled</p>
+                                            <p v-if="!isFullBodyView" class="text-[10px] text-slate-400 font-medium uppercase tracking-widest opacity-60">คลิกเพื่อขยาย</p>
+                                            <p v-else class="text-[10px] text-slate-400 font-medium uppercase tracking-widest opacity-60">มุมมองเต็มตัว</p>
                                         </div>
                                     </div>
 
@@ -676,10 +673,10 @@ const formatDate = (dateString) => {
                                             <div class="px-4 py-3 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
                                                 <h5 class="font-bold text-slate-700 text-xs flex items-center gap-2">
                                                     <ClipboardDocumentListIcon class="w-4 h-4 text-slate-400" />
-                                                    Detail List
+                                                    รายการจุดที่ปวด
                                                 </h5>
                                                 <span class="text-[10px] font-medium text-slate-400 px-2 py-0.5 bg-white border border-slate-200 rounded-md">
-                                                    Scrollable
+                                                    เลื่อนดูได้
                                                 </span>
                                             </div>
                                             <div class="overflow-y-auto custom-scrollbar p-1">
@@ -691,9 +688,9 @@ const formatDate = (dateString) => {
                                                         </div>
                                                         <div class="flex-1 min-w-0">
                                                             <div class="flex justify-between items-start">
-                                                                <h4 class="text-xs font-bold text-slate-800 truncate">
-                                                                    {{ typeof item.area === 'string' ? item.area.replace(/_/g, ' ') : (item.area?.area || item.area) }}
-                                                                </h4>
+                                                                    <h4 class="text-xs font-bold text-slate-800 truncate">
+                                                                        {{ typeof item.area === 'string' ? translateBodyPart(item.area) : translateBodyPart(item.area?.area || item.area) }}
+                                                                    </h4>
                                                                 <!-- Mini Bars -->
                                                                 <div v-if="item.pain_level || item.pain_level_after" class="flex gap-2 items-center">
                                                                      <div class="flex flex-col items-center ml-2">
@@ -712,13 +709,13 @@ const formatDate = (dateString) => {
                                                                 </div>
                                                             </div>
                                                             <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                                                                {{ item.symptom || 'No details provided' }}
+                                                                {{ item.symptom || 'ไม่ระบุรายละเอียด' }}
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div v-else class="text-center py-6 text-xs text-slate-400 italic">
-                                                    No specific areas recorded
+                                                    ไม่มีข้อมูลจุดที่ปวด
                                                 </div>
                                             </div>
                                         </div>

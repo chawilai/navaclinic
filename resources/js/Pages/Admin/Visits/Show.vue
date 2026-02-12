@@ -182,12 +182,6 @@ const props = defineProps({
                 <!-- Col 2: Body Map (8 Cols) -->
                 <div class="col-span-8 flex flex-col gap-3 h-full overflow-hidden">
                      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden relative">
-                        <div class="absolute top-3 left-3 z-10 pointer-events-none">
-                             <span class="bg-white/90 backdrop-blur px-2.5 py-1 rounded-md border border-slate-200 text-[10px] font-bold text-slate-600 shadow-sm uppercase tracking-wider">
-                                Body Map
-                            </span>
-                        </div>
-             
                         <div class="flex-1 bg-slate-50/50 flex items-center justify-center overflow-hidden relative">
                              <!-- Body Map Component -->
                              <BodyPartSelector 
@@ -198,7 +192,7 @@ const props = defineProps({
                             />
                              <div v-else class="text-slate-300 flex flex-col items-center">
                                  <svg class="w-12 h-12 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                 <span class="text-xs mt-2 font-medium">ไม่มีข้อมูล Body Map</span>
+                                 <span class="text-xs mt-2 font-medium">ไม่มีข้อมูล</span>
                              </div>
                         </div>
 
