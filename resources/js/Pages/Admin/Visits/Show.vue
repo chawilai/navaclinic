@@ -4,6 +4,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import BodyPartSelector from '@/Components/BodyPartSelector.vue';
 import Modal from '@/Components/Modal.vue';
 import { computed, ref } from 'vue';
+import { translateBodyPart } from '@/Utils/BodyPartTranslations';
 
 const showBodyMapModal = ref(false);
 const viewMode = ref('default');
@@ -218,7 +219,7 @@ const props = defineProps({
                                     </thead>
                                     <tbody class="divide-y divide-slate-50">
                                         <tr v-for="area in visit.treatment_record?.pain_areas || []" :key="area.area" class="hover:bg-slate-50">
-                                            <td class="pl-3 py-2 font-bold text-indigo-700">{{ area.area }}</td>
+                                            <td class="pl-3 py-2 font-bold text-indigo-700">{{ translateBodyPart(area.area) }}</td>
                                             <td class="py-2 text-slate-600 truncate max-w-[100px]">{{ area.symptom }}</td>
                                             <td class="py-2 text-center">
                                                 <span class="px-1.5 py-0.5 rounded font-bold text-[10px] border transition-colors" :style="getPainLevelStyle(area.pain_level)">{{ area.pain_level }}</span>
@@ -597,7 +598,7 @@ const props = defineProps({
                                                 <div class="flex justify-between items-center mb-2">
                                                     <span class="font-bold text-indigo-900 text-sm flex items-center gap-2">
                                                         <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] border border-indigo-100">{{ idx + 1 }}</span>
-                                                        {{ item.area }}
+                                                        {{ translateBodyPart(item.area) }}
                                                     </span>
                                                     <div class="flex items-center gap-2">
                                                         <div v-if="item.pain_level" class="px-2 py-0.5 rounded-md border text-[10px] font-bold" :style="getPainLevelStyle(item.pain_level)" title="ระดับความปวดก่อนรักษา">

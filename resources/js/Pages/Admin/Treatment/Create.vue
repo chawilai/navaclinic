@@ -4,6 +4,7 @@ import { Head, useForm, Link } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import PainLevelSelector from '@/Components/PainLevelSelector.vue';
 import BodyPartSelector from '@/Components/BodyPartSelector.vue';
+import { translateBodyPart } from '@/Utils/BodyPartTranslations';
 
 const props = defineProps({
     booking: {
@@ -109,7 +110,7 @@ const updateParts = (newParts) => {
 
         removedItems.forEach(item => {
              const areaName = typeof item.area === 'string' ? item.area : (item.area?.area || String(item.area));
-             const formattedPart = areaName.replace(/_/g, ' ');
+             const formattedPart = translateBodyPart(areaName);
              
              Toast.fire({
                 icon: 'info',
@@ -147,7 +148,7 @@ const updateParts = (newParts) => {
                 }
             });
 
-            const formattedPart = part.replace(/_/g, ' ');
+            const formattedPart = translateBodyPart(part);
 
             Toast.fire({
                 icon: 'success',
@@ -377,7 +378,7 @@ const bmiColor = computed(() => {
                                                         {{ index + 1 }}
                                                     </span>
                                                     <span class="font-bold text-slate-800 text-sm break-words leading-tight">
-                                                        {{ typeof item.area === 'string' ? item.area.replace(/_/g, ' ') : (item.area?.area || 'Unknown') }}
+                                                        {{ typeof item.area === 'string' ? translateBodyPart(item.area) : (item.area?.area || 'Unknown') }}
                                                     </span>
                                                 </div>
                                                 

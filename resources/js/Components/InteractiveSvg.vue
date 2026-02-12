@@ -145,8 +145,8 @@ const handleSvgClick = (event) => {
         if (current.classList && current.classList.contains('interactive-part')) {
             const name = current.getAttribute('data-clean-name') || cleanName(current.getAttribute('data-name') || current.id);
             if (name) {
-                emit('toggle', name);
-                event.stopPropagation(); // Stop bubbling once handled
+                emit('toggle', name, event, current); // Emit event and element
+                event.stopPropagation();
                 return;
             }
         }
@@ -166,21 +166,34 @@ const updateHighlights = () => {
     
     // Highlight specific items
     props.selectedParts.forEach(partName => {
-        // Try to find by data-clean-name first (most accurate)
-        let el = container.value.querySelector(`.interactive-part[data-clean-name="${partName}"]`);
+        // 1. Try exact match
+        let el = findElement(partName);
         
-        // Fallback to data-name or id exact match
-        if (!el) el = container.value.querySelector(`[data-name="${partName}"]`);
-        if (!el) el = container.value.querySelector(`[id="${partName}"]`);
-        
+        // 2. Try stripping _L / _R / _Left / _Right suffix
+        // This allows 'part_1_L' to highlight 'part_1'
+        if (!el) {
+            const baseName = partName.replace(/(_L|_R|_Left|_Right)$/, '');
+            if (baseName !== partName) {
+                el = findElement(baseName);
+            }
+        }
+
         if (el) {
             el.classList.add('selected');
-            // Bring to front logic only if it's a leaf node to avoid group messing
             if (el.tagName !== 'g' && el.parentNode) {
                 el.parentNode.appendChild(el);
             }
         }
     });
+};
+
+const findElement = (name) => {
+    // Try data-clean-name
+    let el = container.value.querySelector(`.interactive-part[data-clean-name="${name}"]`);
+    // Fallback to data-name or id
+    if (!el) el = container.value.querySelector(`[data-name="${name}"]`);
+    if (!el) el = container.value.querySelector(`[id="${name}"]`);
+    return el;
 };
 
 watch(() => props.src, fetchSvg, { immediate: true });

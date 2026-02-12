@@ -44,32 +44,32 @@ const emit = defineEmits(['update:modelValue']);
     
     const viewGroups = [
         {
-            label: 'ศีรษะ & ลำตัว (Head & Body)',
+            label: 'ด้านหน้า',
             options: [
-                { id: 'head_v2', label: 'ศีรษะ', fullLabel: 'ศีรษะ (Head)', file: '/images/body/v2/head_model2.svg', prefix: 'Head_' },
-                { id: 'head_side_v2', label: 'ศีรษะ (ข้าง)', fullLabel: 'ศีรษะ (Side)', file: '/images/body/v2/head_side2.svg', prefix: 'HeadSide_' },
-                { id: 'upper_front_v2', label: 'อก/ไหล่', fullLabel: 'ลำตัวส่วนบน (หน้า)', file: '/images/body/v2/upper_front.svg', prefix: 'UpperFront_' },
-                { id: 'middle_front_v2', label: 'ท้อง (หน้า)', fullLabel: 'ลำตัวส่วนกลาง (หน้า)', file: '/images/body/v2/middle_front.svg', prefix: 'MidFront_' },
-                { id: 'full_upper_back_v2', label: 'หลังบน', fullLabel: 'หลังส่วนบน', file: '/images/body/v2/full_upper_back.svg', prefix: 'UpperBack_' },
-                { id: 'full_middle_back_v2', label: 'หลังกลาง', fullLabel: 'หลังส่วนกลาง', file: '/images/body/v2/full_middle_back.svg', prefix: 'MidBack_' },
-                { id: 'full_lower_back_v2', label: 'หลังล่าง', fullLabel: 'หลังส่วนล่าง', file: '/images/body/v2/Full_lower_back.svg', prefix: 'LowerBack_' },
+                { id: 'head_v2', label: 'ศีรษะ (หน้า)', fullLabel: 'ศีรษะ (ด้านหน้า)', file: '/images/body/v2/head_model2.svg', prefix: 'Head_' },
+                { id: 'upper_front_v2', label: 'อก/ไหล่ (หน้า)', fullLabel: 'ลำตัวบน (ด้านหน้า)', file: '/images/body/v2/upper_front.svg', prefix: 'UpperFront_' },
+                { id: 'middle_front_v2', label: 'ท้อง (หน้า)', fullLabel: 'ลำตัวกลาง (ด้านหน้า)', file: '/images/body/v2/middle_front.svg', prefix: 'MidFront_' },
+                { id: 'arm_model_v2', label: 'แขน (หน้า)', fullLabel: 'แขน (ด้านหน้า)', file: '/images/body/v2/arm_model3.svg', prefix: 'Arm_' },
+                { id: 'bizeps_v2', label: 'กล้ามแขน (หน้า)', fullLabel: 'กล้ามแขน (ด้านหน้า)', file: '/images/body/v2/Bizeps2.svg', prefix: 'Biceps_' },
+                { id: 'upper_leg_front_v2', label: 'ขาบน (หน้า)', fullLabel: 'ขาบน (ด้านหน้า)', file: '/images/body/v2/upper_leg_front.svg', prefix: 'UpperLegF_' },
+                { id: 'lower_leg_front_v2', label: 'ขาล่าง (หน้า)', fullLabel: 'ขาล่าง (ด้านหน้า)', file: '/images/body/v2/lower_leg_front.svg', prefix: 'LowerLegF_' },
             ]
         },
         {
-            label: 'แขน (Arms)',
+            label: 'ด้านหลัง',
             options: [
-                { id: 'bizeps_v2', label: 'กล้ามแขน', fullLabel: 'ไบเซ็ปส์ (Biceps)', file: '/images/body/v2/Bizeps2.svg', prefix: 'Biceps_' },
-                { id: 'arm_model_v2', label: 'แขน', fullLabel: 'แขน (Arm Model)', file: '/images/body/v2/arm_model3.svg', prefix: 'Arm_' },
+                { id: 'full_upper_back_v2', label: 'หลังบน (หลัง)', fullLabel: 'หลังบน (ด้านหลัง)', file: '/images/body/v2/full_upper_back.svg', prefix: 'UpperBack_' },
+                { id: 'full_middle_back_v2', label: 'หลังกลาง (หลัง)', fullLabel: 'หลังกลาง (ด้านหลัง)', file: '/images/body/v2/full_middle_back.svg', prefix: 'MidBack_' },
+                { id: 'full_lower_back_v2', label: 'หลังล่าง (หลัง)', fullLabel: 'หลังล่าง (ด้านหลัง)', file: '/images/body/v2/Full_lower_back.svg', prefix: 'LowerBack_' },
+                { id: 'upper_leg_back_v2', label: 'ขาบน (หลัง)', fullLabel: 'ขาบน (ด้านหลัง)', file: '/images/body/v2/upper_leg_back.svg', prefix: 'UpperLegB_' },
+                { id: 'lower_leg_back_v2', label: 'ขาล่าง (หลัง)', fullLabel: 'ขาล่าง (ด้านหลัง)', file: '/images/body/v2/lower_leg_back.svg', prefix: 'LowerLegB_' },
             ]
         },
         {
-            label: 'ขา (Legs)',
+            label: 'ด้านข้าง',
             options: [
-                { id: 'upper_leg_front_v2', label: 'ขาบน (หน้า)', fullLabel: 'ขาบน (หน้า)', file: '/images/body/v2/upper_leg_front.svg', prefix: 'UpperLegF_' },
-                { id: 'lower_leg_front_v2', label: 'ขาล่าง (หน้า)', fullLabel: 'ขาล่าง (หน้า)', file: '/images/body/v2/lower_leg_front.svg', prefix: 'LowerLegF_' },
-                { id: 'upper_leg_back_v2', label: 'ขาบน (หลัง)', fullLabel: 'ขาบน (หลัง)', file: '/images/body/v2/upper_leg_back.svg', prefix: 'UpperLegB_' },
-                { id: 'lower_leg_back_v2', label: 'ขาล่าง (หลัง)', fullLabel: 'ขาล่าง (หลัง)', file: '/images/body/v2/lower_leg_back.svg', prefix: 'LowerLegB_' },
-                { id: 'side_leg_v2', label: 'ขา (ข้าง)', fullLabel: 'ขา (ข้าง)', file: '/images/body/v2/side_leg.svg', prefix: 'SideLeg_' },
+                { id: 'head_side_v2', label: 'ศีรษะ (ข้าง)', fullLabel: 'ศีรษะ (ด้านข้าง)', file: '/images/body/v2/head_side2.svg', prefix: 'HeadSide_' },
+                { id: 'side_leg_v2', label: 'ขา (ข้าง)', fullLabel: 'ขา (ด้านข้าง)', file: '/images/body/v2/side_leg.svg', prefix: 'SideLeg_' },
             ]
         }
     ];
@@ -106,17 +106,52 @@ const emit = defineEmits(['update:modelValue']);
         return getPartsForView(currentSvgParams.value);
     });
     
-    const handleToggle = (rawPartName, specificViewParams = null) => {
+    const handleToggle = (rawPartName, specificViewParams = null, event, element) => {
         if (props.readonly) return;
         
         // If specificViewParams is passed (Expand All Mode), use it. Otherwise use current global view.
         const viewParams = specificViewParams || currentSvgParams.value;
-        
-        // Prepend prefix if applicable (e.g. Hand_L_Thumb)
         const prefix = viewParams?.prefix || '';
-        const partName = prefix + rawPartName;
+        let partName = prefix + rawPartName;
         
-        // Check if exists
+        // --- Determine Side (L/R) if not present ---
+        if (event && element) {
+            // Check if name already has side info
+            const hasSide = partName.match(/(_L|_R|_Left|_Right)$/i);
+            
+            if (!hasSide) {
+                const rect = element.getBoundingClientRect();
+                const svgRect = element.closest('svg').getBoundingClientRect();
+                
+                const centerX = svgRect.left + (svgRect.width / 2);
+                const elemX = rect.left + (rect.width / 2);
+                
+                // Threshold for "Center" parts (e.g. spine)
+                const threshold = svgRect.width * 0.05; // 5% center zone
+                
+                if (Math.abs(elemX - centerX) > threshold) {
+                    const isScreenLeft = elemX < centerX;
+                    
+                    // Determine contextual Left/Right
+                    // Front View: Screen Left = Patient Right
+                    // Back View: Screen Left = Patient Left
+                    const isFrontView = viewParams.label.includes('หน้า') || viewParams.fullLabel.includes('หน้า');
+                    
+                    if (isFrontView) {
+                         partName += isScreenLeft ? '_R' : '_L';
+                    } else {
+                         // Back or maybe side (default to screen logic??)
+                         // For Back view: Screen Left is Patient Left.
+                         partName += isScreenLeft ? '_L' : '_R';
+                    }
+                }
+            }
+        }
+        
+        // Check if exists (Check for exact match OR base match if we just added suffix)
+        // Actually, we want to toggle specific side if added. 
+        // If user clicks Left side, toggle Left side.
+        
         const existingIndex = props.modelValue.findIndex(item => {
             const name = typeof item === 'object' ? item.area : item;
             return name === partName;
@@ -241,7 +276,7 @@ const emit = defineEmits(['update:modelValue']);
                              <InteractiveSvg 
                                 :src="view.file"
                                 :selected-parts="getPartsForView(view)"
-                                @toggle="(name) => handleToggle(name, view)"
+                                @toggle="(name, event, element) => handleToggle(name, view, event, element)"
                                 class="w-full h-full"
                              />
                          </div>
@@ -265,7 +300,7 @@ const emit = defineEmits(['update:modelValue']);
                               <InteractiveSvg 
                                  :src="view.file"
                                  :selected-parts="getPartsForView(view)"
-                                 @toggle="(name) => handleToggle(name, view)"
+                                 @toggle="(name, event, element) => handleToggle(name, view, event, element)"
                                  class="w-full h-full"
                               />
                           </div>
@@ -304,7 +339,7 @@ const emit = defineEmits(['update:modelValue']);
                         <InteractiveSvg 
                             :src="currentSvgParams.file" 
                             :selected-parts="selectedParts"
-                            @toggle="handleToggle"
+                            @toggle="(name, event, element) => handleToggle(name, null, event, element)"
                             class="w-full h-full"
                             :class="{ 'unconstrained': embedded }"
                         />
@@ -312,7 +347,7 @@ const emit = defineEmits(['update:modelValue']);
                 </div>
                 
                 <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm text-[10px] text-slate-400 font-mono">
-                    View: {{ currentSvgParams.fullLabel }}
+                    มุมมอง: {{ currentSvgParams.fullLabel }}
                 </div>
             </div>
         </div>
@@ -333,7 +368,7 @@ const emit = defineEmits(['update:modelValue']);
         -->
 
         <div v-if="!readonly" class="text-center text-slate-400 text-xs italic mt-2">
-            Click on body parts to select
+            คลิกที่อวัยวะเพื่อเลือก
         </div>
     </div>
 </template>
