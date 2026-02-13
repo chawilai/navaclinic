@@ -26,7 +26,7 @@ const form = useForm({
     visit_date: '',
     symptoms: '',
     notes: '',
-    duration_minutes: 30, // Default duration
+    duration_minutes: 90, // Default duration 1.5 hours (90 mins)
     
     // Medical Record Fields
     weight: '',
@@ -201,7 +201,7 @@ watch(mode, (newMode) => {
         selectedBooking.value = null;
         visitTime.value = '';
         form.doctor_id = '';
-        form.duration_minutes = 30;
+        form.duration_minutes = 90;
         availableDoctors.value = [];
         step.value = 1;
         fetchTimeSlots();
@@ -255,6 +255,27 @@ const selectTimeSlot = (slot) => {
     // slot.doctors contains local doctor objects with status
     availableDoctors.value = slot.doctors;
     form.doctor_id = ''; // Reset doctor selection when time changes
+};
+
+const isSlotSelected = (slotTime) => {
+    if (!visitTime.value) return false;
+    
+    // Check if slot logic matches: Visit Time + 90 mins coverage
+    // Current slot is selected if it equals visitTime OR is within the next 2 slots (assuming 30 min intervals)
+    
+    const [visitH, visitM] = visitTime.value.split(':').map(Number);
+    const visitDate = new Date();
+    visitDate.setHours(visitH, visitM, 0, 0);
+    
+    const [slotH, slotM] = slotTime.split(':').map(Number);
+    const slotDate = new Date();
+    slotDate.setHours(slotH, slotM, 0, 0);
+    
+    // Calculate difference in minutes
+    const diff = (slotDate - visitDate) / (1000 * 60);
+    
+    // Select if diff is 0, 30, or 60 (covering 90 mins total)
+    return diff === 0 || diff === 30 || diff === 60;
 };
 
 const closeModal = () => {
@@ -676,23 +697,6 @@ const confirmSubmit = () => {
                                             </h4>
                                             
                                             <div class="space-y-6">
-                                                <!-- Duration -->
-                                                <div>
-                                                    <label class="block text-sm font-bold text-slate-700 mb-2">Duration (ระยะเวลา)</label>
-                                                    <div class="flex gap-3 max-w-xl">
-                                                        <button 
-                                                            v-for="duration in [30, 60, 90]" 
-                                                            :key="duration"
-                                                            type="button"
-                                                            @click="updateDuration(duration)"
-                                                            :class="{'bg-indigo-600 text-white shadow-indigo-200 shadow-md transform scale-105': form.duration_minutes === duration, 'bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-slate-50': form.duration_minutes !== duration}"
-                                                            class="flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all focus:outline-none"
-                                                        >
-                                                            {{ duration }} Minutes
-                                                        </button>
-                                                    </div>
-                                                </div>
-
                                                 <!-- Time Slots -->
                                                 <div>
                                                     <label class="block text-sm font-bold text-slate-700 mb-2">Select Time (เลือกเวลา)</label>
@@ -715,14 +719,17 @@ const confirmSubmit = () => {
                                                             :key="slot.time"
                                                             type="button"
                                                             @click="selectTimeSlot(slot)"
-                                                            :class="{'bg-indigo-600 text-white shadow-md transform scale-110 font-bold': visitTime === slot.time, 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 hover:text-indigo-600': visitTime !== slot.time}"
+                                                            :class="{
+                                                                'bg-indigo-600 text-white shadow-md transform scale-105 font-bold ring-2 ring-indigo-300': isSlotSelected(slot.time),
+                                                                'bg-white text-slate-700 border border-slate-200 hover:border-indigo-400 hover:text-indigo-600': !isSlotSelected(slot.time)
+                                                            }"
                                                             class="py-2.5 px-1 rounded-lg text-sm transition-all text-center"
                                                         >
                                                             {{ slot.time }}
                                                         </button>
                                                     </div>
-                                                </div>
                                             </div>
+                                        </div>
                                         </div>
 
                                         <!-- Section 2: Doctor Selection -->
