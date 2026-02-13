@@ -218,18 +218,30 @@ const emit = defineEmits(['update:modelValue']);
             
             <!-- Compact Grid Mode (Updated for new assets) -->
             <div v-if="compactGrid" class="w-full h-full p-2 overflow-y-auto custom-scrollbar">
+                 <div class="flex items-center justify-end gap-3 mb-2 px-1">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านหน้า</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-orange-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านหลัง</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านข้าง</span>
+                    </div>
+                </div>
                  <div class="grid grid-cols-5 gap-2 max-h-full">
-                     <div v-for="view in allViews" :key="view.id" 
+                     <div v-for="view in allViews" :key="view.id"  
                           class="relative flex flex-col items-center justify-center rounded-lg border p-1 shadow-sm transition-colors aspect-square"
                           :class="[
                               view.group === 'ด้านหน้า' ? 'bg-blue-50/50 border-blue-100 hover:border-blue-300' :
                               view.group === 'ด้านหลัง' ? 'bg-orange-50/50 border-orange-100 hover:border-orange-300' :
+                              view.group === 'ด้านข้าง' ? 'bg-green-50/50 border-green-100 hover:border-green-300' :
                               'bg-slate-50/50 border-slate-100 hover:border-slate-300'
                           ]">
-                              <div class="absolute top-1 right-1">
-                                  <div v-if="view.group === 'ด้านหน้า'" class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                                  <div v-else-if="view.group === 'ด้านหลัง'" class="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
-                              </div>
+
                               
                               <!-- Pain Count Badge (Top-Left) -->
                               <div v-if="getPartsForView(view).length > 0" 
@@ -263,13 +275,11 @@ const emit = defineEmits(['update:modelValue']);
                       :class="[
                           view.group === 'ด้านหน้า' ? 'bg-blue-50/30 border-blue-100' :
                           view.group === 'ด้านหลัง' ? 'bg-orange-50/30 border-orange-100' :
+                          view.group === 'ด้านข้าง' ? 'bg-green-50/30 border-green-100' :
                           'bg-white border-slate-100'
                       ]">
                       
-                      <!-- Tiny Orientation Dot -->
-                      <div class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-                           :class="view.group === 'ด้านหน้า' ? 'bg-blue-300' : (view.group === 'ด้านหลัง' ? 'bg-orange-300' : 'bg-slate-200')">
-                      </div>
+                       <!-- Pain Count Badge (Mini) -->
 
                        <!-- Pain Count Badge (Mini) -->
                       <div v-if="getPartsForView(view).length > 0" 
@@ -289,12 +299,27 @@ const emit = defineEmits(['update:modelValue']);
     
             <!-- Overview Mode (Medium size for Dashboard) -->
             <div v-else-if="overview" class="w-full px-2 py-4 animate-fadeIn">
+                 <div class="flex items-center justify-end gap-3 mb-4 px-2">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านหน้า</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-orange-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านหลัง</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านข้าง</span>
+                    </div>
+                </div>
                  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                      <div v-for="view in allViews" :key="view.id" 
                           class="relative flex flex-col items-center justify-center rounded-xl border p-2 shadow-sm transition-all duration-300 h-[180px] group"
                           :class="[
                               view.group === 'ด้านหน้า' ? 'bg-blue-50/40 border-blue-100 hover:border-blue-300 hover:bg-blue-50' :
                               view.group === 'ด้านหลัง' ? 'bg-orange-50/40 border-orange-100 hover:border-orange-300 hover:bg-orange-50' :
+                              view.group === 'ด้านข้าง' ? 'bg-green-50/40 border-green-100 hover:border-green-300 hover:bg-green-50' :
                               'bg-white/50 border-slate-100 hover:border-indigo-200 hover:bg-white'
                           ]">
                           
@@ -312,11 +337,7 @@ const emit = defineEmits(['update:modelValue']);
                               </div>
                           </div>
 
-                          <!-- Orientation Marker (Optional purely for aesthetics) -->
-                           <div class="absolute top-2 left-2 z-10">
-                                <div v-if="view.group === 'ด้านหน้า'" class="w-1.5 h-1.5 rounded-full bg-blue-200"></div>
-                                <div v-else-if="view.group === 'ด้านหลัง'" class="w-1.5 h-1.5 rounded-full bg-orange-200"></div>
-                           </div>
+
 
                           <div class="w-full h-full flex items-center justify-center p-1">
                               <InteractiveSvg 
@@ -331,12 +352,27 @@ const emit = defineEmits(['update:modelValue']);
     
             <!-- Expand All Mode -->
             <div v-else-if="expandAll" class="space-y-12 animate-fadeIn py-6">
+                <div class="flex items-center justify-end gap-3 mb-4 px-6">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านหน้า</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-orange-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านหลัง</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                        <span class="text-[10px] text-slate-500">ด้านข้าง</span>
+                    </div>
+                </div>
                 <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
                      <div v-for="view in allViews" :key="view.id" 
                           class="relative flex flex-col items-center rounded-xl border p-4 shadow-sm transition-all"
                           :class="[
                               view.group === 'ด้านหน้า' ? 'bg-blue-50/20 border-blue-100' :
                               view.group === 'ด้านหลัง' ? 'bg-orange-50/20 border-orange-100' :
+                              view.group === 'ด้านข้าง' ? 'bg-green-50/20 border-green-100' :
                               'bg-white border-slate-100'
                           ]">
                          
@@ -353,11 +389,7 @@ const emit = defineEmits(['update:modelValue']);
                               </div>
                          </div>
                          
-                         <!-- Orientation Marker -->
-                         <div class="absolute top-3 left-3 z-10">
-                            <div v-if="view.group === 'ด้านหน้า'" class="w-2 h-2 rounded-full bg-blue-200"></div>
-                            <div v-else-if="view.group === 'ด้านหลัง'" class="w-2 h-2 rounded-full bg-orange-200"></div>
-                         </div>
+
 
                          <!-- SVG Content -->
                          <div class="w-full flex items-center justify-center h-[300px]">
