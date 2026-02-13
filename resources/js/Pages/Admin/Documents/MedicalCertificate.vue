@@ -1,10 +1,18 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
     visit: Object,
     clinic: Object
+});
+
+onMounted(() => {
+    document.body.classList.add('A4');
+});
+
+onUnmounted(() => {
+    document.body.classList.remove('A4');
 });
 
 const formatDate = (date) => {
@@ -38,12 +46,15 @@ const print = () => {
 </script>
 
 <template>
-    <Head title="ใบรับรองแพทย์ (Medical Certificate)" />
+    <Head>
+        <title>ใบรับรองแพทย์ (Medical Certificate)</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.css">
+    </Head>
 
-    <div class="min-h-screen bg-slate-100 p-8 print:p-0 print:bg-white font-sarabun text-slate-800 leading-relaxed">
+    <div class="font-sarabun text-slate-800 leading-relaxed">
         
         <!-- Toolbar -->
-        <div class="max-w-[210mm] mx-auto mb-6 flex justify-between items-center print:hidden">
+        <div class="max-w-[210mm] mx-auto my-6 flex justify-between items-center print:hidden px-4">
             <h1 class="font-bold text-xl">พิมพ์ใบรับรองแพทย์</h1>
             <button @click="print" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 font-bold flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5">
@@ -54,7 +65,7 @@ const print = () => {
         </div>
 
         <!-- A4 Paper -->
-        <div class="bg-white shadow max-w-[210mm] min-h-[297mm] mx-auto p-[20mm] pt-[15mm] relative font-sarabun text-black print:p-0 print:shadow-none print:m-0">
+        <section class="sheet padding-20mm font-sarabun text-black relative">
             
             <!-- Logo -->
             <div class="flex flex-col items-center justify-center mb-6">
@@ -71,12 +82,12 @@ const print = () => {
             </div>
 
             <!-- Date -->
-            <div class="flex justify-end mb-8 pr-12 w-full">
+            <div class="flex justify-end mb-8 pr-4 w-full">
                  <input v-model="form.date" class="text-right border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 text-base font-normal w-72 print:border-none">
             </div>
 
             <!-- Content -->
-            <div class="space-y-4 text-base pl-8 pr-8 leading-loose">
+            <div class="space-y-4 text-base leading-loose">
                 
                 <div class="flex flex-wrap items-baseline">
                     <span class="mr-2">ข้าพเจ้า</span>
@@ -107,13 +118,13 @@ const print = () => {
                     <input v-model="form.diagnosis" class="flex-1 border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 h-8 font-bold text-base min-w-[300px] print:border-none">
                 </div>
 
-                <div class="flex justify-end mt-12 pr-12 w-full">
+                <div class="flex justify-end mt-12 pr-4 w-full">
                      <input v-model="form.comment" class="text-right border-b border-dotted border-gray-400 focus:border-black bg-transparent focus:ring-0 p-0 text-base font-normal w-full max-w-lg print:border-none">
                 </div>
             </div>
 
             <!-- Signatures -->
-             <div class="flex justify-between mt-32 px-16 items-start">
+             <div class="flex justify-between mt-32 px-8 items-start">
                 <div class="text-center w-64">
                      <div class="border-b border-dotted border-black/50 mb-2 h-10 w-full"></div>
                      <p class="text-sm">ผู้รับการตรวจ</p>
@@ -134,12 +145,14 @@ const print = () => {
                 </div>
             </div>
 
-        </div>
+        </section>
     </div>
 </template>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+
+@page { size: A4 }
 
 .font-sarabun {
     font-family: 'Sarabun', sans-serif;
