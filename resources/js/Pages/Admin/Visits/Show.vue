@@ -106,9 +106,15 @@ const props = defineProps({
                                 <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 {{ new Date(visit.visit_date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) }}
                             </span>
-                             <span class="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                            <span class="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
                                 <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                {{ new Date(visit.visit_date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }}
+                                {{ new Date(visit.visit_date).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) }} น.
+                            </span>
+                             <span class="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100" v-if="visit.doctor">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 text-slate-400">
+                                    <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                                </svg>
+                                {{ visit.doctor.name }}
                             </span>
                         </div>
                     </div>
