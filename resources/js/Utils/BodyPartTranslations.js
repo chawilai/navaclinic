@@ -141,6 +141,7 @@ export const translateBodyPart = (partName) => {
 
     name = name.replace(/side_leg_part_(\d+)/gi, partReplacer);
     name = name.replace(/bizeps2_part_(\d+)/gi, partReplacer);
+    name = name.replace(/arm_model3_part_(\d+)/gi, partReplacer);
 
     // General Catch-all
     name = name.replace(/_part_(\d+)/gi, ' จุดที่ $1');

@@ -154,7 +154,12 @@ const emit = defineEmits(['update:modelValue']);
                         const isFrontView = viewParams.label.includes('หน้า') || viewParams.fullLabel.includes('หน้า') || viewParams.id === 'side_leg_v2';
                         
                         if (isFrontView) {
-                             partName += isScreenLeft ? '_R' : '_L';
+                             // Special case: Arm model requires swapping Left/Right per user request
+                             if (viewParams.id === 'arm_model_v2') {
+                                 partName += isScreenLeft ? '_L' : '_R';
+                             } else {
+                                 partName += isScreenLeft ? '_R' : '_L';
+                             }
                         } else {
                              // Back or maybe side leg (default to screen logic?)
                              // Stick to standard for now.
