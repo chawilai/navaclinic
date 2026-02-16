@@ -191,91 +191,98 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/owner-dashboard', [\App\Http\Controllers\Admin\OwnerDashboardController::class, 'index'])->name('admin.owner.dashboard');
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    // Shared Routes for Staff (Admins + Doctors)
+    Route::middleware('staff')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
 
-    // Booking Management
-    Route::get('/bookings/create', [\App\Http\Controllers\Admin\BookingController::class, 'create'])->name('admin.bookings.create');
-    Route::post('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'store'])->name('admin.bookings.store');
-    Route::get('/bookings/{booking}/edit', [\App\Http\Controllers\Admin\BookingController::class, 'edit'])->name('admin.bookings.edit'); // New
-    Route::patch('/bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'update'])->name('admin.bookings.update'); // New
-    Route::get('/bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'show'])->name('admin.bookings.show');
-    Route::patch('/bookings/{booking}/status', [\App\Http\Controllers\Admin\BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
+        // Booking Management
+        Route::get('/bookings/create', [\App\Http\Controllers\Admin\BookingController::class, 'create'])->name('admin.bookings.create');
+        Route::post('/bookings', [\App\Http\Controllers\Admin\BookingController::class, 'store'])->name('admin.bookings.store');
+        Route::get('/bookings/{booking}/edit', [\App\Http\Controllers\Admin\BookingController::class, 'edit'])->name('admin.bookings.edit');
+        Route::patch('/bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'update'])->name('admin.bookings.update');
+        Route::get('/bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'show'])->name('admin.bookings.show');
+        Route::patch('/bookings/{booking}/status', [\App\Http\Controllers\Admin\BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
 
-    // Payments
-    Route::post('/bookings/{booking}/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'store'])->name('admin.payments.store');
-    Route::delete('/payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'destroy'])->name('admin.payments.destroy');
+        // Payments
+        Route::post('/bookings/{booking}/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'store'])->name('admin.payments.store');
+        Route::delete('/payments/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'destroy'])->name('admin.payments.destroy');
 
-    // Treatment Records
-    Route::get('/bookings/{booking}/treatment/create', [\App\Http\Controllers\Admin\TreatmentController::class, 'create'])->name('admin.treatment.create');
-    Route::post('/bookings/{booking}/treatment', [\App\Http\Controllers\Admin\TreatmentController::class, 'store'])->name('admin.treatment.store');
+        // Treatment Records
+        Route::get('/bookings/{booking}/treatment/create', [\App\Http\Controllers\Admin\TreatmentController::class, 'create'])->name('admin.treatment.create');
+        Route::post('/bookings/{booking}/treatment', [\App\Http\Controllers\Admin\TreatmentController::class, 'store'])->name('admin.treatment.store');
 
-    // Treatment Details Step (Step 2)
-    Route::get('/treatment-records/{treatmentRecord}/details', [\App\Http\Controllers\Admin\TreatmentController::class, 'details'])->name('admin.treatment.details');
-    Route::put('/treatment-records/{treatmentRecord}/details', [\App\Http\Controllers\Admin\TreatmentController::class, 'updateDetails'])->name('admin.treatment.update-details');
+        // Treatment Details Step (Step 2)
+        Route::get('/treatment-records/{treatmentRecord}/details', [\App\Http\Controllers\Admin\TreatmentController::class, 'details'])->name('admin.treatment.details');
+        Route::put('/treatment-records/{treatmentRecord}/details', [\App\Http\Controllers\Admin\TreatmentController::class, 'updateDetails'])->name('admin.treatment.update-details');
 
-    // Patient Management
-    Route::post('/patients', [\App\Http\Controllers\Admin\PatientController::class, 'store'])->name('admin.patients.store');
-    Route::get('/patients', [\App\Http\Controllers\Admin\PatientController::class, 'index'])->name('admin.patients.index');
-    Route::get('/patients/guest/{booking}', [\App\Http\Controllers\Admin\PatientController::class, 'showGuest'])->name('admin.patients.guest.show');
-    Route::put('/patients/{user}', [\App\Http\Controllers\Admin\PatientController::class, 'update'])->name('admin.patients.update');
-    Route::get('/patients/{user}', [\App\Http\Controllers\Admin\PatientController::class, 'show'])->name('admin.patients.show');
+        // Patient Management
+        Route::post('/patients', [\App\Http\Controllers\Admin\PatientController::class, 'store'])->name('admin.patients.store');
+        Route::get('/patients', [\App\Http\Controllers\Admin\PatientController::class, 'index'])->name('admin.patients.index');
+        Route::get('/patients/guest/{booking}', [\App\Http\Controllers\Admin\PatientController::class, 'showGuest'])->name('admin.patients.guest.show');
+        Route::put('/patients/{user}', [\App\Http\Controllers\Admin\PatientController::class, 'update'])->name('admin.patients.update');
+        Route::get('/patients/{user}', [\App\Http\Controllers\Admin\PatientController::class, 'show'])->name('admin.patients.show');
 
-    // Doctor Management
-    // Doctor Management
-    Route::get('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'index'])->name('admin.doctors.index');
-    Route::post('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'store'])->name('admin.doctors.store');
-    Route::get('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'show'])->name('admin.doctors.show');
-    Route::patch('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'update'])->name('admin.doctors.update');
-    Route::delete('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'destroy'])->name('admin.doctors.destroy');
+        // Assign Package to Patient
+        Route::post('/patients/packages', [\App\Http\Controllers\Admin\PatientPackageController::class, 'store'])->name('admin.patient-packages.store');
 
-    // Shop Settings
-    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
-    Route::post('/settings/schedule', [\App\Http\Controllers\Admin\SettingController::class, 'updateSchedule'])->name('admin.settings.schedule.update');
-    Route::post('/settings/holidays', [\App\Http\Controllers\Admin\SettingController::class, 'storeHoliday'])->name('admin.settings.holidays.store');
-    Route::delete('/settings/holidays/{holiday}', [\App\Http\Controllers\Admin\SettingController::class, 'destroyHoliday'])->name('admin.settings.holidays.destroy');
-    // Visit Management
-    Route::get('/visits/check-availability', [\App\Http\Controllers\Admin\VisitController::class, 'checkAvailability'])->name('admin.visits.check-availability');
-    Route::get('/visits/create', [\App\Http\Controllers\Admin\VisitController::class, 'create'])->name('admin.visits.create');
-    Route::post('/visits', [\App\Http\Controllers\Admin\VisitController::class, 'store'])->name('admin.visits.store');
-    Route::get('/visits/{visit}', [\App\Http\Controllers\Admin\VisitController::class, 'show'])->name('admin.visits.show');
+        // Visit Management
+        Route::get('/visits/check-availability', [\App\Http\Controllers\Admin\VisitController::class, 'checkAvailability'])->name('admin.visits.check-availability');
+        Route::get('/visits/create', [\App\Http\Controllers\Admin\VisitController::class, 'create'])->name('admin.visits.create');
+        Route::post('/visits', [\App\Http\Controllers\Admin\VisitController::class, 'store'])->name('admin.visits.store');
+        Route::get('/visits/{visit}', [\App\Http\Controllers\Admin\VisitController::class, 'show'])->name('admin.visits.show');
 
-    // Visit Documents (Printable)
-    Route::get('/visits/{visit}/documents/receipt', [\App\Http\Controllers\Admin\DocumentController::class, 'receipt'])->name('admin.documents.receipt');
-    Route::get('/visits/{visit}/documents/medical-certificate', [\App\Http\Controllers\Admin\DocumentController::class, 'medicalCertificate'])->name('admin.documents.medical-certificate');
+        // Visit Documents (Printable)
+        Route::get('/visits/{visit}/documents/receipt', [\App\Http\Controllers\Admin\DocumentController::class, 'receipt'])->name('admin.documents.receipt');
+        Route::get('/visits/{visit}/documents/medical-certificate', [\App\Http\Controllers\Admin\DocumentController::class, 'medicalCertificate'])->name('admin.documents.medical-certificate');
 
-    // Visit Treatment Records
-    Route::get('/visits/{visit}/treatment/create', [\App\Http\Controllers\Admin\TreatmentController::class, 'createForVisit'])->name('admin.visits.treatment.create');
-    Route::post('/visits/{visit}/treatment', [\App\Http\Controllers\Admin\TreatmentController::class, 'storeForVisit'])->name('admin.visits.treatment.store');
+        // Visit Treatment Records
+        Route::get('/visits/{visit}/treatment/create', [\App\Http\Controllers\Admin\TreatmentController::class, 'createForVisit'])->name('admin.visits.treatment.create');
+        Route::post('/visits/{visit}/treatment', [\App\Http\Controllers\Admin\TreatmentController::class, 'storeForVisit'])->name('admin.visits.treatment.store');
 
-    // Visit Payments
-    Route::post('/visits/{visit}/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'storeForVisit'])->name('admin.visits.payments.store');
+        // Visit Payments
+        Route::post('/visits/{visit}/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'storeForVisit'])->name('admin.visits.payments.store');
+    });
 
-    // Service Packages
-    Route::resource('packages', \App\Http\Controllers\Admin\ServicePackageController::class)->names([
-        'index' => 'admin.packages.index',
-        'create' => 'admin.packages.create',
-        'store' => 'admin.packages.store',
-        'show' => 'admin.packages.show',
-        'edit' => 'admin.packages.edit',
-        'update' => 'admin.packages.update',
-        'destroy' => 'admin.packages.destroy',
-    ]);
+    // Admin Only Routes
+    Route::middleware('admin')->group(function () {
+        Route::get('/owner-dashboard', [\App\Http\Controllers\Admin\OwnerDashboardController::class, 'index'])->name('admin.owner.dashboard');
 
-    // Services
-    Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->names([
-        'index' => 'admin.services.index',
-        'create' => 'admin.services.create',
-        'store' => 'admin.services.store',
-        'show' => 'admin.services.show',
-        'edit' => 'admin.services.edit',
-        'update' => 'admin.services.update',
-        'destroy' => 'admin.services.destroy',
-    ]);
+        // Doctor Management
+        Route::get('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'index'])->name('admin.doctors.index');
+        Route::post('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'store'])->name('admin.doctors.store');
+        Route::get('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'show'])->name('admin.doctors.show');
+        Route::patch('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'update'])->name('admin.doctors.update');
+        Route::delete('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'destroy'])->name('admin.doctors.destroy');
 
-    // Assign Package to Patient
-    Route::post('/patients/packages', [\App\Http\Controllers\Admin\PatientPackageController::class, 'store'])->name('admin.patient-packages.store');
+        // Shop Settings
+        Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');
+        Route::post('/settings/schedule', [\App\Http\Controllers\Admin\SettingController::class, 'updateSchedule'])->name('admin.settings.schedule.update');
+        Route::post('/settings/holidays', [\App\Http\Controllers\Admin\SettingController::class, 'storeHoliday'])->name('admin.settings.holidays.store');
+        Route::delete('/settings/holidays/{holiday}', [\App\Http\Controllers\Admin\SettingController::class, 'destroyHoliday'])->name('admin.settings.holidays.destroy');
+
+        // Service Packages
+        Route::resource('packages', \App\Http\Controllers\Admin\ServicePackageController::class)->names([
+            'index' => 'admin.packages.index',
+            'create' => 'admin.packages.create',
+            'store' => 'admin.packages.store',
+            'show' => 'admin.packages.show',
+            'edit' => 'admin.packages.edit',
+            'update' => 'admin.packages.update',
+            'destroy' => 'admin.packages.destroy',
+        ]);
+
+        // Services
+        Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->names([
+            'index' => 'admin.services.index',
+            'create' => 'admin.services.create',
+            'store' => 'admin.services.store',
+            'show' => 'admin.services.show',
+            'edit' => 'admin.services.edit',
+            'update' => 'admin.services.update',
+            'destroy' => 'admin.services.destroy',
+        ]);
+    });
 });
 
 require __DIR__ . '/auth.php';

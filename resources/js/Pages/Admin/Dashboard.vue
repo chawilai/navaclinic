@@ -345,7 +345,7 @@ const processBookingCancellation = () => {
                         <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">นัดหมายวันนี้</div>
                         <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.today_bookings }}</div>
                     </div>
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
+                    <div v-if="$page.props.auth.user.is_admin" class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
                         <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">รายการรอดำเนินการ</div>
                         <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.pending_bookings }}</div>
                     </div>
