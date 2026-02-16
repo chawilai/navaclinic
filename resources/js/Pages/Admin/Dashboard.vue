@@ -342,7 +342,7 @@ const processBookingCancellation = () => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 
                 <!-- Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" :class="$page.props.auth.user.is_admin ? 'lg:grid-cols-5' : 'lg:grid-cols-4'">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-slate-100 hover:shadow-lg transition-all duration-300 group">
                         <div class="text-slate-500 text-sm font-medium uppercase tracking-wider group-hover:text-blue-600 transition-colors">ผู้ป่วยทั้งหมด</div>
                         <div class="text-3xl font-bold text-slate-900 mt-2">{{ stats.total_patients }}</div>
