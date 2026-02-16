@@ -68,15 +68,8 @@ const badgeStyle = computed(() => {
 
 <template>
     <div class="w-full">
-        <div class="flex justify-between items-center mb-2">
+        <div class="mb-2">
             <label class="block text-xs font-medium text-slate-600">{{ label }}</label>
-            <span 
-                v-if="modelValue" 
-                class="text-xs font-bold px-2 py-0.5 rounded shadow-sm"
-                :style="badgeStyle"
-            >
-                {{ modelValue }}
-            </span>
         </div>
         
         <div class="flex gap-1">
