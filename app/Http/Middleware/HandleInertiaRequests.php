@@ -50,7 +50,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $user,
+                'user' => $user ? $user->load('doctor') : null,
             ],
             'unreadBookingsCount' => $unreadBookingsCount,
             'latestUnreadBookings' => $latestUnreadBookings, // Pass the collection directly, Inertia handles serialization

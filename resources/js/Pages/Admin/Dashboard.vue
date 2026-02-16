@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import {
   Chart as ChartJS,
   Title,
@@ -260,6 +260,16 @@ const closeSlip = () => {
         selectedBooking.value = null;
     }, 300);
 };
+
+const canManageSelected = computed(() => {
+    if (!selectedBooking.value) return false;
+    const user = usePage().props.auth.user;
+    if (user.is_admin) return true;
+    if (user.is_doctor) {
+        return user.doctor && user.doctor.id === selectedBooking.value.doctor_id;
+    }
+    return false;
+});
 
 const showConfirmDialog = ref(false);
 const showCancelDialog = ref(false);
@@ -604,12 +614,12 @@ const processBookingCancellation = () => {
                         <div v-else class="text-slate-400 py-10">ไม่พบรูปภาพ</div>
                     </div>
                     <div class="mt-6 flex justify-end">
-                        <button v-if="selectedBooking && selectedBooking.status === 'pending'"
+                        <button v-if="selectedBooking && selectedBooking.status === 'pending' && canManageSelected"
                                 @click="confirmBooking"
                                 class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 mr-2">
                             ยืนยันการจอง
                         </button>
-                        <button v-if="selectedBooking && (selectedBooking.status === 'pending' || selectedBooking.status === 'confirmed')"
+                        <button v-if="selectedBooking && (selectedBooking.status === 'pending' || selectedBooking.status === 'confirmed') && canManageSelected"
                                 @click="cancelBooking"
                                 class="inline-flex items-center px-4 py-2 bg-rose-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 transition ease-in-out duration-150 mr-2">
                             ยกเลิกการจอง

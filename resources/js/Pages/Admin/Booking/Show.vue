@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import BodyPartSelector from '@/Components/BodyPartSelector.vue';
 
 const props = defineProps({
@@ -21,6 +21,15 @@ const showConfirmModal = ref(false);
 const showImageModal = ref(false);
 const selectedImageUrl = ref(null);
 const pendingStatus = ref(null);
+
+const canManage = computed(() => {
+    const user = usePage().props.auth.user;
+    if (user.is_admin) return true;
+    if (user.is_doctor) {
+        return user.doctor && user.doctor.id === props.booking.doctor_id;
+    }
+    return false;
+});
 
 const openImageModal = (url) => {
     selectedImageUrl.value = url;
@@ -255,7 +264,7 @@ const isDetailedPainArea = (areas) => {
                             <h3 class="text-lg font-bold mb-4 text-slate-800">การจัดการ</h3>
                             <div class="flex flex-wrap gap-4">
                                 <button
-                                    v-if="booking.status !== 'confirmed' && booking.status !== 'completed' && booking.status !== 'cancelled'"
+                                    v-if="booking.status !== 'confirmed' && booking.status !== 'completed' && booking.status !== 'cancelled' && canManage"
                                     @click="openConfirmModal('confirmed')"
                                     class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-md hover:shadow-lg transition-all"
                                     :disabled="form.processing"
@@ -263,7 +272,7 @@ const isDetailedPainArea = (areas) => {
                                     ยืนยันการจอง
                                 </button>
                                 <button
-                                    v-if="booking.status !== 'completed' && booking.status !== 'pending' && booking.status !== 'cancelled'"
+                                    v-if="booking.status !== 'completed' && booking.status !== 'pending' && booking.status !== 'cancelled' && canManage"
                                     @click="openConfirmModal('completed')"
                                     class="btn bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md hover:shadow-lg transition-all"
                                     :disabled="form.processing"
@@ -271,7 +280,7 @@ const isDetailedPainArea = (areas) => {
                                     เสร็จสิ้นการรักษา
                                 </button>
                                 <button
-                                    v-if="booking.status !== 'cancelled' && booking.status !== 'completed'"
+                                    v-if="booking.status !== 'cancelled' && booking.status !== 'completed' && canManage"
                                     @click="openConfirmModal('cancelled')"
                                     class="btn bg-rose-600 hover:bg-rose-700 text-white border-none shadow-md hover:shadow-lg transition-all"
                                     :disabled="form.processing"
@@ -280,6 +289,7 @@ const isDetailedPainArea = (areas) => {
                                 </button>
 
                                 <Link
+                                    v-if="canManage"
                                     :href="route('admin.bookings.edit', booking.id)"
                                     class="btn bg-slate-600 hover:bg-slate-700 text-white border-none shadow-md hover:shadow-lg transition-all"
                                 >

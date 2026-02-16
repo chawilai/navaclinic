@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, Link } from '@inertiajs/vue3';
+import { Head, useForm, Link, usePage, router } from '@inertiajs/vue3';
 import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import Calendar from '@/Components/Calendar.vue';
@@ -123,6 +123,16 @@ const unavailableDoctors = computed(() => {
 
 // Initial fetch if date is set
 onMounted(() => {
+    if (usePage().props.auth.user.is_doctor) {
+         const user = usePage().props.auth.user;
+         const doctor = user.doctor;
+         if (!doctor || doctor.id !== props.booking.doctor_id) {
+             // Not their booking, redirect
+             router.visit(route('admin.dashboard'));
+             return;
+         }
+    }
+
     if (form.appointment_date) {
         // Trigger availability for the current month of the booking
         const d = new Date(form.appointment_date);

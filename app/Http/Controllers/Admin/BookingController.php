@@ -166,6 +166,13 @@ class BookingController extends Controller
     }
     public function edit(Booking $booking)
     {
+        if (auth()->user()->is_doctor) {
+            $doctor = auth()->user()->doctor;
+            if (!$doctor || $doctor->id !== $booking->doctor_id) {
+                return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
+            }
+        }
+
         $booking->load(['user', 'doctor']);
 
         return Inertia::render('Admin/Booking/Edit', [
@@ -176,6 +183,13 @@ class BookingController extends Controller
 
     public function update(Request $request, Booking $booking)
     {
+        if (auth()->user()->is_doctor) {
+            $doctor = auth()->user()->doctor;
+            if (!$doctor || $doctor->id !== $booking->doctor_id) {
+                return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
+            }
+        }
+
         $validated = $request->validate([
             'doctor_id' => 'nullable|exists:doctors,id',
             'appointment_date' => 'required|date',
@@ -244,6 +258,13 @@ class BookingController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:pending,confirmed,cancelled,completed',
         ]);
+
+        if (auth()->user()->is_doctor) {
+            $doctor = auth()->user()->doctor;
+            if (!$doctor || $doctor->id !== $booking->doctor_id) {
+                return back()->with('error', 'Unauthorized access.');
+            }
+        }
 
         $booking->update($validated);
 
