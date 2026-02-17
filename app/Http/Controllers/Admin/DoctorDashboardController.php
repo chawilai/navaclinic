@@ -213,14 +213,62 @@ class DoctorDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // 6. Latest Bookings (General)
-        $latestBookings = (clone $bookingQuery)->with(['user', 'doctor'])
+        // 6. All Bookings (Filtered)
+        $bookingsFilterType = $request->input('bookings_filter_type', 'all');
+        $bookingsFilterDate = $request->input('bookings_filter_date', Carbon::today()->toDateString());
+
+        $bookingTableQuery = (clone $bookingQuery)->with(['user', 'doctor']);
+
+        try {
+            $filterDate = Carbon::parse($bookingsFilterDate);
+
+            if ($bookingsFilterType === 'day') {
+                $bookingTableQuery->whereDate('appointment_date', $filterDate->toDateString());
+            } elseif ($bookingsFilterType === 'week') {
+                $startOfWeek = $filterDate->copy()->startOfWeek();
+                $endOfWeek = $filterDate->copy()->endOfWeek();
+                $bookingTableQuery->whereBetween('appointment_date', [$startOfWeek, $endOfWeek]);
+            } elseif ($bookingsFilterType === 'month') {
+                $bookingTableQuery->whereMonth('appointment_date', $filterDate->month)
+                    ->whereYear('appointment_date', $filterDate->year);
+            } elseif ($bookingsFilterType === 'year') {
+                $bookingTableQuery->whereYear('appointment_date', $filterDate->year);
+            }
+        } catch (\Exception $e) {
+            // Invalid date format
+        }
+
+        $latestBookings = $bookingTableQuery
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        // 7. Latest Visits (Completed Checkups)
-        $latestVisits = (clone $visitQuery)->with(['patient', 'doctor', 'treatmentRecord'])
+        // 7. All Visits (Filtered)
+        $visitsFilterType = $request->input('visits_filter_type', 'all');
+        $visitsFilterDate = $request->input('visits_filter_date', Carbon::today()->toDateString());
+
+        $visitTableQuery = (clone $visitQuery)->with(['patient', 'doctor', 'treatmentRecord']);
+
+        try {
+            $filterDate = Carbon::parse($visitsFilterDate);
+
+            if ($visitsFilterType === 'day') {
+                $visitTableQuery->whereDate('visit_date', $filterDate->toDateString());
+            } elseif ($visitsFilterType === 'week') {
+                $startOfWeek = $filterDate->copy()->startOfWeek();
+                $endOfWeek = $filterDate->copy()->endOfWeek();
+                $visitTableQuery->whereBetween('visit_date', [$startOfWeek, $endOfWeek]);
+            } elseif ($visitsFilterType === 'month') {
+                $visitTableQuery->whereMonth('visit_date', $filterDate->month)
+                    ->whereYear('visit_date', $filterDate->year);
+            } elseif ($visitsFilterType === 'year') {
+                $visitTableQuery->whereYear('visit_date', $filterDate->year);
+            }
+        } catch (\Exception $e) {
+            // Invalid date format
+        }
+
+        $latestVisits = $visitTableQuery
             ->latest()
             ->paginate(5, ['*'], 'visits_page')
             ->withQueryString();
@@ -243,6 +291,11 @@ class DoctorDashboardController extends Controller
                 'bookings_month' => $bookingsMonth ? (int) $bookingsMonth : null,
                 'visits_year' => (int) $visitsYear,
                 'visits_month' => $visitsMonth ? (int) $visitsMonth : null,
+                // Table Filters
+                'bookings_filter_type' => $bookingsFilterType,
+                'bookings_filter_date' => $bookingsFilterDate,
+                'visits_filter_type' => $visitsFilterType,
+                'visits_filter_date' => $visitsFilterDate,
             ]
         ]);
     }

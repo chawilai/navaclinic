@@ -58,7 +58,11 @@ const props = defineProps({
             bookings_year: new Date().getFullYear(),
             bookings_month: null,
             visits_year: new Date().getFullYear(),
-            visits_month: null 
+            visits_month: null,
+            bookings_filter_type: 'all',
+            bookings_filter_date: new Date().toISOString().split('T')[0],
+            visits_filter_type: 'all',
+            visits_filter_date: new Date().toISOString().split('T')[0], 
         })
     },
     newBookings: {
@@ -72,10 +76,32 @@ const selectedBookingsYear = ref(props.filters.bookings_year || props.filters.ye
 const selectedBookingsMonth = ref(props.filters.bookings_month || props.filters.month || null);
 const selectedVisitsYear = ref(props.filters.visits_year || props.filters.year || new Date().getFullYear());
 const selectedVisitsMonth = ref(props.filters.visits_month || props.filters.month || null);
+const bookingsFilterType = ref(props.filters.bookings_filter_type || 'all');
+const bookingsFilterDate = ref(props.filters.bookings_filter_date || new Date().toISOString().split('T')[0]);
+const visitsFilterType = ref(props.filters.visits_filter_type || 'all');
+const visitsFilterDate = ref(props.filters.visits_filter_date || new Date().toISOString().split('T')[0]);
+
 const showNewBookings = ref(false);
 
 const toggleNewBookings = () => {
     showNewBookings.value = !showNewBookings.value;
+};
+
+// Unified update function to preserve all states
+const updateDashboard = () => {
+    router.get(route('admin.doctor.dashboard'), {
+        bookings_year: selectedBookingsYear.value,
+        bookings_month: selectedBookingsMonth.value,
+        visits_year: selectedVisitsYear.value,
+        visits_month: selectedVisitsMonth.value,
+        bookings_filter_type: bookingsFilterType.value,
+        bookings_filter_date: bookingsFilterDate.value,
+        visits_filter_type: visitsFilterType.value,
+        visits_filter_date: visitsFilterDate.value,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
 };
 
 const years = computed(() => {
@@ -109,31 +135,11 @@ const months = [
 ];
 
 const updateBookingsChart = () => {
-    router.get(route('admin.doctor.dashboard'), {
-        bookings_year: selectedBookingsYear.value,
-        bookings_month: selectedBookingsMonth.value,
-        // Preserve current visit filters
-        visits_year: selectedVisitsYear.value,
-        visits_month: selectedVisitsMonth.value,
-    }, {
-        preserveState: true,
-        preserveScroll: true,
-        only: ['chartData', 'filters']
-    });
+    updateDashboard();
 };
 
 const updateVisitsChart = () => {
-    router.get(route('admin.doctor.dashboard'), {
-        visits_year: selectedVisitsYear.value,
-        visits_month: selectedVisitsMonth.value,
-        // Preserve current booking filters
-        bookings_year: selectedBookingsYear.value,
-        bookings_month: selectedBookingsMonth.value,
-    }, {
-        preserveState: true,
-        preserveScroll: true,
-        only: ['visitsChartData', 'filters']
-    });
+    updateDashboard();
 };
 
 // Chart Configuration
@@ -461,8 +467,28 @@ const getStatusClass = (status) => {
                 <!-- Bookings Table -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100">
                     <div class="p-6 text-slate-900">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold text-slate-800">รายการจองล่าสุด</h3>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                            <div class="flex flex-col gap-2 w-full sm:w-auto">
+                                <h3 class="text-lg font-bold text-slate-800">รายการจองทั้งหมด</h3>
+                                <!-- Filter Controls -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <select v-model="bookingsFilterType" @change="updateDashboard" class="text-xs border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 py-1">
+                                        <option value="all">ทั้งหมด</option>
+                                        <option value="day">รายวัน</option>
+                                        <option value="week">รายสัปดาห์</option>
+                                        <option value="month">รายเดือน</option>
+                                        <option value="year">รายปี</option>
+                                    </select>
+                                    <input v-if="bookingsFilterType !== 'all' && bookingsFilterType !== 'year'" 
+                                        :type="bookingsFilterType === 'month' ? 'month' : 'date'" 
+                                        v-model="bookingsFilterDate" 
+                                        @change="updateDashboard"
+                                        class="text-xs border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 py-1" />
+                                    <select v-if="bookingsFilterType === 'year'" v-model="bookingsFilterDate" @change="updateDashboard" class="text-xs border-slate-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 py-1">
+                                        <option v-for="y in years" :key="y" :value="`${y}-01-01`">{{ y }}</option>
+                                    </select>
+                                </div>
+                            </div>
                             <Link :href="route('admin.bookings.create')" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 + เพิ่มนัดหมาย
                             </Link>
@@ -538,8 +564,27 @@ const getStatusClass = (status) => {
                 <!-- Latest Visits Table -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-100 mt-6">
                     <div class="p-6 text-slate-900">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold text-slate-800">การเข้าพบแพทย์ล่าสุด</h3>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                            <div class="flex flex-col gap-2 w-full sm:w-auto">
+                                <h3 class="text-lg font-bold text-slate-800">การเข้าพบแพทย์ทั้งหมด</h3>
+                                 <div class="flex flex-wrap items-center gap-2">
+                                    <select v-model="visitsFilterType" @change="updateDashboard" class="text-xs border-slate-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 py-1">
+                                        <option value="all">ทั้งหมด</option>
+                                        <option value="day">รายวัน</option>
+                                        <option value="week">รายสัปดาห์</option>
+                                        <option value="month">รายเดือน</option>
+                                        <option value="year">รายปี</option>
+                                    </select>
+                                    <input v-if="visitsFilterType !== 'all' && visitsFilterType !== 'year'" 
+                                        :type="visitsFilterType === 'month' ? 'month' : 'date'" 
+                                        v-model="visitsFilterDate" 
+                                        @change="updateDashboard"
+                                        class="text-xs border-slate-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 py-1" />
+                                    <select v-if="visitsFilterType === 'year'" v-model="visitsFilterDate" @change="updateDashboard" class="text-xs border-slate-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 py-1">
+                                        <option v-for="y in years" :key="y" :value="`${y}-01-01`">{{ y }}</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="overflow-x-auto rounded-lg border border-slate-200">
