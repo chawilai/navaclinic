@@ -228,8 +228,8 @@ class OwnerDashboardController extends Controller
             });
 
         // --- Financial Overview (Today, Month, Year) ---
-        // Fetch all visits for the current year to minimize queries
-        $currentDate = Carbon::now();
+        // Fetch all visits for the selected year to minimize queries
+        $currentDate = $date->copy();
         $yearlyVisits = Visit::with('doctor')
             ->whereYear('visit_date', $currentDate->year)
             ->whereNotNull('doctor_id')

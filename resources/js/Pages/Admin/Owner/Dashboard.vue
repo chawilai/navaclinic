@@ -82,6 +82,21 @@ const formatDuration = (minutes) => {
     return `${mins} น.`;
 };
 
+const formatDateLabel = (dateStr, type) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (type === 'day') {
+        return new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+    }
+    if (type === 'month') {
+        return new Intl.DateTimeFormat('th-TH', { month: 'long', year: 'numeric' }).format(date);
+    }
+    if (type === 'year') {
+        return new Intl.DateTimeFormat('th-TH', { year: 'numeric' }).format(date);
+    }
+    return '';
+};
+
 // --- Chart Configs ---
 const revenueChartConfig = computed(() => ({
     labels: props.chart_data.labels,
@@ -191,7 +206,7 @@ const peakHoursChartOptions = {
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Today -->
                     <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg shadow-lg p-6 text-white">
-                        <div class="text-indigo-100 text-sm font-medium uppercase tracking-wider mb-4">ภาพรวมวันนี้</div>
+                        <div class="text-indigo-100 text-sm font-medium uppercase tracking-wider mb-4">{{ formatDateLabel(filters.date, 'day') }}</div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <div class="text-xs text-indigo-200">ค่ารักษา (ก่อนลด)</div>
@@ -220,7 +235,7 @@ const peakHoursChartOptions = {
 
                     <!-- This Month -->
                     <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
-                        <div class="text-emerald-100 text-sm font-medium uppercase tracking-wider mb-4">เดือนนี้</div>
+                        <div class="text-emerald-100 text-sm font-medium uppercase tracking-wider mb-4">{{ formatDateLabel(filters.date, 'month') }}</div>
                         <div class="grid grid-cols-2 gap-4">
                              <div>
                                 <div class="text-xs text-emerald-200">ค่ารักษา (ก่อนลด)</div>
@@ -249,7 +264,7 @@ const peakHoursChartOptions = {
 
                     <!-- This Year -->
                     <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-                        <div class="text-purple-100 text-sm font-medium uppercase tracking-wider mb-4">ปีนี้</div>
+                        <div class="text-purple-100 text-sm font-medium uppercase tracking-wider mb-4">{{ formatDateLabel(filters.date, 'year') }}</div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <div class="text-xs text-purple-200">ค่ารักษา (ก่อนลด)</div>
