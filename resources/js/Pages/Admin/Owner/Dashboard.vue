@@ -171,6 +171,81 @@ const peakHoursChartOptions = {
         }
     }
 };
+
+const getDoctorChartData = (visits) => {
+    // Group by date
+    const grouped = {};
+    visits.forEach(visit => {
+        const date = visit.visit_date; // Assuming YYYY-MM-DD or similar sortable string
+        if (!grouped[date]) {
+            grouped[date] = { revenue: 0, fee: 0, tip: 0 };
+        }
+        grouped[date].revenue += parseFloat(visit.treatment_fee || 0);
+        grouped[date].fee += parseFloat(visit.doctor_fee || 0);
+        grouped[date].tip += parseFloat(visit.tip || 0);
+    });
+
+    // Sort dates
+    const dates = Object.keys(grouped).sort();
+
+    return {
+        labels: dates.map(d => formatDateLabel(d, 'day')),
+        datasets: [
+            {
+                label: 'รายได้',
+                data: dates.map(d => grouped[d].revenue),
+                borderColor: '#4f46e5', // Indigo-600
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                tension: 0.3,
+                fill: false,
+            },
+            {
+                label: 'ค่ามือแพทย์',
+                data: dates.map(d => grouped[d].fee),
+                borderColor: '#10b981', // Emerald-500
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.3,
+                fill: false,
+            },
+            {
+                label: 'ทิป',
+                data: dates.map(d => grouped[d].tip),
+                borderColor: '#f59e0b', // Amber-500
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                tension: 0.3,
+                fill: false,
+                borderDash: [5, 5], // Dashed line for tips
+            }
+        ]
+    };
+};
+
+const doctorChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+        mode: 'index',
+        intersect: false,
+    },
+    plugins: {
+        legend: {
+            position: 'top',
+        },
+        tooltip: {
+            callbacks: {
+                label: (context) => `${context.dataset.label}: ${formatCurrency(context.raw)}`
+            }
+        }
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                 callback: (value) => new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', maximumSignificantDigits: 3 }).format(value)
+            }
+        }
+    }
+};
 </script>
 
 <template>
@@ -439,15 +514,30 @@ const peakHoursChartOptions = {
 
                 <!-- Full Width Doctor Breakdown -->
                 <div class="space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                         <h3 class="text-lg font-bold text-slate-800">รายละเอียดผลงานแพทย์</h3>
-                        <div class="w-full sm:w-auto">
-                            <select v-model="selectedDoctor" class="block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                <option value="">ดูทั้งหมด ({{ doctor_stats.length }} ท่าน)</option>
-                                <option v-for="doctor in doctor_stats" :key="doctor.doctor_id" :value="doctor.doctor_id">
-                                    {{ doctor.doctor_name }}
-                                </option>
-                            </select>
+                        
+                        <div class="flex flex-col sm:flex-row gap-2 w-full xl:w-auto">
+                            <!-- Period Filter -->
+                            <div class="flex items-center gap-2">
+                                <select v-model="period" @change="updateDashboard" class="block w-full sm:w-auto rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <option value="daily">รายวัน</option>
+                                    <option value="weekly">รายสัปดาห์</option>
+                                    <option value="monthly">รายเดือน</option>
+                                    <option value="yearly">รายปี</option>
+                                </select>
+                                <input type="date" v-model="date" @change="updateDashboard" class="block w-full sm:w-auto rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            </div>
+
+                            <!-- Doctor Filter -->
+                            <div class="w-full sm:w-auto">
+                                <select v-model="selectedDoctor" class="block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <option value="">ดูทั้งหมด ({{ doctor_stats.length }} ท่าน)</option>
+                                    <option v-for="doctor in doctor_stats" :key="doctor.doctor_id" :value="doctor.doctor_id">
+                                        {{ doctor.doctor_name }}
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     
@@ -456,34 +546,41 @@ const peakHoursChartOptions = {
                     </div>
 
                     <div v-for="doctor in filteredDoctorStats" :key="doctor.doctor_id" class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-200">
-                        <div class="p-6 border-b border-slate-100 bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                <h4 class="text-lg font-bold text-slate-900">{{ doctor.doctor_name }}</h4>
-                                <div class="text-sm text-slate-500 mt-1">
-                                    {{ doctor.visits.length }} ครั้ง
+                        <div class="p-6 border-b border-slate-100 bg-slate-50">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">{{ doctor.doctor_name }}</h4>
+                                    <div class="text-sm text-slate-500 mt-1">
+                                        {{ doctor.visits.length }} ครั้ง
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-4">
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500 uppercase tracking-wide">รายได้</div>
+                                        <div class="font-bold text-indigo-600">{{ formatCurrency(doctor.total_revenue) }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500 uppercase tracking-wide">ค่ามือแพทย์</div>
+                                        <div class="font-bold text-emerald-600">{{ formatCurrency(doctor.total_doctor_fee) }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500 uppercase tracking-wide">ระยะเวลารวม</div>
+                                        <div class="font-bold text-slate-700">{{ formatDuration(doctor.total_duration) }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500 uppercase tracking-wide">ส่วนลดรวม</div>
+                                        <div class="font-bold text-rose-500">{{ formatCurrency(doctor.total_discount) }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500 uppercase tracking-wide">ทิปรวม</div>
+                                        <div class="font-bold text-amber-500">{{ formatCurrency(doctor.total_tip || 0) }}</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex gap-4">
-                                <div class="text-right">
-                                    <div class="text-xs text-slate-500 uppercase tracking-wide">รายได้</div>
-                                    <div class="font-bold text-indigo-600">{{ formatCurrency(doctor.total_revenue) }}</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs text-slate-500 uppercase tracking-wide">ค่ามือแพทย์</div>
-                                    <div class="font-bold text-emerald-600">{{ formatCurrency(doctor.total_doctor_fee) }}</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs text-slate-500 uppercase tracking-wide">ระยะเวลารวม</div>
-                                    <div class="font-bold text-slate-700">{{ formatDuration(doctor.total_duration) }}</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs text-slate-500 uppercase tracking-wide">ส่วนลดรวม</div>
-                                    <div class="font-bold text-rose-500">{{ formatCurrency(doctor.total_discount) }}</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs text-slate-500 uppercase tracking-wide">ทิปรวม</div>
-                                    <div class="font-bold text-amber-500">{{ formatCurrency(doctor.total_tip || 0) }}</div>
-                                </div>
+
+                            <!-- Chart showing trends -->
+                            <div class="h-64 w-full mb-6">
+                                <Line :data="getDoctorChartData(doctor.visits)" :options="doctorChartOptions" />
                             </div>
                         </div>
                         
