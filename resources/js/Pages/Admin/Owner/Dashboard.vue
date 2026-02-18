@@ -34,9 +34,10 @@ const props = defineProps({
     doctor_stats: Array,
     filters: Object,
     chart_filters: Object,
-    doctor_filters: Object, // New prop
+    doctor_filters: Object,
     chart_data: Object,
     financial_chart: Object,
+    chart_totals: Object, // New prop
     chart_new_vs_returning: Object,
     chart_peak_hours: Object,
     upcoming_bookings: Array,
@@ -121,7 +122,7 @@ const updateChart = () => {
     }, {
         preserveState: true,
         preserveScroll: true,
-        only: ['financial_chart', 'chart_filters'],
+        only: ['financial_chart', 'chart_filters', 'chart_totals'],
     });
 };
 
@@ -517,6 +518,23 @@ const doctorChartOptions = {
                                 </select>
                             </div>
                         </div>
+
+                         <!-- Chart Summary Stats -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" v-if="chart_totals">
+                            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                                <div class="text-xs text-indigo-500 uppercase font-semibold">รายได้รวม (ช่วงที่เลือก)</div>
+                                <div class="text-xl font-bold text-indigo-700 mt-1">{{ formatCurrency(chart_totals.revenue) }}</div>
+                            </div>
+                            <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+                                <div class="text-xs text-emerald-500 uppercase font-semibold">ค่ามือแพทย์รวม (ช่วงที่เลือก)</div>
+                                <div class="text-xl font-bold text-emerald-700 mt-1">{{ formatCurrency(chart_totals.fee) }}</div>
+                            </div>
+                             <div class="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                                <div class="text-xs text-amber-500 uppercase font-semibold">ทิปรวม (ช่วงที่เลือก)</div>
+                                <div class="text-xl font-bold text-amber-700 mt-1">{{ formatCurrency(chart_totals.tip) }}</div>
+                            </div>
+                        </div>
+
                         <div class="h-80 w-full">
                              <Line :data="revenueChartConfig" :options="revenueChartOptions" />
                         </div>

@@ -206,6 +206,13 @@ class OwnerDashboardController extends Controller
             }
         }
 
+        // --- Chart Totals (for summary boxes above chart) ---
+        $chartTotalRevenue = $chartVisits->sum('treatment_fee');
+        $chartTotalTip = $chartVisits->sum('tip');
+        $chartTotalFee = $chartVisits->sum(function ($visit) {
+            return $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100);
+        });
+
         // --- Top Patients ---
         $topPatients = $visits->groupBy('patient_id')
             ->map(function ($patientVisits) {
@@ -435,6 +442,11 @@ class OwnerDashboardController extends Controller
             'top_patients' => $topPatients,
             'doctor_stats' => $doctorStats,
             'doctors' => $doctors,
+            'chart_totals' => [
+                'revenue' => $chartTotalRevenue,
+                'fee' => $chartTotalFee,
+                'tip' => $chartTotalTip,
+            ],
             'filters' => [
                 'period' => $period,
                 'date' => $date->format('Y-m-d'),
