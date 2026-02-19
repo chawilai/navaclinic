@@ -130,6 +130,16 @@ const canEditTreatment = computed(() => {
                 </div>
                 
                  <div class="flex items-center gap-4">
+                     <Link
+                        v-if="visit.treatment_record && canEditTreatment"
+                        :href="route('admin.treatment.details', visit.treatment_record.id)"
+                        class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg shadow transition-colors font-bold flex items-center gap-1"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                        </svg>
+                        แก้ไขและบันทึกการรักษา
+                    </Link>
                      <span class="px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wide border"
                         :class="{
                             'bg-emerald-50 text-emerald-700 border-emerald-200': visit.status === 'completed', 
@@ -263,13 +273,7 @@ const canEditTreatment = computed(() => {
                             >
                                 + เพิ่ม
                             </Link>
-                             <Link
-                                v-else-if="visit.treatment_record && canEditTreatment"
-                                :href="route('admin.visits.treatment.create', visit.id)"
-                                class="text-[9px] text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-1.5 py-0.5 rounded hover:bg-indigo-100 transition-colors"
-                            >
-                                แก้ไข
-                            </Link>
+
                         </div>
                         <div class="p-3 bg-white flex-1 overflow-y-auto text-xs text-slate-700 leading-relaxed space-y-3">
                              <div v-if="visit.treatment_record?.treatment_details" class="whitespace-pre-wrap">
