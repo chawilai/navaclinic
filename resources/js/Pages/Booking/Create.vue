@@ -418,12 +418,15 @@ const selectedDoctorName = computed(() => {
 
                     <!-- Payment Section -->
                     <div class="mb-6 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                        <h4 class="font-semibold text-gray-900 mb-4 flex items-center">
+                        <h4 class="font-semibold text-gray-900 mb-1 flex items-center">
                             <span class="bg-indigo-100 text-indigo-600 p-1 rounded mr-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                             </span>
                             ชำระเงินมัดจำ (Deposit Payment)
                         </h4>
+                        <p class="text-sm text-red-500 mb-4 ml-8">
+                            หากไม่สามารถชำระเงินมัดจำได้ กรุณาติดต่อ 062-278-1007
+                        </p>
                         
                         <div class="text-center mb-6">
                              <!-- QR Code Placeholder -->
