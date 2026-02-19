@@ -658,6 +658,49 @@ const doctorChartOptions = {
                         </div>
                     </div>
                     
+                    <!-- Doctor Summary Table -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-200">
+                        <div class="p-6 border-b border-slate-100">
+                             <h4 class="text-lg font-bold text-slate-800 mb-4">สรุปยอดรวมแพทย์ ({{ doctor_stats.length }} ท่าน)</h4>
+                             <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left text-slate-600">
+                                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-100">
+                                        <tr>
+                                            <th class="px-6 py-3">อันดับ</th>
+                                            <th class="px-6 py-3">แพทย์</th>
+                                            <th class="px-6 py-3 text-right">จำนวนเคส</th>
+                                            <th class="px-6 py-3 text-right">ค่ามือแพทย์รวม</th>
+                                            <th class="px-6 py-3 text-right">ทิปรวม</th>
+                                            <th class="px-6 py-3 text-right">รวมรับสุทธิ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr v-for="(doctor, index) in [...doctor_stats].sort((a,b) => (b.total_doctor_fee + b.total_tip) - (a.total_doctor_fee + a.total_tip))" :key="doctor.doctor_id" class="hover:bg-slate-50">
+                                            <td class="px-6 py-4">{{ index + 1 }}</td>
+                                            <td class="px-6 py-4 font-medium text-slate-900">{{ doctor.doctor_name }}</td>
+                                            <td class="px-6 py-4 text-right">{{ doctor.visits.length }}</td>
+                                            <td class="px-6 py-4 text-right font-bold text-emerald-600">{{ formatCurrency(doctor.total_doctor_fee) }}</td>
+                                            <td class="px-6 py-4 text-right font-bold text-amber-500">{{ formatCurrency(doctor.total_tip) }}</td>
+                                            <td class="px-6 py-4 text-right font-bold text-indigo-700">{{ formatCurrency(doctor.total_doctor_fee + doctor.total_tip) }}</td>
+                                        </tr>
+                                         <tr v-if="doctor_stats.length === 0">
+                                            <td colspan="6" class="px-6 py-8 text-center text-slate-500 italic">ไม่พบข้อมูลสำหรับช่วงเวลาที่เลือก</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot v-if="doctor_stats.length > 0" class="bg-slate-50 font-bold text-slate-900">
+                                        <tr>
+                                            <td colspan="2" class="px-6 py-4 text-right">รวมทั้งหมด</td>
+                                            <td class="px-6 py-4 text-right">{{ doctor_stats.reduce((acc, doc) => acc + doc.visits.length, 0) }}</td>
+                                            <td class="px-6 py-4 text-right text-emerald-700">{{ formatCurrency(doctor_stats.reduce((acc, doc) => acc + doc.total_doctor_fee, 0)) }}</td>
+                                            <td class="px-6 py-4 text-right text-amber-700">{{ formatCurrency(doctor_stats.reduce((acc, doc) => acc + doc.total_tip, 0)) }}</td>
+                                             <td class="px-6 py-4 text-right text-indigo-800">{{ formatCurrency(doctor_stats.reduce((acc, doc) => acc + doc.total_doctor_fee + doc.total_tip, 0)) }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                             </div>
+                        </div>
+                    </div>
+                    
                     <div v-if="filteredDoctorStats.length === 0" class="text-center py-12 bg-white rounded-lg border border-slate-200 text-slate-500">
                         ไม่พบข้อมูลสำหรับช่วงเวลาที่เลือก
                     </div>
