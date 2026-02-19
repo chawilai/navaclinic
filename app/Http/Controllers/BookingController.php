@@ -287,24 +287,10 @@ class BookingController extends Controller
                     $bEnd = $dateTime->copy()->addMinutes($b->duration_minutes)->format('H:i');
                     $busySlots[] = "$bStart-$bEnd";
                 }
-                foreach ($doctorVisits as $v) {
-                    // Check if this visit is already covered by a booking (linked)
-                    // If linked, we skip to avoid double counting, although overlap logic handles it fine.
-                    if ($v->booking_id)
-                        continue;
-
-                    $vStart = \Carbon\Carbon::parse($v->visit_date);
-                    $duration = $v->duration_minutes ?? 30; // Default if null
-                    $vEnd = $vStart->copy()->addMinutes($duration);
-                    $busySlots[] = $vStart->format('H:i') . '-' . $vEnd->format('H:i');
-                }
-
-                // Check Overlaps
-
                 // 1. Bookings Overlap
                 $conflictingBooking = $doctorBookings->first(function ($booking) use ($slotStart, $checkEnd) {
                     $bookingStart = $booking->appointment_date->copy()->setTimeFromTimeString($booking->start_time);
-                    $bookingEnd = $bookingStart->copy()->addMinutes($booking->duration_minutes + 30);
+                    $bookingEnd = $bookingStart->copy()->addMinutes($booking->duration_minutes);
                     return $slotStart < $bookingEnd && $checkEnd > $bookingStart;
                 });
 
@@ -328,24 +314,30 @@ class BookingController extends Controller
                     if ($visit->booking_id)
                         return false; // Handled by booking
 
-                    $visitStart = \Carbon\Carbon::parse($visit->visit_date);
+                    // Fix: Visit is stored as UTC (e.g. 02:00), but loop runs in "Clinic Time Face Value" (e.g. 09:00 considered as UTC)
+                    // We need to convert Visit 02:00 UTC -> 09:00 BKK -> Parse as 09:00 UTC to match loop
+                    $visitDateBkk = $visit->visit_date->setTimezone('Asia/Bangkok');
+                    $visitStart = \Carbon\Carbon::parse($visitDateBkk->format('Y-m-d H:i:s'));
+
                     $duration = $visit->duration_minutes ?? 30;
-                    $visitEnd = $visitStart->copy()->addMinutes($duration + 30);
+                    $visitEnd = $visitStart->copy()->addMinutes($duration);
 
                     return $slotStart < $visitEnd && $checkEnd > $visitStart;
                 });
 
                 if ($conflictingVisit) {
-                    $vStart = \Carbon\Carbon::parse($conflictingVisit->visit_date);
+                    // Display Time also needs conversion
+                    $vStartBkk = $conflictingVisit->visit_date->setTimezone('Asia/Bangkok');
+                    $vStartStr = $vStartBkk->format('H:i');
                     $duration = $conflictingVisit->duration_minutes ?? 30;
-                    $vEnd = $vStart->copy()->addMinutes($duration);
+                    $vEndStr = $vStartBkk->copy()->addMinutes($duration)->format('H:i');
 
                     return [
                         'id' => $doctor->id,
                         'name' => $doctor->name,
                         'specialty' => $doctor->specialty,
                         'status' => 'busy',
-                        'reason' => "Walk-in {$vStart->format('H:i')}-{$vEnd->format('H:i')}",
+                        'reason' => "Walk-in $vStartStr-$vEndStr",
                         'busy_slots' => $busySlots
                     ];
                 }

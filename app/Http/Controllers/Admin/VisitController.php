@@ -136,6 +136,60 @@ class VisitController extends Controller
                 $booking->update(['status' => 'completed']);
             } else {
                 $doctorId = $validated['doctor_id'];
+                $duration = $request->integer('duration_minutes', 90); // Default to 90 if not set
+
+                // --- Double Booking Check ---
+                $start = \Carbon\Carbon::parse($validated['visit_date']); // This comes from frontend already shifted to UTC? Or we treat it as the time to save.
+                // The frontend shifts it by -7 hours. 
+                // So if user chose 9:00 AM (BKK), frontend sends 02:00 AM.
+                // If we parse 02:00 AM, that is the UTC time. Perfect.
+
+                $end = $start->copy()->addMinutes($duration);
+
+                // Check Bookings (Convert UTC start/end to BKK time to compare with Booking Date/Time)
+                // Actually, Booking Date/Time are "Local" (Bangkok) effectively, stored as Date and Time string.
+                // so we should convert our $start (UTC) to Bangkok to compare.
+                $startBkk = $start->copy()->setTimezone('Asia/Bangkok');
+                $endBkk = $end->copy()->setTimezone('Asia/Bangkok');
+
+                $conflictingBooking = Booking::where('doctor_id', $doctorId)
+                    ->whereDate('appointment_date', $startBkk->format('Y-m-d'))
+                    ->whereIn('status', ['pending', 'confirmed'])
+                    ->get()
+                    ->first(function ($booking) use ($startBkk, $endBkk) {
+                        $bStart = \Carbon\Carbon::parse($booking->appointment_date . ' ' . $booking->start_time, 'Asia/Bangkok');
+                        $bEnd = $bStart->copy()->addMinutes($booking->duration_minutes + 30); // Buffer
+                        return $startBkk->lt($bEnd) && $endBkk->gt($bStart);
+                    });
+
+                if ($conflictingBooking) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'doctor_id' => 'Doctor has a booking at this time (' . $conflictingBooking->start_time . ').'
+                    ]);
+                }
+
+                // Check Visits
+                $conflictingVisit = Visit::where('doctor_id', $doctorId)
+                    // ->whereDate('visit_date', $start->format('Y-m-d')) // DB is in UTC usually? 
+                    // Let's just use range check on the datetime column directly if possible, or fetch and filter.
+                    // Safest is fetch potential overlaps.
+                    ->whereIn('status', ['ongoing', 'pending'])
+                    ->get()
+                    ->first(function ($v) use ($start, $end) {
+                        if ($v->booking_id)
+                            return false;
+
+                        $vStart = \Carbon\Carbon::parse($v->visit_date); // Assumed parsed as UTC if DB driver handles it, or App timezone
+                        $vEnd = $vStart->copy()->addMinutes(($v->duration_minutes ?? 30) + 30); // Buffer
+                        return $start->lt($vEnd) && $end->gt($vStart);
+                    });
+
+                if ($conflictingVisit) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'doctor_id' => 'Doctor is busy with another walk-in patient.'
+                    ]);
+                }
+                // -----------------------------
 
                 // Using array syntax for create to ensure clarity
                 $visit = Visit::create([
@@ -147,7 +201,7 @@ class VisitController extends Controller
                     'symptoms' => $validated['symptoms'], // Chief Complaint alias
                     'notes' => $validated['notes'] ?? null,
                     'status' => 'ongoing',
-                    'duration_minutes' => $request->integer('duration_minutes', 30),
+                    'duration_minutes' => $duration,
                 ]);
             }
 
