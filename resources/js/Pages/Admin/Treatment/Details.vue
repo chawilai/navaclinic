@@ -41,7 +41,18 @@ const form = useForm({
     save_action: 'exit',
 });
 
-import { watch } from 'vue';
+import { watch, ref } from 'vue';
+
+const isTreatmentFeeInvalid = ref(false);
+
+const checkTreatmentFee = () => {
+    let fee = parseFloat(form.treatment_fee) || 0;
+    if (form.treatment_fee !== '' && fee <= 500) {
+        isTreatmentFeeInvalid.value = true;
+    } else {
+        isTreatmentFeeInvalid.value = false;
+    }
+};
 
 watch(() => [form.treatment_fee, form.discount_type, form.discount_value], () => {
     let fee = parseFloat(form.treatment_fee) || 0;
@@ -76,27 +87,6 @@ watch(() => form.treatment_fee, (newFee) => {
 });
 
 const submit = () => {
-    // Check Treatment Fee
-    let fee = parseFloat(form.treatment_fee) || 0;
-    
-    if (fee <= 500) {
-        Swal.fire({
-            title: 'แจ้งเตือน',
-            text: 'กรุณาตรวจสอบจำนวนเงินค่ารักษา ให้ถูกต้อง',
-            icon: 'warning',
-            confirmButtonText: 'ยืนยันยอดเงินนี้',
-            showCancelButton: true,
-            cancelButtonText: 'กลับไปแก้ไข',
-            confirmButtonColor: '#f59e0b', // amber-500
-            cancelButtonColor: '#94a3b8',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                showConfirmationDialog();
-            }
-        });
-        return;
-    }
-
     showConfirmationDialog();
 };
 
@@ -309,11 +299,12 @@ const submitForm = () => {
                                         <div>
                                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ค่ารักษา (Treatment Fee)</label>
                                             <div class="relative">
-                                                <input type="number" step="0.01" v-model="form.treatment_fee" class="w-full rounded-lg border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-3 pr-10 font-bold text-slate-700" placeholder="0.00">
+                                                <input type="number" step="0.01" v-model="form.treatment_fee" @blur="checkTreatmentFee" @input="isTreatmentFeeInvalid = false" class="w-full rounded-lg shadow-sm pl-3 pr-10 font-bold transition-colors" :class="isTreatmentFeeInvalid ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500 text-rose-600' : 'border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500 text-slate-700'" placeholder="0.00">
                                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                    <span class="text-xs text-slate-400 font-bold">THB</span>
+                                                    <span class="text-xs font-bold" :class="isTreatmentFeeInvalid ? 'text-rose-400' : 'text-slate-400'">THB</span>
                                                 </div>
                                             </div>
+                                            <p v-if="isTreatmentFeeInvalid" class="mt-1 text-xs text-rose-500 font-semibold">กรุณาตรวจสอบความถูกต้องของ ค่ารักษา</p>
                                         </div>
 
                                         <!-- Doctor Fee (Auto-calculated) -->
