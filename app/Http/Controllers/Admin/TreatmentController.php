@@ -170,6 +170,7 @@ class TreatmentController extends Controller
             'discount_value' => 'nullable|numeric|min:0',
             'doctor_commission' => 'nullable|numeric|min:0',
             'tip' => 'nullable|numeric|min:0',
+            'payment_method' => 'nullable|string|in:cash,transfer',
 
         ]);
 
@@ -182,10 +183,14 @@ class TreatmentController extends Controller
                 'discount_type' => $request->input('discount_type', 'amount'),
                 'discount_value' => $request->input('discount_value', 0),
                 'tip' => $request->input('tip', 0),
+                'payment_method' => $request->input('payment_method', 'transfer'),
             ]);
         } elseif ($treatmentRecord->booking) {
             // Fallback for Booking (Only supports price as per schema for now)
-            $treatmentRecord->booking->update(['price' => $request->price]);
+            $treatmentRecord->booking->update([
+                'price' => $request->price,
+                'payment_method' => $request->input('payment_method', 'transfer'),
+            ]);
         }
 
         $treatmentRecord->update(collect($validated)->except('price')->toArray());

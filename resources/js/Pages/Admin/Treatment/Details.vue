@@ -34,6 +34,7 @@ const form = useForm({
     discount_value: Number(props.entity.discount_value) > 0 ? props.entity.discount_value : '',
     price: props.entity.price || 0, // Final Price (Net)
     tip: Number(props.entity.tip) > 0 ? props.entity.tip : '',
+    payment_method: props.entity.payment_method || 'transfer',
     
 
     notes: props.treatmentRecord.notes || '',
@@ -330,17 +331,29 @@ const submitForm = () => {
                                         </div>
 
                                         <!-- 2. Discount -->
-                                        <div class="flex gap-3">
-                                            <div class="w-2/5">
-                                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ประเภทส่วนลด</label>
-                                                <select v-model="form.discount_type" class="w-full rounded-lg border-indigo-200 bg-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                    <option value="amount">ลดบาท (฿)</option>
-                                                    <option value="percent">ลดเปอร์เซ็นต์ (%)</option>
-                                                </select>
+                                        <div class="space-y-3">
+                                            <div class="flex gap-3">
+                                                <div class="w-2/5">
+                                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ประเภทส่วนลด</label>
+                                                    <select v-model="form.discount_type" class="w-full rounded-lg border-indigo-200 bg-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                        <option value="amount">ลดบาท (฿)</option>
+                                                        <option value="percent">ลดเปอร์เซ็นต์ (%)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="w-3/5">
+                                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">มูลค่าส่วนลด</label>
+                                                    <input type="number" step="0.01" v-model="form.discount_value" class="w-full rounded-lg border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-rose-500 font-bold placeholder-rose-200" placeholder="0">
+                                                </div>
                                             </div>
-                                            <div class="w-3/5">
-                                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">มูลค่าส่วนลด</label>
-                                                <input type="number" step="0.01" v-model="form.discount_value" class="w-full rounded-lg border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-rose-500 font-bold placeholder-rose-200" placeholder="0">
+                                            <!-- Separate Row for Percent Discount Amount -->
+                                            <div v-if="form.discount_type === 'percent'" class="w-full">
+                                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">จำนวนเงินที่ลด (บาท)</label>
+                                                <div class="relative">
+                                                    <input type="text" readonly :value="Number((parseFloat(form.treatment_fee) || 0) * (parseFloat(form.discount_value) || 0) / 100).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})" class="w-full rounded-lg border-slate-200 bg-slate-50 shadow-sm text-rose-500 font-bold pl-3 pr-10 cursor-not-allowed focus:ring-0 focus:border-slate-200">
+                                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                        <span class="text-xs text-slate-400 font-bold">THB</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -365,6 +378,31 @@ const submitForm = () => {
                                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                     <span class="text-xs text-amber-400 font-bold">THB</span>
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 5. Payment Method -->
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ช่องทางการชำระเงิน (Payment Method)</label>
+                                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                                <label class="flex items-center p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-indigo-300 transition-colors shadow-sm" :class="{'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50': form.payment_method === 'transfer'}">
+                                                    <input type="radio" value="transfer" v-model="form.payment_method" class="sr-only">
+                                                    <div class="flex items-center gap-2 w-full justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5" :class="form.payment_method === 'transfer' ? 'text-indigo-600' : 'text-slate-400'">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                                                        </svg>
+                                                        <span class="text-sm font-bold" :class="form.payment_method === 'transfer' ? 'text-indigo-700' : 'text-slate-600'">โอนเงิน</span>
+                                                    </div>
+                                                </label>
+                                                <label class="flex items-center p-3 bg-white rounded-lg border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors shadow-sm" :class="{'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50': form.payment_method === 'cash'}">
+                                                    <input type="radio" value="cash" v-model="form.payment_method" class="sr-only">
+                                                    <div class="flex items-center gap-2 w-full justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5" :class="form.payment_method === 'cash' ? 'text-emerald-600' : 'text-slate-400'">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                        </svg>
+                                                        <span class="text-sm font-bold" :class="form.payment_method === 'cash' ? 'text-emerald-700' : 'text-slate-600'">เงินสด</span>
+                                                    </div>
+                                                </label>
                                             </div>
                                         </div>
 
