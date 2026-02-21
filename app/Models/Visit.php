@@ -36,6 +36,17 @@ class Visit extends Model
         'tip' => 'decimal:2',
     ];
 
+    protected $appends = ['is_complete'];
+
+    public function getIsCompleteAttribute()
+    {
+        $hasPhysicalExam = !empty($this->treatmentRecord?->physical_exam);
+        $hasDiagnosis = !empty($this->treatmentRecord?->diagnosis);
+        $hasTreatmentDetails = !empty($this->treatmentRecord?->treatment_details);
+
+        return $hasPhysicalExam && $hasDiagnosis && $hasTreatmentDetails;
+    }
+
     public function patient()
     {
         return $this->belongsTo(User::class, 'patient_id');

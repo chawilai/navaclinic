@@ -19,7 +19,7 @@ class OwnerDashboardController extends Controller
         $date = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::now();
 
         // Base query
-        $query = Visit::with(['doctor', 'patient', 'booking'])
+        $query = Visit::with(['doctor', 'patient', 'booking', 'treatmentRecord'])
             ->whereNotNull('doctor_id');
 
         // Determine date range
@@ -133,7 +133,7 @@ class OwnerDashboardController extends Controller
             $chartEndDate = $chartDate->copy()->endOfMonth();
         }
 
-        $chartQuery = Visit::with(['doctor'])
+        $chartQuery = Visit::with(['doctor', 'treatmentRecord'])
             ->whereNotNull('doctor_id')
             ->whereBetween('visit_date', [$chartStartDate, $chartEndDate]);
 
@@ -156,6 +156,8 @@ class OwnerDashboardController extends Controller
             $revenue = $dayVisits->sum('treatment_fee'); // Gross
             $tip = $dayVisits->sum('tip');
             $fee = $dayVisits->sum(function ($visit) {
+                if (!$visit->is_complete)
+                    return 0;
                 return $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100);
             });
             return [
@@ -210,6 +212,8 @@ class OwnerDashboardController extends Controller
         $chartTotalRevenue = $chartVisits->sum('treatment_fee');
         $chartTotalTip = $chartVisits->sum('tip');
         $chartTotalFee = $chartVisits->sum(function ($visit) {
+            if (!$visit->is_complete)
+                return 0;
             return $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100);
         });
 
@@ -249,7 +253,7 @@ class OwnerDashboardController extends Controller
         }
 
         // Query visits specific to doctor stats
-        $doctorVisitsQuery = Visit::with(['doctor', 'patient'])
+        $doctorVisitsQuery = Visit::with(['doctor', 'patient', 'treatmentRecord'])
             ->whereNotNull('doctor_id')
             ->whereBetween('visit_date', [$doctorStartDate, $doctorEndDate])
             ->orderBy('visit_date', 'desc');
@@ -270,6 +274,8 @@ class OwnerDashboardController extends Controller
             }, 0);
             $net = $uniqueDoctorVisits->sum('price');
             $doctorFee = $uniqueDoctorVisits->sum(function ($visit) {
+                if (!$visit->is_complete)
+                    return 0;
                 return $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100);
             });
 
@@ -299,6 +305,7 @@ class OwnerDashboardController extends Controller
                         'discount' => $discAmt,
                         'doctor_fee' => $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100),
                         'tip' => $visit->tip ?? 0,
+                        'is_complete' => $visit->is_complete,
                     ];
                 })
             ];
@@ -360,7 +367,7 @@ class OwnerDashboardController extends Controller
         // --- Financial Overview (Today, Month, Year) ---
         // Fetch all visits for the selected year to minimize queries
         $currentDate = $date->copy();
-        $yearlyVisits = Visit::with('doctor')
+        $yearlyVisits = Visit::with(['doctor', 'treatmentRecord'])
             ->whereYear('visit_date', $currentDate->year)
             ->whereNotNull('doctor_id')
             ->get();
@@ -380,6 +387,8 @@ class OwnerDashboardController extends Controller
             $netRevenue = $visitsCollection->sum('price');
 
             $doctorFee = $visitsCollection->reduce(function ($carry, $visit) {
+                if (!$visit->is_complete)
+                    return $carry;
                 if ($visit->doctor_commission !== null) {
                     return $carry + $visit->doctor_commission;
                 }

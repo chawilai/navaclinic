@@ -177,19 +177,19 @@ class TreatmentController extends Controller
         // Update Financials if present
         if ($treatmentRecord->visit) {
             $treatmentRecord->visit->update([
-                'price' => $request->input('price', 0),
-                'treatment_fee' => $request->input('treatment_fee', 0),
-                'doctor_commission' => $request->input('doctor_commission', 0),
-                'discount_type' => $request->input('discount_type', 'amount'),
-                'discount_value' => $request->input('discount_value', 0),
-                'tip' => $request->input('tip', 0),
-                'payment_method' => $request->input('payment_method', 'transfer'),
+                'price' => $request->price ?? 0,
+                'treatment_fee' => $request->treatment_fee ?? 0,
+                'doctor_commission' => $request->doctor_commission ?? 0,
+                'discount_type' => $request->discount_type ?? 'amount',
+                'discount_value' => $request->discount_value ?? 0,
+                'tip' => $request->tip ?? 0,
+                'payment_method' => $request->payment_method ?? 'transfer',
             ]);
         } elseif ($treatmentRecord->booking) {
             // Fallback for Booking (Only supports price as per schema for now)
             $treatmentRecord->booking->update([
-                'price' => $request->price,
-                'payment_method' => $request->input('payment_method', 'transfer'),
+                'price' => $request->price ?? 0,
+                'payment_method' => $request->payment_method ?? 'transfer',
             ]);
         }
 

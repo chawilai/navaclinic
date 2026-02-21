@@ -712,6 +712,9 @@ const doctorChartOptions = {
                                     <h4 class="text-lg font-bold text-slate-900">{{ doctor.doctor_name }}</h4>
                                     <div class="text-sm text-slate-500 mt-1">
                                         {{ doctor.visits.length }} ครั้ง
+                                        <span v-if="doctor.visits.filter(v => !v.is_complete).length > 0" class="text-rose-500 font-medium ml-2">
+                                            (ยังไม่กรอกข้อมูล {{ doctor.visits.filter(v => !v.is_complete).length }} เคส)
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="flex flex-wrap gap-4">
@@ -752,6 +755,7 @@ const doctorChartOptions = {
                                         <th class="px-6 py-3">เวลา</th>
                                         <th class="px-6 py-3">ผู้ป่วย</th>
                                         <th class="px-6 py-3">ระยะเวลา</th>
+                                        <th class="px-6 py-3 text-center">สถานะ</th>
                                         <th class="px-6 py-3 text-right">ค่ารักษา (Gross)</th>
                                         <th class="px-6 py-3 text-right">ส่วนลด</th>
                                         <th class="px-6 py-3 text-right">ค่ามือแพทย์</th>
@@ -764,9 +768,16 @@ const doctorChartOptions = {
                                         <td class="px-6 py-4 whitespace-nowrap text-slate-500">{{ visit.visit_time }}</td>
                                         <td class="px-6 py-4 font-medium text-slate-900">{{ visit.patient_name }}</td>
                                         <td class="px-6 py-4">{{ visit.duration_minutes }} นาที</td>
+                                        <td class="px-6 py-4 text-center">
+                                            <span v-if="visit.is_complete" class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-emerald-100 text-emerald-800">ครบถ้วน</span>
+                                            <span v-else class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-100 text-amber-800" title="ยังไม่ได้กรอก Physical Exam, Diagnosis หรือ Treatment Procedures">รอข้อมูล</span>
+                                        </td>
                                         <td class="px-6 py-4 text-right font-medium text-slate-900">{{ formatCurrency(visit.treatment_fee) }}</td>
                                         <td class="px-6 py-4 text-right font-medium text-rose-500">{{ visit.discount > 0 ? formatCurrency(visit.discount) : '-' }}</td>
-                                        <td class="px-6 py-4 text-right font-medium text-emerald-600">{{ formatCurrency(visit.doctor_fee) }}</td>
+                                        <td class="px-6 py-4 text-right font-medium text-emerald-600">
+                                            <span v-if="visit.is_complete">{{ formatCurrency(visit.doctor_fee) }}</span>
+                                            <span v-else class="text-slate-400 text-xs italic">รอข้อมูล</span>
+                                        </td>
                                         <td class="px-6 py-4 text-right font-medium text-amber-500">{{ visit.tip > 0 ? formatCurrency(visit.tip) : '-' }}</td>
                                     </tr>
                                 </tbody>

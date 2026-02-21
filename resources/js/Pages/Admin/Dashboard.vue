@@ -614,6 +614,7 @@ const hasMedicalHistory = (patient) => {
                                         <th scope="col" class="px-6 py-3 font-bold text-emerald-900">ผู้ป่วย</th>
                                         <th scope="col" class="px-6 py-3 font-bold text-emerald-900">แพทย์</th>
                                         <th scope="col" class="px-6 py-3 font-bold text-emerald-900">วันและเวลา</th>
+                                        <th scope="col" class="px-6 py-3 font-bold text-emerald-900">สถานะข้อมูล</th>
                                         <th scope="col" class="px-6 py-3 font-bold text-emerald-900">การวินิจฉัย</th>
                                         <th scope="col" class="px-6 py-3 font-bold text-emerald-900">การดำเนินการ</th>
                                     </tr>
@@ -635,6 +636,10 @@ const hasMedicalHistory = (patient) => {
                                         <td class="px-6 py-4">{{ visit.doctor?.name || 'ไม่ระบุแพทย์' }}</td>
                                         <td class="px-6 py-4">
                                             <div class="font-medium text-slate-900">{{ formatDateTime(visit.visit_date) }}</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span v-if="visit.is_complete" class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-emerald-100 text-emerald-800">ครบถ้วน</span>
+                                            <span v-else class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-100 text-amber-800" title="ยังไม่ได้กรอก Physical Exam, Diagnosis หรือ Treatment Procedures">รอข้อมูล</span>
                                         </td>
                                         <td class="px-6 py-4 truncate max-w-xs">{{ visit.treatment_record?.diagnosis || visit.symptoms || '-' }}</td>
                                         <td class="px-6 py-4">
