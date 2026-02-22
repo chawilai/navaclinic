@@ -41,7 +41,83 @@ const form = useForm({
     save_action: 'exit',
 });
 
-import { watch, ref } from 'vue';
+import { watch, ref, computed, onMounted, onBeforeUnmount } from 'vue';
+
+const diagnosisArray = ref([]);
+const newDiagnosis = ref('');
+const isDiagnosisDropdownOpen = ref(false);
+const diagnosisInputRef = ref(null);
+
+const commonDiagnoses = ref([
+    'ออฟฟิศซินโดรม (Office Syndrome)',
+    'กลุ่มอาการปวดตึงกล้ามเนื้อ (Myofascial Pain Syndrome)',
+    'กล้ามเนื้อหดเกร็ง (Muscle Spasm)',
+    'กล้ามเนื้ออักเสบ/ฉีกขาด (Muscle Strain)',
+    'นิ้วล็อก (Trigger Finger)',
+    'โรครองช้ำ/พังผืดฝ่าเท้าอักเสบ (Plantar Fasciitis)',
+    'หมอนรองกระดูกทับเส้นประสาท (HNP)',
+    'กระดูกสันหลังเสื่อม (Spondylosis)',
+    'ข้อเข่าเสื่อม (Osteoarthritis)',
+    'ปวดศีรษะจากความเครียด (Tension Headache)',
+    'ไมเกรน (Migraine)',
+    'ภาวะข้อไหล่ติด (Frozen Shoulder)',
+    'เอ็นข้อศอกอักเสบด้านนอก (Tennis Elbow)',
+    'เอ็นข้อศอกอักเสบด้านใน (Golfer\'s Elbow)',
+    'ปลอกหุ้มเอ็นข้อมืออักเสบ (De Quervain\'s)'
+]);
+
+onMounted(() => {
+    if (form.diagnosis) {
+        diagnosisArray.value = form.diagnosis.split(',').map(d => d.trim()).filter(Boolean);
+    }
+    document.addEventListener('click', closeDiagnosisDropdown);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', closeDiagnosisDropdown);
+});
+
+const closeDiagnosisDropdown = (e) => {
+    const el = document.getElementById('diagnosis-container');
+    if (el && !el.contains(e.target)) {
+        isDiagnosisDropdownOpen.value = false;
+    }
+};
+
+const addDiagnosis = (d) => {
+    const val = (typeof d === 'string' ? d : newDiagnosis.value).trim();
+    if (val && !diagnosisArray.value.includes(val)) {
+        diagnosisArray.value.push(val);
+        form.diagnosis = diagnosisArray.value.join(', ');
+    }
+    newDiagnosis.value = '';
+    
+    if (diagnosisInputRef.value) {
+        diagnosisInputRef.value.focus();
+    }
+};
+
+const removeDiagnosis = (index) => {
+    diagnosisArray.value.splice(index, 1);
+    form.diagnosis = diagnosisArray.value.join(', ');
+};
+
+const handleDiagnosisKeydown = (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addDiagnosis();
+    } else if (e.key === 'Backspace' && newDiagnosis.value === '' && diagnosisArray.value.length > 0) {
+        removeDiagnosis(diagnosisArray.value.length - 1);
+    }
+};
+
+const filteredDiagnoses = computed(() => {
+    const query = newDiagnosis.value.toLowerCase();
+    return commonDiagnoses.value.filter(d => 
+        !diagnosisArray.value.includes(d) && 
+        d.toLowerCase().includes(query)
+    );
+});
 
 const isTreatmentFeeInvalid = ref(false);
 
@@ -87,6 +163,14 @@ watch(() => form.treatment_fee, (newFee) => {
 });
 
 const submit = () => {
+    if (diagnosisArray.value.length === 0 && !newDiagnosis.value.trim()) {
+        form.setError('diagnosis', 'กรุณาระบุการวินิจฉัยโรคอย่างน้อย 1 รายการ');
+        return;
+    }
+    if (newDiagnosis.value.trim()) {
+        addDiagnosis(newDiagnosis.value);
+    }
+    form.clearErrors('diagnosis');
     showConfirmationDialog();
 };
 
@@ -223,7 +307,7 @@ const submitForm = () => {
                             <form @submit.prevent="submit" class="space-y-8">
                                 
                                 <!-- Diagnosis -->
-                                <div>
+                                <div id="diagnosis-container" class="relative">
                                     <label class="block text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
                                         <span class="bg-emerald-100 text-emerald-600 p-1 rounded-md">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
@@ -232,8 +316,68 @@ const submitForm = () => {
                                         </span>
                                         Diagnosis (การวินิจฉัยโรค)
                                     </label>
-                                    <textarea v-model="form.diagnosis" rows="2" class="w-full rounded-xl border-indigo-200 bg-indigo-50/30 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" required placeholder="ระบุการวินิจฉัย..."></textarea>
+                                    
+                                    <div 
+                                        class="w-full flex flex-wrap items-center gap-2 p-2 min-h-[50px] rounded-xl border border-indigo-200 bg-indigo-50/30 shadow-sm focus-within:bg-white focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 cursor-text transition-colors"
+                                        @click="diagnosisInputRef && diagnosisInputRef.focus(); isDiagnosisDropdownOpen = true"
+                                    >
+                                        <span 
+                                            v-for="(diag, index) in diagnosisArray" 
+                                            :key="index"
+                                            class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium"
+                                        >
+                                            {{ diag }}
+                                            <button type="button" @click.stop="removeDiagnosis(index)" class="hover:text-indigo-900 focus:outline-none focus:text-indigo-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
+                                                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                        
+                                        <input 
+                                            ref="diagnosisInputRef"
+                                            v-model="newDiagnosis" 
+                                            @keydown="handleDiagnosisKeydown"
+                                            @focus="isDiagnosisDropdownOpen = true"
+                                            type="text" 
+                                            class="flex-1 min-w-[150px] border-none bg-transparent focus:ring-0 p-0 text-sm text-slate-700"
+                                            :placeholder="diagnosisArray.length === 0 ? 'พิมพ์หรือเลือกการวินิจฉัย...' : ''"
+                                        >
+                                    </div>
+
+                                    <!-- Dropdown menu -->
+                                    <div 
+                                        v-if="isDiagnosisDropdownOpen && (filteredDiagnoses.length > 0 || newDiagnosis.trim())" 
+                                        class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                                    >
+                                        <!-- Custom input option -->
+                                        <div 
+                                            v-if="newDiagnosis.trim() && !filteredDiagnoses.some(d => d.toLowerCase() === newDiagnosis.trim().toLowerCase())"
+                                            @click="addDiagnosis(newDiagnosis)"
+                                            class="px-4 py-2 hover:bg-indigo-50 cursor-pointer text-sm text-indigo-600 font-medium flex items-center gap-2 border-b border-slate-100"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                            </svg>
+                                            เพิ่ม "{{ newDiagnosis.trim() }}"
+                                        </div>
+
+                                        <!-- Suggestions -->
+                                        <div 
+                                            v-for="(diag, index) in filteredDiagnoses" 
+                                            :key="'sug-'+index"
+                                            @click="addDiagnosis(diag)"
+                                            class="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm text-slate-700"
+                                        >
+                                            {{ diag }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div v-show="false">
+                                        <input type="text" v-model="form.diagnosis">
+                                    </div>
                                     <InputError class="mt-2" :message="form.errors.diagnosis" />
+                                    <p class="mt-1.5 text-[11px] text-slate-500 font-medium">พิมพ์แล้วกด Enter เพื่อเพิ่ม หรือเลือกจากรายการด้านล่าง (เลือกได้หลายรายการ)</p>
                                 </div>
                                 <!-- Treatment Details -->
                                 <div>
