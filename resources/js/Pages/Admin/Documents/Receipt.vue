@@ -1,12 +1,15 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import 'paper-css/paper.css';
 
 const props = defineProps({
     visit: Object,
-    clinic: Object
+    clinic: Object,
+    users: Array,
 });
+
+const page = usePage();
 
 const form = ref({
     date: new Date(props.visit.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -19,7 +22,7 @@ const form = ref({
     discount: props.visit.discount_type === 'percent' 
         ? `${Number(props.visit.discount_value)}%` 
         : (Number(props.visit.discount_value) || ''),
-    cashier: 'สังวรณ์ เชื้อเต๊ะ'
+    cashier: page.props.auth?.user?.name || ''
 });
 
 const subtotal = computed(() => {
@@ -229,7 +232,10 @@ onUnmounted(() => {
             <!-- Footer Signatures -->
              <div class="flex justify-end mt-2 px-8 mb-12">
                 <div class="text-center w-56 relative top-4">
-                     <p class="text-sm font-bold text-gray-900 mb-1">{{ form.cashier }}</p>
+                     <input type="text" v-model="form.cashier" list="cashiers" class="text-sm font-bold text-gray-900 mb-1 bg-transparent border-none p-0 focus:ring-0 w-full text-center hide-datalist-arrow" placeholder="ชื่อผู้จัดทำ">
+                     <datalist id="cashiers">
+                        <option v-for="user in users" :key="user.id" :value="user.name" />
+                     </datalist>
                     <p class="text-[10px] text-gray-900">(เจ้าหน้าที่การเงิน/Cashier)</p>
                 </div>
             </div>
@@ -250,5 +256,10 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { 
   -webkit-appearance: none; 
   margin: 0; 
+}
+
+/* Hide datalist arrow */
+.hide-datalist-arrow::-webkit-calendar-picker-indicator {
+    opacity: 0;
 }
 </style>

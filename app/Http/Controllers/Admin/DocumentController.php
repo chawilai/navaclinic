@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,6 +15,7 @@ class DocumentController extends Controller
         $visit->load(['patient', 'doctor', 'treatmentRecord', 'payments']);
         return Inertia::render('Admin/Documents/Receipt', [
             'visit' => $visit,
+            'users' => User::orderBy('name')->get(['id', 'name']),
             'clinic' => [
                 'name_th' => 'นวคลินิกการแพทย์แผนไทยสาขานวดไทย',
                 'name_en' => 'NAVA Clinic Thai Traditional Medicine',
