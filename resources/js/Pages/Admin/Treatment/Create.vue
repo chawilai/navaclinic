@@ -174,9 +174,10 @@ const submitForm = () => {
         },
         onError: (errors) => {
             console.error('Validation errors:', errors);
+            const errorMessages = Object.values(errors).join('\n');
             Swal.fire({
                 title: 'บันทึกไม่สำเร็จ',
-                text: 'กรุณาตรวจสอบข้อมูลที่กรอกอีกครั้ง (มีข้อมูลบางอย่างไม่ถูกต้อง)',
+                text: `กรุณาตรวจสอบข้อมูลที่กรอกอีกครั้ง:\n${errorMessages}`,
                 icon: 'error',
                 confirmButtonText: 'ตกลง'
             });
@@ -282,9 +283,7 @@ const bmiColor = computed(() => {
                         </div>
                     </div>
 
-                    <form @submit.prevent="submit" class="p-8 space-y-8">
-                        
-                        <!-- 1. Vital Signs (Top Bar) -->
+                    <form @submit.prevent class="p-8 space-y-8">
                         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                             <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-indigo-500">

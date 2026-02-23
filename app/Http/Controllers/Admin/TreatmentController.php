@@ -54,6 +54,26 @@ class TreatmentController extends Controller
             'pain_areas.*.pain_level' => 'nullable|numeric|between:0,10',
             'pain_areas.*.pain_level_after' => 'nullable|numeric|between:0,10',
             'pain_areas.*.characteristic' => 'nullable|string',
+        ], [
+            'weight.numeric' => 'น้ำหนักต้องเป็นตัวเลข',
+            'weight.between' => 'น้ำหนักต้องไม่เกิน 500 กิโลกรัม',
+            'height.numeric' => 'ส่วนสูงต้องเป็นตัวเลข',
+            'height.between' => 'ส่วนสูงต้องไม่เกิน 300 เซนติเมตร',
+            'temperature.numeric' => 'อุณหภูมิต้องเป็นตัวเลข',
+            'temperature.between' => 'อุณหภูมิต้องไม่เกิน 100 องศาเซลเซียส',
+            'pulse_rate.integer' => 'ชีพจรต้องเป็นตัวเลขจำนวนเต็ม',
+            'pulse_rate.between' => 'ชีพจรต้องไม่เกิน 300 ครั้งต่อนาที',
+            'respiratory_rate.integer' => 'อัตราการหายใจต้องเป็นตัวเลขจำนวนเต็ม',
+            'respiratory_rate.between' => 'อัตราการหายใจต้องไม่เกิน 100 ครั้งต่อนาที',
+            'blood_pressure.max' => 'ความดันโลหิตต้องมีความยาวไม่เกิน 20 ตัวอักษร',
+            'pain_level_before.integer' => 'ระดับความปวด (ก่อน) ต้องเป็นตัวเลขจำนวนเต็ม',
+            'pain_level_before.between' => 'ระดับความปวด (ก่อน) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'pain_level_after.integer' => 'ระดับความปวด (หลัง) ต้องเป็นตัวเลขจำนวนเต็ม',
+            'pain_level_after.between' => 'ระดับความปวด (หลัง) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'pain_areas.*.pain_level.numeric' => 'ระดับความปวด (ก่อน) ต้องเป็นตัวเลข',
+            'pain_areas.*.pain_level.between' => 'ระดับความปวด (ก่อน) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'pain_areas.*.pain_level_after.numeric' => 'ระดับความปวด (หลัง) ต้องเป็นตัวเลข',
+            'pain_areas.*.pain_level_after.between' => 'ระดับความปวด (หลัง) ต้องอยู่ระหว่าง 0 ถึง 10',
         ]);
 
 
@@ -119,6 +139,26 @@ class TreatmentController extends Controller
             'pain_areas.*.pain_level' => 'nullable|numeric|between:0,10',
             'pain_areas.*.pain_level_after' => 'nullable|numeric|between:0,10',
             'pain_areas.*.characteristic' => 'nullable|string',
+        ], [
+            'weight.numeric' => 'น้ำหนักต้องเป็นตัวเลข',
+            'weight.between' => 'น้ำหนักต้องไม่เกิน 500 กิโลกรัม',
+            'height.numeric' => 'ส่วนสูงต้องเป็นตัวเลข',
+            'height.between' => 'ส่วนสูงต้องไม่เกิน 300 เซนติเมตร',
+            'temperature.numeric' => 'อุณหภูมิต้องเป็นตัวเลข',
+            'temperature.between' => 'อุณหภูมิต้องไม่เกิน 100 องศาเซลเซียส',
+            'pulse_rate.integer' => 'ชีพจรต้องเป็นตัวเลขจำนวนเต็ม',
+            'pulse_rate.between' => 'ชีพจรต้องไม่เกิน 300 ครั้งต่อนาที',
+            'respiratory_rate.integer' => 'อัตราการหายใจต้องเป็นตัวเลขจำนวนเต็ม',
+            'respiratory_rate.between' => 'อัตราการหายใจต้องไม่เกิน 100 ครั้งต่อนาที',
+            'blood_pressure.max' => 'ความดันโลหิตต้องมีความยาวไม่เกิน 20 ตัวอักษร',
+            'pain_level_before.integer' => 'ระดับความปวด (ก่อน) ต้องเป็นตัวเลขจำนวนเต็ม',
+            'pain_level_before.between' => 'ระดับความปวด (ก่อน) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'pain_level_after.integer' => 'ระดับความปวด (หลัง) ต้องเป็นตัวเลขจำนวนเต็ม',
+            'pain_level_after.between' => 'ระดับความปวด (หลัง) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'pain_areas.*.pain_level.numeric' => 'ระดับความปวด (ก่อน) ต้องเป็นตัวเลข',
+            'pain_areas.*.pain_level.between' => 'ระดับความปวด (ก่อน) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'pain_areas.*.pain_level_after.numeric' => 'ระดับความปวด (หลัง) ต้องเป็นตัวเลข',
+            'pain_areas.*.pain_level_after.between' => 'ระดับความปวด (หลัง) ต้องอยู่ระหว่าง 0 ถึง 10',
         ]);
 
 
@@ -172,6 +212,23 @@ class TreatmentController extends Controller
             'tip' => 'nullable|numeric|min:0',
             'payment_method' => 'nullable|string|in:cash,transfer',
 
+        ], [
+            'diagnosis.required' => 'กรุณาระบุการวินิจฉัยโรค',
+            'treatment_details.required' => 'กรุณาระบุรายละเอียดการรักษา',
+            'pain_level_before.integer' => 'ระดับความปวด (ก่อน) ต้องเป็นตัวเลขจำนวนเต็ม',
+            'pain_level_before.between' => 'ระดับความปวด (ก่อน) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'pain_level_after.integer' => 'ระดับความปวด (หลัง) ต้องเป็นตัวเลขจำนวนเต็ม',
+            'pain_level_after.between' => 'ระดับความปวด (หลัง) ต้องอยู่ระหว่าง 0 ถึง 10',
+            'price.numeric' => 'ยอดสุทธิต้องเป็นตัวเลข',
+            'price.min' => 'ยอดสุทธิต้องไม่ติดลบ',
+            'treatment_fee.numeric' => 'ค่ารักษาต้องเป็นตัวเลข',
+            'treatment_fee.min' => 'ค่ารักษาต้องไม่ติดลบ',
+            'discount_value.numeric' => 'ส่วนลดต้องเป็นตัวเลข',
+            'discount_value.min' => 'ส่วนลดต้องไม่ติดลบ',
+            'doctor_commission.numeric' => 'ค่ามือหมอต้องเป็นตัวเลข',
+            'doctor_commission.min' => 'ค่ามือหมอต้องไม่ติดลบ',
+            'tip.numeric' => 'ทิปต้องเป็นตัวเลข',
+            'tip.min' => 'ทิปต้องไม่ติดลบ',
         ]);
 
         // Update Financials if present

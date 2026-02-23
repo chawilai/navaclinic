@@ -218,14 +218,35 @@ watch(() => form.treatment_fee, (newFee) => {
 });
 
 const submit = () => {
+    let errors = [];
+
     if (diagnosisArray.value.length === 0 && !newDiagnosis.value.trim()) {
         form.setError('diagnosis', 'กรุณาระบุการวินิจฉัยโรคอย่างน้อย 1 รายการ');
+        errors.push('กรุณาระบุการวินิจฉัยโรคอย่างน้อย 1 รายการ');
+    } else {
+        form.clearErrors('diagnosis');
+    }
+
+    if (!form.treatment_details || !form.treatment_details.trim()) {
+        form.setError('treatment_details', 'กรุณาระบุรายละเอียดการรักษา (Treatment Procedures)');
+        errors.push('กรุณาระบุรายละเอียดการรักษา (Treatment Procedures)');
+    } else {
+        form.clearErrors('treatment_details');
+    }
+
+    if (errors.length > 0) {
+        Swal.fire({
+            title: 'ข้อมูลไม่ครบถ้วน',
+            text: errors.join('\n'),
+            icon: 'warning',
+            confirmButtonText: 'ตกลง'
+        });
         return;
     }
+
     if (newDiagnosis.value.trim()) {
         addDiagnosis(newDiagnosis.value);
     }
-    form.clearErrors('diagnosis');
     showConfirmationDialog();
 };
 
@@ -274,6 +295,15 @@ const submitForm = () => {
                     showConfirmButton: false
                 });
             }
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors).join('\n');
+            Swal.fire({
+                title: 'ไม่สามารถบันทึกได้',
+                text: 'กรุณาตรวจสอบข้อมูล:\n' + errorMessages,
+                icon: 'error',
+                confirmButtonText: 'ตกลง'
+            });
         }
     });
 };
