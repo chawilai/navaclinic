@@ -89,10 +89,21 @@ const daysOfWeek = ['อาทิตย์', 'จันทร์', 'อังค
                                 <span class="text-sm text-slate-600">{{ schedule.is_open ? 'เปิด' : 'ปิด' }}</span>
                             </label>
 
-                            <div v-if="schedule.is_open" class="flex items-center gap-2 ml-4">
-                                <input type="time" v-model="schedule.open_time" class="input input-bordered input-sm w-36" />
-                                <span class="text-slate-400">-</span>
-                                <input type="time" v-model="schedule.close_time" class="input input-bordered input-sm w-36" />
+                            <div v-if="schedule.is_open" class="flex flex-col gap-2 ml-4">
+                                <!-- Opening Hours -->
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-500 w-24">เวลาเปิด-ปิดร้าน:</span>
+                                    <input type="time" v-model="schedule.open_time" class="input input-bordered input-sm w-36" />
+                                    <span class="text-slate-400">-</span>
+                                    <input type="time" v-model="schedule.close_time" class="input input-bordered input-sm w-36" />
+                                </div>
+                                <!-- Admin Booking Hours (Walk-in/Appointments) -->
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-indigo-500 w-24 font-bold">เวลารับคิวตรวจ:</span>
+                                    <input type="time" v-model="schedule.admin_booking_start_time" class="input input-bordered input-sm w-36" />
+                                    <span class="text-slate-400">-</span>
+                                    <input type="time" v-model="schedule.admin_booking_end_time" class="input input-bordered input-sm w-36" />
+                                </div>
                             </div>
                             <div v-else class="text-sm text-slate-400 italic ml-4">
                                 ปิดทำการทั้งวัน

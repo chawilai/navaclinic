@@ -26,6 +26,8 @@ class SettingController extends Controller
             'schedules.*.is_open' => 'required|boolean',
             'schedules.*.open_time' => 'required',
             'schedules.*.close_time' => 'required',
+            'schedules.*.admin_booking_start_time' => 'required',
+            'schedules.*.admin_booking_end_time' => 'required',
         ]);
 
         foreach ($data['schedules'] as $scheduleData) {
@@ -33,6 +35,8 @@ class SettingController extends Controller
                 'is_open' => $scheduleData['is_open'],
                 'open_time' => $scheduleData['open_time'],
                 'close_time' => $scheduleData['close_time'],
+                'admin_booking_start_time' => $scheduleData['admin_booking_start_time'],
+                'admin_booking_end_time' => $scheduleData['admin_booking_end_time'],
             ]);
         }
 

@@ -62,7 +62,7 @@ class BookingController extends Controller
                 ->get()
                 ->first(function ($booking) use ($requestedStart, $requestedEnd) {
                     // Calculate Booking Time Range + 30m Buffer
-                    $bStart = $booking->appointment_date->copy()->setTimeFromTimeString($booking->start_time);
+                    $bStart = \Carbon\Carbon::parse($booking->appointment_date)->setTimeFromTimeString($booking->start_time);
                     $bEnd = $bStart->copy()->addMinutes($booking->duration_minutes + 30);
 
                     return $requestedStart->lt($bEnd) && $requestedEnd->gt($bStart);
@@ -212,8 +212,7 @@ class BookingController extends Controller
         $duration = (int) $request->duration;
 
         // 1. Check for Special Holidays
-        // 1. Check for Special Holidays
-        $holiday = \App\Models\ClinicHoliday::whereDate('date', $date)->first();
+        $holiday = \App\Models\ClinicHoliday::where('date', $date)->first();
         if ($holiday) {
             return response()->json(['message' => "Clinic is closed: {$holiday->label}"], 422);
         }
@@ -248,11 +247,19 @@ class BookingController extends Controller
         \Illuminate\Support\Facades\Log::info("Bookings found: " . $bookings->count() . ", Visits found: " . $visits->count());
 
         // Use dynamic Open/Close times from Schedule
-        $startOfDay = \Carbon\Carbon::parse($date . ' ' . $schedule->open_time);
         if ($request->boolean('is_admin')) {
-            $startOfDay->subMinutes(120); // Add 4 slots before opening for admin
+            $adminStart = !empty($schedule->admin_booking_start_time) ? $schedule->admin_booking_start_time : $schedule->open_time;
+            $adminEnd = !empty($schedule->admin_booking_end_time) ? $schedule->admin_booking_end_time : $schedule->close_time;
+            $startOfDay = \Carbon\Carbon::parse($date . ' ' . $adminStart);
+            $endOfDay = \Carbon\Carbon::parse($date . ' ' . $adminEnd);
+        } else {
+            $startOfDay = \Carbon\Carbon::parse($date . ' ' . $schedule->open_time);
+            $endOfDay = \Carbon\Carbon::parse($date . ' ' . $schedule->close_time);
         }
-        $endOfDay = \Carbon\Carbon::parse($date . ' ' . $schedule->close_time);
+
+        if ($endOfDay <= $startOfDay) {
+            $endOfDay->addDay();
+        }
 
         $slots = [];
         $current = $startOfDay->copy();
@@ -260,10 +267,9 @@ class BookingController extends Controller
         $now = \Carbon\Carbon::now();
         $isToday = $now->format('Y-m-d') === $date;
 
-        // For admin, allow 5 time slots after the last time. For user, allow 1 slot.
-        $extraMinutes = $request->boolean('is_admin') ? 150 : 30;
-        $endCheckBounds = $endOfDay->copy()->addMinutes($extraMinutes);
-        while ($current->copy()->addMinutes($duration) <= $endCheckBounds) {
+        // Allow strict bound check
+        $endCheckBounds = $endOfDay->copy();
+        while ($current <= $endCheckBounds) {
             $slotStart = $current->copy();
 
             // Skip past times if today
@@ -288,20 +294,20 @@ class BookingController extends Controller
                 $busySlots = [];
 
                 foreach ($doctorBookings as $b) {
-                    $dateTime = $b->appointment_date->copy()->setTimeFromTimeString($b->start_time);
+                    $dateTime = \Carbon\Carbon::parse($b->appointment_date)->setTimeFromTimeString($b->start_time);
                     $bStart = $dateTime->format('H:i');
                     $bEnd = $dateTime->copy()->addMinutes($b->duration_minutes)->format('H:i');
                     $busySlots[] = "$bStart-$bEnd";
                 }
                 // 1. Bookings Overlap
                 $conflictingBooking = $doctorBookings->first(function ($booking) use ($slotStart, $checkEnd) {
-                    $bookingStart = $booking->appointment_date->copy()->setTimeFromTimeString($booking->start_time);
+                    $bookingStart = \Carbon\Carbon::parse($booking->appointment_date)->setTimeFromTimeString($booking->start_time);
                     $bookingEnd = $bookingStart->copy()->addMinutes($booking->duration_minutes);
                     return $slotStart < $bookingEnd && $checkEnd > $bookingStart;
                 });
 
                 if ($conflictingBooking) {
-                    $dateTime = $conflictingBooking->appointment_date->copy()->setTimeFromTimeString($conflictingBooking->start_time);
+                    $dateTime = \Carbon\Carbon::parse($conflictingBooking->appointment_date)->setTimeFromTimeString($conflictingBooking->start_time);
                     $bStart = $dateTime->format('H:i');
                     $bEnd = $dateTime->copy()->addMinutes($conflictingBooking->duration_minutes)->format('H:i');
 
