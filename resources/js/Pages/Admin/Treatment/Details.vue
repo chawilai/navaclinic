@@ -71,10 +71,12 @@ onMounted(() => {
         diagnosisArray.value = form.diagnosis.split(',').map(d => d.trim()).filter(Boolean);
     }
     document.addEventListener('click', closeDiagnosisDropdown);
+    document.addEventListener('click', closeTreatmentDropdown);
 });
 
 onBeforeUnmount(() => {
     document.removeEventListener('click', closeDiagnosisDropdown);
+    document.removeEventListener('click', closeTreatmentDropdown);
 });
 
 const closeDiagnosisDropdown = (e) => {
@@ -116,6 +118,59 @@ const filteredDiagnoses = computed(() => {
     return commonDiagnoses.value.filter(d => 
         !diagnosisArray.value.includes(d) && 
         d.toLowerCase().includes(query)
+    );
+});
+
+const treatmentSearch = ref('');
+const isTreatmentDropdownOpen = ref(false);
+const treatmentInputRef = ref(null);
+
+const commonTreatments = ref([
+    'นวดศีรษะ',
+    'นวดคอบ่าไหล่',
+    'นวดหลัง',
+    'นวดแขน',
+    'นวดขา',
+    'นวดฝ่าเท้า',
+    'ประคบร้อน',
+    'ประคบเย็น',
+    'ยืดกล้ามเนื้อ (Stretching)',
+    'ดัดดึงข้อต่อ (Mobilization)',
+    'ติดเทป (Kinesio Taping)',
+    'อัลตราซาวด์ (Ultrasound)',
+    'กระตุ้นไฟฟ้า (TENS)',
+    'เลเซอร์ (Laser Therapy)',
+    'ช็อกเวฟ (Shockwave Therapy)',
+    'ฝังเข็ม (Acupuncture)',
+    'ครอบแก้ว (Cupping)',
+    'กัวซา (Guasa)'
+]);
+
+const closeTreatmentDropdown = (e) => {
+    const el = document.getElementById('treatment-search-container');
+    if (el && !el.contains(e.target)) {
+        isTreatmentDropdownOpen.value = false;
+    }
+};
+
+const addTreatmentToDetails = (trt) => {
+    if (!trt.trim()) return;
+    if (form.treatment_details) {
+        const lastChar = form.treatment_details.slice(-1);
+        const needsSpace = lastChar !== ' ' && lastChar !== '\n';
+        form.treatment_details += (needsSpace ? ' ' : '') + trt;
+    } else {
+        form.treatment_details = trt;
+    }
+    treatmentSearch.value = '';
+    isTreatmentDropdownOpen.value = false;
+};
+
+const filteredTreatments = computed(() => {
+    const query = treatmentSearch.value.toLowerCase().trim();
+    if (!query) return commonTreatments.value;
+    return commonTreatments.value.filter(t => 
+        t.toLowerCase().includes(query)
     );
 });
 
@@ -382,7 +437,35 @@ const submitForm = () => {
                                 <!-- Treatment Details -->
                                 <div>
                                     <label class="block text-sm font-bold text-slate-900 mb-2">Treatment Procedures (รายละเอียดการรักษา)</label>
-                                    <textarea v-model="form.treatment_details" rows="8" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="ระบุรายละเอียดการรักษา..."></textarea>
+                                    
+                                    <!-- Quick Add Procedure -->
+                                    <div id="treatment-search-container" class="relative mb-3">
+                                        <input 
+                                            ref="treatmentInputRef"
+                                            v-model="treatmentSearch" 
+                                            @focus="isTreatmentDropdownOpen = true"
+                                            @keydown.enter.prevent="addTreatmentToDetails(treatmentSearch)"
+                                            type="text" 
+                                            class="w-full rounded-xl border-indigo-200 bg-indigo-50/30 text-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder-indigo-300"
+                                            placeholder="🔍 พิมพ์เพื่อค้นหาการรักษา (เช่น นวดขา, ประคบ...) เลือกแล้วจะเพิ่มข้อความด้านล่าง"
+                                        >
+                                        <!-- Dropdown menu -->
+                                        <div 
+                                            v-if="isTreatmentDropdownOpen && filteredTreatments.length > 0" 
+                                            class="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                                        >
+                                            <div 
+                                                v-for="(trt, index) in filteredTreatments" 
+                                                :key="'tsug-'+index"
+                                                @click="addTreatmentToDetails(trt)"
+                                                class="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm text-slate-700 font-medium"
+                                            >
+                                                + {{ trt }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <textarea v-model="form.treatment_details" rows="6" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required placeholder="ระบุรายละเอียดการรักษา..."></textarea>
                                     <InputError class="mt-2" :message="form.errors.treatment_details" />
                                 </div>
 
