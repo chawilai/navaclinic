@@ -468,14 +468,14 @@ const submitForm = () => {
                                         <!-- 2. Discount -->
                                         <div class="space-y-3">
                                             <div class="flex gap-3">
-                                                <div class="w-2/5">
+                                                <div class="w-1/2">
                                                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ประเภทส่วนลด</label>
                                                     <select v-model="form.discount_type" class="w-full rounded-lg border-indigo-200 bg-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                                         <option value="amount">ลดบาท (฿)</option>
                                                         <option value="percent">ลดเปอร์เซ็นต์ (%)</option>
                                                     </select>
                                                 </div>
-                                                <div class="w-3/5">
+                                                <div class="w-1/2">
                                                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">
                                                         {{ form.discount_type === 'percent' ? 'จำนวนเปอร์เซ็นที่ลด %' : 'จำนวนเงินที่ลด (บาท)' }}
                                                     </label>
