@@ -476,7 +476,9 @@ const submitForm = () => {
                                                     </select>
                                                 </div>
                                                 <div class="w-3/5">
-                                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">มูลค่าส่วนลด</label>
+                                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">
+                                                        {{ form.discount_type === 'percent' ? 'จำนวนเปอร์เซ็นที่ลด %' : 'จำนวนเงินที่ลด (บาท)' }}
+                                                    </label>
                                                     <input type="number" step="0.01" v-model="form.discount_value" class="w-full rounded-lg border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-rose-500 font-bold placeholder-rose-200" placeholder="0">
                                                 </div>
                                             </div>
