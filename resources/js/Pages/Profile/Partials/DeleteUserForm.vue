@@ -41,37 +41,35 @@ const closeModal = () => {
 <template>
     <section class="space-y-6">
         <header>
-            <h2 class="text-lg font-medium text-gray-900">
-                Delete Account
+            <h2 class="text-lg font-medium text-red-600">
+                ลบบัญชีผู้ใช้งาน
             </h2>
 
             <p class="mt-1 text-sm text-gray-600">
-                Once your account is deleted, all of its resources and data will
-                be permanently deleted. Before deleting your account, please
-                download any data or information that you wish to retain.
+                เมื่อบัญชีของคุณถูกลบ ข้อมูลและทรัพยากรทั้งหมดที่เกี่ยวข้องจะถูกลบอย่างถาวร 
+                โปรดแน่ใจว่าได้ดาวน์โหลดข้อมูลหรือข้อมูลส่วนตัวที่คุณต้องการเก็บไว้ก่อนที่จะทำการลบบัญชี
             </p>
         </header>
 
-        <DangerButton @click="confirmUserDeletion">Delete Account</DangerButton>
+        <DangerButton @click="confirmUserDeletion">ลบบัญชีผู้ใช้งาน</DangerButton>
 
         <Modal :show="confirmingUserDeletion" @close="closeModal">
             <div class="p-6">
                 <h2
                     class="text-lg font-medium text-gray-900"
                 >
-                    Are you sure you want to delete your account?
+                    คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีนี้?
                 </h2>
 
                 <p class="mt-1 text-sm text-gray-600">
-                    Once your account is deleted, all of its resources and data
-                    will be permanently deleted. Please enter your password to
-                    confirm you would like to permanently delete your account.
+                    เมื่อบัญชีของคุณถูกลบ ข้อมูลทั้งหมดจะถูกลบอย่างถาวร และไม่สามารถกู้คืนได้
+                    กรุณากรอกรหัสผ่านของคุณเพื่อยืนยันว่าคุณต้องการลบบัญชีนี้อย่างถาวร
                 </p>
 
                 <div class="mt-6">
                     <InputLabel
                         for="password"
-                        value="Password"
+                        value="รหัสผ่าน"
                         class="sr-only"
                     />
 
@@ -80,8 +78,8 @@ const closeModal = () => {
                         ref="passwordInput"
                         v-model="form.password"
                         type="password"
-                        class="mt-1 block w-3/4"
-                        placeholder="Password"
+                        class="mt-1 block w-full sm:w-3/4"
+                        placeholder="รหัสผ่านของคุณ"
                         @keyup.enter="deleteUser"
                     />
 
@@ -90,7 +88,7 @@ const closeModal = () => {
 
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton @click="closeModal">
-                        Cancel
+                        ยกเลิก
                     </SecondaryButton>
 
                     <DangerButton
@@ -99,7 +97,7 @@ const closeModal = () => {
                         :disabled="form.processing"
                         @click="deleteUser"
                     >
-                        Delete Account
+                        ยืนยันการลบบัญชี
                     </DangerButton>
                 </div>
             </div>
