@@ -36,6 +36,8 @@ class DoctorController extends Controller
             'specialty' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'is_on_leave' => 'boolean',
+            'leave_reason' => 'nullable|string|max:255',
         ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
@@ -51,6 +53,8 @@ class DoctorController extends Controller
                 'specialty' => $validated['specialty'],
                 'user_id' => $user->id,
                 'plain_password' => $validated['password'],
+                'is_on_leave' => $validated['is_on_leave'] ?? false,
+                'leave_reason' => $validated['leave_reason'] ?? null,
             ]);
         });
 
@@ -64,6 +68,8 @@ class DoctorController extends Controller
             'specialty' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $doctor->user_id,
             'password' => 'nullable|string|min:8',
+            'is_on_leave' => 'boolean',
+            'leave_reason' => 'nullable|string|max:255',
         ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $doctor) {
@@ -71,6 +77,8 @@ class DoctorController extends Controller
                 'name' => $validated['name'],
                 'specialty' => $validated['specialty'],
                 'plain_password' => !empty($validated['password']) ? $validated['password'] : $doctor->plain_password,
+                'is_on_leave' => $validated['is_on_leave'] ?? false,
+                'leave_reason' => $validated['leave_reason'] ?? null,
             ]);
 
             $user = $doctor->user;

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Doctor extends Model
 {
-    protected $fillable = ['name', 'specialty', 'user_id', 'commission_rate', 'plain_password'];
+    protected $fillable = ['name', 'specialty', 'user_id', 'commission_rate', 'plain_password', 'is_on_leave', 'leave_reason'];
 
     public function bookings()
     {

@@ -18,9 +18,13 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        $doctor = $user->is_doctor ? $user->doctor : null;
+
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
+            'doctor' => $doctor,
         ]);
     }
 
@@ -38,6 +42,28 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit');
+    }
+
+    public function updateDoctorStatus(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (!$user->is_doctor || !$user->doctor) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'is_on_leave' => ['required', 'boolean'],
+            'leave_reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        if (!$validated['is_on_leave']) {
+            $validated['leave_reason'] = null;
+        }
+
+        $user->doctor->update($validated);
+
+        return Redirect::route('profile.edit')->with('status', 'doctor-status-updated');
     }
 
     /**

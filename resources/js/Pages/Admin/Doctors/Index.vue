@@ -22,12 +22,21 @@ const form = useForm({
     specialty: '',
     email: '',
     password: '',
+    is_on_leave: false,
+    leave_reason: '',
 });
 
 const showModal = ref(false);
 const editingDoctor = ref(null);
 const showDeleteModal = ref(false);
 const doctorToDelete = ref(null);
+
+const leaveReasons = [
+    { value: 'ป่วย', label: 'ป่วย' },
+    { value: 'ท้อง', label: 'ท้อง' },
+    { value: 'อุบัติเหตุ', label: 'อุบัติเหตุ' },
+    { value: 'เหตุผลอื่นๆ', label: 'เหตุผลอื่นๆ' },
+];
 
 const openModal = (doctor = null) => {
     editingDoctor.value = doctor;
@@ -36,8 +45,12 @@ const openModal = (doctor = null) => {
         form.specialty = doctor.specialty;
         form.email = doctor.user ? doctor.user.email : '';
         form.password = doctor.plain_password || '';
+        form.is_on_leave = !!doctor.is_on_leave;
+        form.leave_reason = doctor.leave_reason || '';
     } else {
         form.reset();
+        form.is_on_leave = false;
+        form.leave_reason = '';
     }
     showModal.value = true;
 };
@@ -110,7 +123,10 @@ const deleteDoctor = () => {
                                     {{ doctor.name.charAt(0) }}
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors">{{ doctor.name }}</h3>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors">{{ doctor.name }}</h3>
+                                        <span v-if="doctor.is_on_leave" class="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full font-medium">พักงาน: {{ doctor.leave_reason }}</span>
+                                    </div>
                                     <p class="text-slate-500 text-sm">{{ doctor.specialty || 'แพทย์ทั่วไป' }}</p>
                                 </div>
                             </div>
@@ -192,6 +208,20 @@ const deleteDoctor = () => {
                         <p v-if="editingDoctor && !form.password" class="mt-2 text-xs text-gray-500">
                             * หากไม่แสดงรหัสผ่าน แสดงว่าเป็นบัญชีเก่า ระบบไม่ได้บันทึกรหัสผ่านเดิมไว้ (กรุณากำหนดใหม่หากต้องการดูในภายหลัง)
                         </p>
+                    </div>
+
+                    <div class="mb-4 flex items-center gap-2">
+                        <input type="checkbox" id="is_on_leave" v-model="form.is_on_leave" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                        <InputLabel for="is_on_leave" value="พักงาน (เช่น ป่วย, ท้อง, ลากิจ)" class="mb-0" />
+                    </div>
+
+                    <div class="mb-4" v-if="form.is_on_leave">
+                        <InputLabel for="leave_reason" value="เหตุผลการพักงาน" />
+                        <select id="leave_reason" v-model="form.leave_reason" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full">
+                            <option value="">เลือกเหตุผล</option>
+                            <option v-for="reason in leaveReasons" :key="reason.value" :value="reason.value">{{ reason.label }}</option>
+                        </select>
+                        <InputError :message="form.errors.leave_reason" class="mt-2" />
                     </div>
 
                     <div class="flex justify-end mt-6">
