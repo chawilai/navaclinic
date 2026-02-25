@@ -247,14 +247,24 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     // Admin Only Routes
     Route::middleware('admin')->group(function () {
-        Route::get('/owner-dashboard', [\App\Http\Controllers\Admin\OwnerDashboardController::class, 'index'])->name('admin.owner.dashboard');
 
-        // Doctor Management
-        Route::get('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'index'])->name('admin.doctors.index');
-        Route::post('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'store'])->name('admin.doctors.store');
-        Route::get('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'show'])->name('admin.doctors.show');
-        Route::patch('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'update'])->name('admin.doctors.update');
-        Route::delete('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'destroy'])->name('admin.doctors.destroy');
+        // Owner Only Routes
+        Route::middleware([\App\Http\Middleware\OwnerRequired::class])->group(function () {
+            Route::get('/owner-dashboard', [\App\Http\Controllers\Admin\OwnerDashboardController::class, 'index'])->name('admin.owner.dashboard');
+
+            // Doctor Management
+            Route::get('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'index'])->name('admin.doctors.index');
+            Route::post('/doctors', [\App\Http\Controllers\Admin\DoctorController::class, 'store'])->name('admin.doctors.store');
+            Route::get('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'show'])->name('admin.doctors.show');
+            Route::patch('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'update'])->name('admin.doctors.update');
+            Route::delete('/doctors/{doctor}', [\App\Http\Controllers\Admin\DoctorController::class, 'destroy'])->name('admin.doctors.destroy');
+
+            // Admin Management
+            Route::get('/admins', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('admin.admins.index');
+            Route::post('/admins', [\App\Http\Controllers\Admin\AdminUserController::class, 'store'])->name('admin.admins.store');
+            Route::patch('/admins/{admin}', [\App\Http\Controllers\Admin\AdminUserController::class, 'update'])->name('admin.admins.update');
+            Route::delete('/admins/{admin}', [\App\Http\Controllers\Admin\AdminUserController::class, 'destroy'])->name('admin.admins.destroy');
+        });
 
         // Shop Settings
         Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('admin.settings.index');

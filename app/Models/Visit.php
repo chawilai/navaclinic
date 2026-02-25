@@ -23,6 +23,7 @@ class Visit extends Model
         'discount_type',
         'discount_value',
         'tip',
+        'payment_method',
     ];
 
     protected $casts = [

@@ -58,7 +58,7 @@ const isMobileMenuOpen = ref(false);
                                 แดชบอร์ดแพทย์
                             </Link>
                         </li>
-                        <li v-if="$page.props.auth.user.is_admin">
+                        <li v-if="$page.props.auth.user.email === 'cahil23377@gmail.com'">
                             <Link :href="route('admin.owner.dashboard')" 
                                 :class="{'bg-white text-blue-600 shadow-sm font-bold': route().current('admin.owner.dashboard'), 'hover:bg-white/60 hover:text-blue-500': !route().current('admin.owner.dashboard')}"
                                 class="rounded-full px-4 py-2 transition-all duration-200"
@@ -80,17 +80,7 @@ const isMobileMenuOpen = ref(false);
                                 คนไข้
                             </Link>
                         </li>
-                        <li v-if="$page.props.auth.user.is_admin">
-                             <Link :href="route('admin.doctors.index')" 
-                                :class="{'bg-white text-blue-600 shadow-sm font-bold': route().current('admin.doctors.index*'), 'hover:bg-white/60 hover:text-blue-500': !route().current('admin.doctors.index*')}"
-                                class="rounded-full px-4 py-2 transition-all duration-200"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1.5">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                                </svg>
-                                แพทย์
-                            </Link>
-                        </li>
+
                         <li v-if="$page.props.auth.user.is_admin">
                              <Link :href="route('admin.services.index')" 
                                 :class="{'bg-white text-blue-600 shadow-sm font-bold': route().current('admin.services.index*'), 'hover:bg-white/60 hover:text-blue-500': !route().current('admin.services.index*')}"
@@ -258,7 +248,7 @@ const isMobileMenuOpen = ref(false);
                     <Link :href="route('welcome')" class="btn btn-ghost justify-start text-lg font-normal" @click="isMobileMenuOpen = false">หน้าหลัก</Link>
                     <Link v-if="$page.props.auth.user.is_admin || $page.props.auth.user.is_doctor" :href="route('admin.dashboard')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.dashboard')}" @click="isMobileMenuOpen = false">แดชบอร์ดหลัก</Link>
                     <Link v-if="$page.props.auth.user.is_doctor" :href="route('admin.doctor.dashboard')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.doctor.dashboard')}" @click="isMobileMenuOpen = false">แดชบอร์ดแพทย์</Link>
-                    <Link v-if="$page.props.auth.user.is_admin" :href="route('admin.owner.dashboard')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.owner.dashboard')}" @click="isMobileMenuOpen = false">เจ้าของ</Link>
+                    <Link v-if="$page.props.auth.user.email === 'cahil23377@gmail.com'" :href="route('admin.owner.dashboard')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.owner.dashboard')}" @click="isMobileMenuOpen = false">เจ้าของ</Link>
                     <Link v-if="$page.props.auth.user.is_admin || $page.props.auth.user.is_doctor" :href="route('admin.patients.index')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.patients.index')}" @click="isMobileMenuOpen = false">จัดการคนไข้</Link>
                     <Link v-if="$page.props.auth.user.is_admin" :href="route('admin.settings.index')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.settings.index')}" @click="isMobileMenuOpen = false">ตั้งค่าร้าน</Link>
                     <Link v-if="$page.props.auth.user.is_admin" :href="route('admin.services.index')" class="btn btn-ghost justify-start text-lg font-normal" :class="{'bg-blue-50 text-blue-600 font-bold': route().current('admin.services.index')}" @click="isMobileMenuOpen = false">จัดการบริการ</Link>

@@ -86,9 +86,14 @@ const deleteDoctor = () => {
                 <h2 class="font-semibold text-xl text-black leading-tight">
                     แพทย์ทั้งหมด
                 </h2>
-                <PrimaryButton @click="openModal()">
-                    เพิ่มแพทย์
-                </PrimaryButton>
+                <div class="flex gap-4">
+                    <Link :href="route('admin.owner.dashboard')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-xl transition duration-150 ease-in-out border border-gray-300 flex items-center">
+                        กลับหน้าแดชบอร์ด
+                    </Link>
+                    <PrimaryButton @click="openModal()">
+                        เพิ่มแพทย์
+                    </PrimaryButton>
+                </div>
             </div>
         </template>
 

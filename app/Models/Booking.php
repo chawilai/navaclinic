@@ -23,6 +23,7 @@ class Booking extends Model
         'is_admin_booked',
         'payment_proof',
         'admin_acknowledged',
+        'payment_method',
     ];
 
     protected $casts = [

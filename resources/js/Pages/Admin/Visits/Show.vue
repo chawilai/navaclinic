@@ -328,6 +328,11 @@ const hasMedicalHistory = computed(() => {
                                 <span>ทริป (Tip):</span>
                                 <span class="font-bold">+{{ Number(visit.tip).toLocaleString() }}</span>
                             </div>
+
+                            <div v-if="visit.payment_method" class="flex justify-between items-center text-xs text-slate-500">
+                                <span>ช่องทางชำระเงิน:</span>
+                                <span class="font-bold text-indigo-600">{{ visit.payment_method === 'cash' ? 'เงินสด (Cash)' : 'โอนเงิน (Transfer)' }}</span>
+                            </div>
                             
                             <div class="border-t border-slate-100 mt-1 pt-1 flex justify-between items-end">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase">ยอดสุทธิ</span>
@@ -697,13 +702,18 @@ const hasMedicalHistory = computed(() => {
                                            {{ visit.price ? Number(visit.price).toLocaleString() : '0' }} <span class="text-base font-bold text-indigo-400">฿</span>
                                         </div>
                                         
-                                        <div v-if="visit.treatment_fee > visit.price" class="mt-2 text-xs text-slate-500">
-                                            <div class="flex justify-between w-full gap-4">
+                                        <div v-if="visit.payment_method" class="mt-3 w-full flex justify-between items-center bg-white/60 p-2 rounded-lg text-xs font-bold border border-white/40 shadow-sm">
+                                            <span class="text-slate-500">ชำระผ่าน:</span>
+                                            <span class="text-indigo-600">{{ visit.payment_method === 'cash' ? 'เงินสด (Cash)' : 'โอนเงิน (Transfer)' }}</span>
+                                        </div>
+
+                                        <div v-if="visit.treatment_fee > visit.price" class="mt-3 text-xs text-slate-500 w-full space-y-1">
+                                            <div class="flex justify-between gap-4">
                                                 <span>ค่ารักษา:</span>
                                                 <span class="font-bold">{{ Number(visit.treatment_fee).toLocaleString() }}</span>
                                             </div>
-                                            <div class="flex justify-between w-full gap-4 text-rose-500">
-                                                <span>ต่วนลด:</span>
+                                            <div class="flex justify-between gap-4 text-rose-500">
+                                                <span>ส่วนลด:</span>
                                                 <span class="font-bold">-{{ (visit.treatment_fee - visit.price).toLocaleString() }}</span>
                                             </div>
                                         </div>

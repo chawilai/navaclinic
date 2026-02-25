@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import {
   Chart as ChartJS,
@@ -337,9 +337,19 @@ const doctorChartOptions = {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
-                แดชบอร์ดผู้บริหาร
-            </h2>
+            <div class="flex justify-between items-center w-full">
+                <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+                    แดชบอร์ดผู้บริหาร
+                </h2>
+                <div class="flex space-x-4">
+                    <Link :href="route('admin.doctors.index')" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        เพิ่ม / จัดการแพทย์
+                    </Link>
+                    <Link :href="route('admin.admins.index')" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-700 focus:bg-emerald-700 active:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        เพิ่ม / จัดการแอดมิน
+                    </Link>
+                </div>
+            </div>
         </template>
 
         <div class="py-12">
