@@ -12,7 +12,7 @@ class BookingController extends Controller
     public function create()
     {
         return Inertia::render('Booking/Create', [
-            'doctors' => Doctor::all(),
+            'doctors' => Doctor::where('is_on_leave', false)->get(),
         ]);
     }
 
@@ -52,6 +52,11 @@ class BookingController extends Controller
 
         // Check for Doctor Availability (Double Booking Prevention)
         if ($validated['doctor_id']) {
+            $doctor = Doctor::find($validated['doctor_id']);
+            if ($doctor && $doctor->is_on_leave) {
+                return back()->withErrors(['doctor_id' => "Doctor is currently on leave: {$doctor->leave_reason}"]);
+            }
+
             $requestedStart = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $validated['start_time']);
             $requestedEnd = $requestedStart->copy()->addMinutes((int) $validated['duration_minutes']);
 
@@ -227,7 +232,7 @@ class BookingController extends Controller
 
         \Illuminate\Support\Facades\Log::info("Checking slots for Date: $date, Duration: $duration");
 
-        $doctors = Doctor::all();
+        $doctors = Doctor::where('is_on_leave', false)->get();
 
         // 1. Fetch Bookings
         $bookings = Booking::whereDate('appointment_date', $date)

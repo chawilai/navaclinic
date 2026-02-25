@@ -47,7 +47,7 @@ class VisitController extends Controller
                 ->get();
         }
 
-        $doctors = Doctor::all();
+        $doctors = Doctor::where('is_on_leave', false)->get();
 
         return Inertia::render('Admin/Visits/Create', [
             'patient' => $patient,
@@ -239,6 +239,14 @@ class VisitController extends Controller
         ]);
 
         $doctor = Doctor::find($request->doctor_id);
+
+        if ($doctor->is_on_leave) {
+            return response()->json([
+                'available' => false,
+                'reason' => "Doctor is on leave: {$doctor->leave_reason}"
+            ]);
+        }
+
         $start = \Carbon\Carbon::parse($request->date . ' ' . $request->start_time);
         $end = $start->copy()->addMinutes($request->duration_minutes);
 

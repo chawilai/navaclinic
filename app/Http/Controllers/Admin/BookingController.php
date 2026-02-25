@@ -52,7 +52,7 @@ class BookingController extends Controller
         $patients = $users->concat($guests)->sortBy('name')->values();
 
         return Inertia::render('Admin/Booking/Create', [
-            'doctors' => \App\Models\Doctor::all(),
+            'doctors' => \App\Models\Doctor::where('is_on_leave', false)->get(),
             'patients' => $patients, // Renamed from 'users'
             'preselectedUser' => $preselectedUser
         ]);
@@ -88,6 +88,13 @@ class BookingController extends Controller
         $schedule = \App\Models\ClinicSchedule::where('day_of_week', $dayOfWeek)->first();
         if (!$schedule || !$schedule->is_open) {
             return back()->withErrors(['appointment_date' => "Clinic is closed on this day."]);
+        }
+
+        if ($validated['doctor_id']) {
+            $doctor = \App\Models\Doctor::find($validated['doctor_id']);
+            if ($doctor && $doctor->is_on_leave) {
+                return back()->withErrors(['doctor_id' => "Doctor is currently on leave: {$doctor->leave_reason}"]);
+            }
         }
 
         if ($validated['user_type'] === 'existing') {
@@ -177,7 +184,7 @@ class BookingController extends Controller
 
         return Inertia::render('Admin/Booking/Edit', [
             'booking' => $booking,
-            'doctors' => \App\Models\Doctor::all(),
+            'doctors' => \App\Models\Doctor::where('is_on_leave', false)->get(),
         ]);
     }
 
