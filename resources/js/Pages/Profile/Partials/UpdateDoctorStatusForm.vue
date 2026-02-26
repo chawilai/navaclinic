@@ -50,14 +50,12 @@ const submit = () => {
         </header>
 
         <form @submit.prevent="submit" class="mt-6 space-y-6">
-            <div class="flex items-center gap-2 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <input
-                    type="checkbox"
-                    id="is_on_leave"
-                    v-model="form.is_on_leave"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 w-5 h-5 cursor-pointer"
-                >
-                <InputLabel for="is_on_leave" value="ฉันต้องการพักงานชั่วคราว / ขอลา" class="mb-0 font-bold text-gray-800 cursor-pointer" />
+            <div class="flex items-center gap-3 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-100 cursor-pointer" @click="form.is_on_leave = !form.is_on_leave">
+                <label for="is_on_leave" class="relative inline-flex items-center cursor-pointer" @click.stop>
+                    <input type="checkbox" id="is_on_leave" v-model="form.is_on_leave" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+                <InputLabel for="is_on_leave" value="ฉันต้องการพักงานชั่วคราว / ขอลา" class="mb-0 font-bold text-gray-800 cursor-pointer pointer-events-none" />
             </div>
 
             <div v-show="form.is_on_leave" class="transition-all duration-300">

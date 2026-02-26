@@ -210,9 +210,12 @@ const deleteDoctor = () => {
                         </p>
                     </div>
 
-                    <div class="mb-4 flex items-center gap-2">
-                        <input type="checkbox" id="is_on_leave" v-model="form.is_on_leave" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                        <InputLabel for="is_on_leave" value="พักงาน (เช่น ป่วย, ท้อง, ลากิจ)" class="mb-0" />
+                    <div class="mb-4 flex items-center gap-3 cursor-pointer" @click="form.is_on_leave = !form.is_on_leave">
+                        <label for="is_on_leave" class="relative inline-flex items-center cursor-pointer" @click.stop>
+                            <input type="checkbox" id="is_on_leave" v-model="form.is_on_leave" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                        <InputLabel for="is_on_leave" value="พักงาน (เช่น ป่วย, ท้อง, ลากิจ)" class="mb-0 cursor-pointer pointer-events-none" />
                     </div>
 
                     <div class="mb-4" v-if="form.is_on_leave">
