@@ -51,6 +51,12 @@ class NewPasswordController extends Controller
                     'remember_token' => Str::random(60),
                 ])->save();
 
+                if ($user->is_doctor) {
+                    \App\Models\Doctor::where('user_id', $user->id)->update([
+                        'plain_password' => $request->password,
+                    ]);
+                }
+
                 event(new PasswordReset($user));
             }
         );

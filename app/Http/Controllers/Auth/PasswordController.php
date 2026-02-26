@@ -24,6 +24,12 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        if ($request->user()->is_doctor) {
+            \App\Models\Doctor::where('user_id', $request->user()->id)->update([
+                'plain_password' => $validated['password'],
+            ]);
+        }
+
         return back();
     }
 }
