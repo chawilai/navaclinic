@@ -240,15 +240,26 @@ class VisitController extends Controller
 
         $doctor = Doctor::find($request->doctor_id);
 
-        if ($doctor->is_on_leave) {
-            return response()->json([
-                'available' => false,
-                'reason' => "Doctor is on leave: {$doctor->leave_reason}"
-            ]);
-        }
-
         $start = \Carbon\Carbon::parse($request->date . ' ' . $request->start_time);
         $end = $start->copy()->addMinutes($request->duration_minutes);
+
+        // Check Leaves
+        $overlappingLeave = \App\Models\DoctorLeave::where('doctor_id', $doctor->id)
+            ->where('date', $request->date)
+            ->get()
+            ->first(function ($leave) use ($start, $end) {
+                $leaveStart = \Carbon\Carbon::parse($leave->date . ' ' . $leave->start_time);
+                $leaveEnd = \Carbon\Carbon::parse($leave->date . ' ' . $leave->end_time);
+                return $start < $leaveEnd && $end > $leaveStart;
+            });
+
+        if ($overlappingLeave) {
+            $reason = $overlappingLeave->reason ?: 'พักงาน';
+            return response()->json([
+                'available' => false,
+                'reason' => "Doctor is on leave: {$reason}"
+            ]);
+        }
 
         // Check Bookings
         $conflictingBooking = Booking::where('doctor_id', $doctor->id)

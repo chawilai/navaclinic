@@ -9,6 +9,7 @@ import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
+import DoctorLeavesModal from '@/Components/DoctorLeavesModal.vue';
 
 defineProps({
     doctors: {
@@ -31,6 +32,19 @@ const editingDoctor = ref(null);
 const showDeleteModal = ref(false);
 const doctorToDelete = ref(null);
 
+const showLeavesModal = ref(false);
+const selectedDoctorLeaves = ref(null);
+
+const openLeavesModal = (doctor) => {
+    selectedDoctorLeaves.value = doctor;
+    showLeavesModal.value = true;
+};
+
+const closeLeavesModal = () => {
+    showLeavesModal.value = false;
+    selectedDoctorLeaves.value = null;
+};
+
 const leaveReasons = [
     { value: 'ป่วย', label: 'ป่วย' },
     { value: 'ท้อง', label: 'ท้อง' },
@@ -45,12 +59,8 @@ const openModal = (doctor = null) => {
         form.specialty = doctor.specialty;
         form.email = doctor.user ? doctor.user.email : '';
         form.password = doctor.plain_password || '';
-        form.is_on_leave = !!doctor.is_on_leave;
-        form.leave_reason = doctor.leave_reason || '';
     } else {
         form.reset();
-        form.is_on_leave = false;
-        form.leave_reason = '';
     }
     showModal.value = true;
 };
@@ -156,7 +166,6 @@ const deleteDoctor = () => {
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors">{{ doctor.name }}</h3>
-                                        <span v-if="doctor.is_on_leave" class="px-2 py-0.5 bg-red-100 text-red-800 text-xs rounded-full font-medium">พักงาน: {{ doctor.leave_reason }}</span>
                                     </div>
                                     <p class="text-slate-500 text-sm">{{ doctor.specialty || 'แพทย์ทั่วไป' }}</p>
                                 </div>
@@ -166,6 +175,7 @@ const deleteDoctor = () => {
                                     ดูประวัติ <span aria-hidden="true">&rarr;</span>
                                 </Link>
                                 <div class="flex gap-2">
+                                    <button @click="openLeavesModal(doctor)" class="text-amber-600 hover:text-amber-800 text-sm font-medium">จัดการวันหยุด</button>
                                     <button @click="openModal(doctor)" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">แก้ไข</button>
                                     <button @click="confirmDelete(doctor)" class="text-red-600 hover:text-red-900 text-sm font-medium">ลบ</button>
                                 </div>
@@ -241,30 +251,6 @@ const deleteDoctor = () => {
                         </p>
                     </div>
 
-                    <div class="mb-4 flex items-center gap-3 cursor-pointer" @click="form.is_on_leave = !form.is_on_leave">
-                        <label for="is_on_leave" class="relative inline-flex items-center cursor-pointer" @click.stop>
-                            <input type="checkbox" id="is_on_leave" v-model="form.is_on_leave" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                        <InputLabel for="is_on_leave" value="พักงาน (เช่น ป่วย, ท้อง, ลากิจ)" class="mb-0 cursor-pointer pointer-events-none" />
-                    </div>
-
-                    <div class="mb-4" v-if="form.is_on_leave">
-                        <InputLabel for="leave_reason" value="เหตุผลการพักงาน (เลือกหรือพิมพ์เอง)" />
-                        <TextInput 
-                            id="leave_reason" 
-                            v-model="form.leave_reason" 
-                            type="text" 
-                            class="mt-1 block w-full" 
-                            placeholder="ระบุเหตุผล"
-                            list="leave_reasons_list"
-                        />
-                        <datalist id="leave_reasons_list">
-                            <option v-for="reason in leaveReasons" :key="reason.value" :value="reason.value">{{ reason.label }}</option>
-                        </datalist>
-                        <InputError :message="form.errors.leave_reason" class="mt-2" />
-                    </div>
-
                     <div class="flex justify-end mt-6">
                         <SecondaryButton @click="closeModal"> ยกเลิก </SecondaryButton>
                         <PrimaryButton class="ml-3" @click="saveDoctor" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
@@ -300,5 +286,7 @@ const deleteDoctor = () => {
                 </div>
             </div>
         </Modal>
+        <!-- Leaves Modal -->
+        <DoctorLeavesModal :show="showLeavesModal" :doctor="selectedDoctorLeaves" @close="closeLeavesModal" />
     </AuthenticatedLayout>
 </template>

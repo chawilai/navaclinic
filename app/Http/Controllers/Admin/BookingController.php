@@ -92,8 +92,23 @@ class BookingController extends Controller
 
         if ($validated['doctor_id']) {
             $doctor = \App\Models\Doctor::find($validated['doctor_id']);
-            if ($doctor && $doctor->is_on_leave) {
-                return back()->withErrors(['doctor_id' => "Doctor is currently on leave: {$doctor->leave_reason}"]);
+
+            $requestedStart = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $validated['start_time']);
+            $requestedEnd = $requestedStart->copy()->addMinutes((int) $validated['duration_minutes']);
+
+            // Check Leaves
+            $overlappingLeave = \App\Models\DoctorLeave::where('doctor_id', $validated['doctor_id'])
+                ->where('date', $validated['appointment_date'])
+                ->get()
+                ->first(function ($leave) use ($requestedStart, $requestedEnd) {
+                    $leaveStart = \Carbon\Carbon::parse($leave->date . ' ' . $leave->start_time);
+                    $leaveEnd = \Carbon\Carbon::parse($leave->date . ' ' . $leave->end_time);
+                    return $requestedStart->lt($leaveEnd) && $requestedEnd->gt($leaveStart);
+                });
+
+            if ($overlappingLeave) {
+                $reason = $overlappingLeave->reason ?: 'พักงาน';
+                return back()->withErrors(['doctor_id' => "หมอพักงานในช่วงเวลานี้: {$reason}"]);
             }
         }
 
@@ -237,6 +252,21 @@ class BookingController extends Controller
                 return back()->withErrors([
                     'start_time' => 'Doctor is not available at this time (Conflicting booking).'
                 ]);
+            }
+
+            // Check Leaves
+            $overlappingLeave = \App\Models\DoctorLeave::where('doctor_id', $validated['doctor_id'])
+                ->where('date', $date)
+                ->get()
+                ->first(function ($leave) use ($start, $end) {
+                    $leaveStart = \Carbon\Carbon::parse($leave->date . ' ' . $leave->start_time);
+                    $leaveEnd = \Carbon\Carbon::parse($leave->date . ' ' . $leave->end_time);
+                    return $start < $leaveEnd && $end > $leaveStart;
+                });
+
+            if ($overlappingLeave) {
+                $reason = $overlappingLeave->reason ?: 'พักงาน';
+                return back()->withErrors(['doctor_id' => "หมอพักงานในช่วงเวลานี้: {$reason}"]);
             }
         }
 

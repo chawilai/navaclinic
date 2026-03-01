@@ -50,14 +50,27 @@ class BookingController extends Controller
             return back()->withErrors(['appointment_date' => "Clinic is closed on this day."]);
         }
 
-        // Check for Doctor Availability (Double Booking Prevention)
+        // Check for Doctor Availability (Double Booking Prevention & Leaves)
         if ($validated['doctor_id']) {
             $doctor = Doctor::find($validated['doctor_id']);
-            if ($doctor && $doctor->is_on_leave) {
-                return back()->withErrors(['doctor_id' => "Doctor is currently on leave: {$doctor->leave_reason}"]);
-            }
 
             $requestedStart = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $validated['start_time']);
+            $requestedEnd = $requestedStart->copy()->addMinutes((int) $validated['duration_minutes']);
+
+            // Check Leaves
+            $overlappingLeave = \App\Models\DoctorLeave::where('doctor_id', $validated['doctor_id'])
+                ->where('date', $validated['appointment_date'])
+                ->get()
+                ->first(function ($leave) use ($requestedStart, $requestedEnd) {
+                    $leaveStart = \Carbon\Carbon::parse($leave->date . ' ' . $leave->start_time);
+                    $leaveEnd = \Carbon\Carbon::parse($leave->date . ' ' . $leave->end_time);
+                    return $requestedStart->lt($leaveEnd) && $requestedEnd->gt($leaveStart);
+                });
+
+            if ($overlappingLeave) {
+                $reason = $overlappingLeave->reason ?: 'พักงาน';
+                return back()->withErrors(['doctor_id' => "หมอพักงานในช่วงเวลานี้: {$reason}"]);
+            }
             $requestedEnd = $requestedStart->copy()->addMinutes((int) $validated['duration_minutes']);
 
             // Check Bookings
@@ -249,7 +262,10 @@ class BookingController extends Controller
             ->where('status', '!=', 'cancelled')
             ->get();
 
-        \Illuminate\Support\Facades\Log::info("Bookings found: " . $bookings->count() . ", Visits found: " . $visits->count());
+        // 3. Fetch Leaves on this date
+        $leaves = \App\Models\DoctorLeave::where('date', $date)->get();
+
+        \Illuminate\Support\Facades\Log::info("Bookings: " . $bookings->count() . ", Visits: " . $visits->count() . ", Leaves: " . $leaves->count());
 
         // Use dynamic Open/Close times from Schedule
         if ($request->boolean('is_admin')) {
@@ -287,7 +303,7 @@ class BookingController extends Controller
             $checkEnd = $slotStart->copy()->addMinutes($duration + 30);
 
             // Process all doctors for this slot
-            $doctorsWithStatus = $doctors->map(function ($doctor) use ($bookings, $visits, $slotStart, $checkEnd) {
+            $doctorsWithStatus = $doctors->map(function ($doctor) use ($bookings, $visits, $leaves, $slotStart, $checkEnd) {
 
                 // --- Check Bookings ---
                 $doctorBookings = $bookings->where('doctor_id', $doctor->id);
@@ -295,8 +311,17 @@ class BookingController extends Controller
                 // --- Check Visits ---
                 $doctorVisits = $visits->where('doctor_id', $doctor->id);
 
+                // --- Check Leaves ---
+                $doctorLeaves = $leaves->where('doctor_id', $doctor->id);
+
                 // Merge Busy Slots for display
                 $busySlots = [];
+
+                foreach ($doctorLeaves as $leave) {
+                    $lStart = \Carbon\Carbon::parse($leave->start_time)->format('H:i');
+                    $lEnd = \Carbon\Carbon::parse($leave->end_time)->format('H:i');
+                    $busySlots[] = "$lStart-$lEnd";
+                }
 
                 foreach ($doctorBookings as $b) {
                     $dateTime = \Carbon\Carbon::parse($b->appointment_date)->setTimeFromTimeString($b->start_time);
@@ -355,6 +380,28 @@ class BookingController extends Controller
                         'specialty' => $doctor->specialty,
                         'status' => 'busy',
                         'reason' => "Walk-in $vStartStr-$vEndStr",
+                        'busy_slots' => $busySlots
+                    ];
+                }
+
+                // 3. Leaves Overlap
+                $conflictingLeave = $doctorLeaves->first(function ($leave) use ($slotStart, $checkEnd) {
+                    $leaveStart = \Carbon\Carbon::parse($leave->date . ' ' . $leave->start_time);
+                    $leaveEnd = \Carbon\Carbon::parse($leave->date . ' ' . $leave->end_time);
+                    return $slotStart < $leaveEnd && $checkEnd > $leaveStart;
+                });
+
+                if ($conflictingLeave) {
+                    $lStartStr = \Carbon\Carbon::parse($conflictingLeave->start_time)->format('H:i');
+                    $lEndStr = \Carbon\Carbon::parse($conflictingLeave->end_time)->format('H:i');
+                    $reason = $conflictingLeave->reason ?: 'พักงาน';
+
+                    return [
+                        'id' => $doctor->id,
+                        'name' => $doctor->name,
+                        'specialty' => $doctor->specialty,
+                        'status' => 'busy',
+                        'reason' => "$reason $lStartStr-$lEndStr",
                         'busy_slots' => $busySlots
                     ];
                 }

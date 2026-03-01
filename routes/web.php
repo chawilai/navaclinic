@@ -190,6 +190,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/doctor-status', [ProfileController::class, 'updateDoctorStatus'])->name('profile.doctor.status');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Doctor Leaves API Routes (protected by authorizeAccess in Controller)
+    Route::get('/api/doctors/{doctor}/leaves', [\App\Http\Controllers\DoctorLeaveController::class, 'index'])->name('api.doctors.leaves.index');
+    Route::post('/api/doctors/{doctor}/leaves', [\App\Http\Controllers\DoctorLeaveController::class, 'store'])->name('api.doctors.leaves.store');
+    Route::delete('/api/doctors/{doctor}/leaves/{leave}', [\App\Http\Controllers\DoctorLeaveController::class, 'destroy'])->name('api.doctors.leaves.destroy');
 });
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
