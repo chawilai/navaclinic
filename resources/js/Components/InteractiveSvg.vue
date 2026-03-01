@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { translateBodyPart } from '@/Utils/BodyPartTranslations';
 
 const props = defineProps({
     src: {
@@ -20,6 +21,10 @@ const emit = defineEmits(['toggle']);
 
 const svgContent = ref('');
 const container = ref(null);
+
+const hoveredPart = ref(null);
+const tooltipStyle = ref({ top: '0px', left: '0px', opacity: 0 });
+const showTooltip = ref(false);
 
 const fetchSvg = async () => {
     try {
@@ -112,7 +117,22 @@ const initInteractiveElements = () => {
 const setupInteractions = () => {
     if (!container.value) return;
     container.value.addEventListener('click', handleSvgClick);
+    container.value.addEventListener('mouseover', handleMouseOver);
+    container.value.addEventListener('mouseout', handleMouseOut);
+    container.value.addEventListener('mousemove', handleMouseMove);
 };
+
+const cleanupInteractions = () => {
+    if (!container.value) return;
+    container.value.removeEventListener('click', handleSvgClick);
+    container.value.removeEventListener('mouseover', handleMouseOver);
+    container.value.removeEventListener('mouseout', handleMouseOut);
+    container.value.removeEventListener('mousemove', handleMouseMove);
+};
+
+onBeforeUnmount(() => {
+    cleanupInteractions();
+});
 
 const cleanName = (rawName) => {
     if (!rawName) return '';
@@ -151,6 +171,55 @@ const handleSvgClick = (event) => {
             }
         }
         current = current.parentNode;
+    }
+};
+
+const getPartByName = (foundName) => {
+    let match = props.selectedParts.find(p => p.id === foundName || (p.rawItem && cleanName(p.rawItem.area) === foundName));
+    if (match) return match;
+    return props.selectedParts.find(p => {
+        const base = p.id.replace(/(_L|_R|_Left|_Right)$/i, '');
+        return base === foundName;
+    });
+};
+
+const handleMouseOver = (event) => {
+    const target = event.target;
+    let current = target;
+    let foundName = null;
+    
+    while (current && current !== container.value) {
+        if (current.classList && current.classList.contains('interactive-part')) {
+            foundName = current.getAttribute('data-clean-name') || cleanName(current.getAttribute('data-name') || current.id);
+            break;
+        }
+        current = current.parentNode;
+    }
+
+    if (foundName) {
+        const partData = getPartByName(foundName);
+        if (partData) {
+            hoveredPart.value = partData;
+            showTooltip.value = true;
+        } else {
+            hoveredPart.value = { id: foundName, rawItem: null, isUnselected: true };
+            showTooltip.value = true;
+        }
+    }
+};
+
+const handleMouseOut = (event) => {
+    showTooltip.value = false;
+    hoveredPart.value = null;
+};
+
+const handleMouseMove = (event) => {
+    if (showTooltip.value) {
+        tooltipStyle.value = {
+            top: `${event.clientY + 15}px`,
+            left: `${event.clientX + 15}px`,
+            opacity: 1
+        };
     }
 };
 
@@ -324,7 +393,39 @@ watch(() => props.selectedParts, () => {
 </script>
 
 <template>
-    <div ref="container" class="interactive-svg-container w-full h-full flex justify-center items-center" v-html="svgContent">
+    <div class="relative w-full h-full">
+        <div ref="container" class="interactive-svg-container w-full h-full flex justify-center items-center" v-html="svgContent">
+        </div>
+
+        <!-- Popover / Tooltip -->
+        <Teleport to="body">
+            <div v-if="showTooltip && hoveredPart"
+                 class="fixed z-[9999] pointer-events-none transition-opacity duration-200"
+                 :style="tooltipStyle"
+            >
+                <div class="bg-slate-800 text-white text-xs rounded-xl shadow-xl border border-slate-700 p-3 min-w-[150px] max-w-[250px]">
+                    <div class="font-bold flex items-center gap-2 mb-1">
+                        <span v-if="hoveredPart.index" class="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[9px]">{{ hoveredPart.index }}</span>
+                        <span class="text-indigo-200">{{ translateBodyPart(hoveredPart.rawItem?.area || hoveredPart.id) }}</span>
+                    </div>
+                    
+                    <div v-if="hoveredPart.rawItem" class="flex flex-col gap-1 mt-2 pt-2 border-t border-slate-600">
+                        <div v-if="hoveredPart.rawItem.symptom" class="text-slate-300">
+                            <span class="text-slate-400">อาการ:</span> {{ hoveredPart.rawItem.symptom }}
+                        </div>
+                        <div v-if="hoveredPart.rawItem.pain_level || hoveredPart.rawItem.pain_level_after" class="flex flex-wrap items-center gap-2 mt-1">
+                            <span class="text-slate-400">VAS:</span>
+                            <span v-if="hoveredPart.rawItem.pain_level" class="font-bold px-1.5 py-0.5 rounded bg-slate-700">{{ hoveredPart.rawItem.pain_level }}</span>
+                            <svg v-if="hoveredPart.rawItem.pain_level && hoveredPart.rawItem.pain_level_after" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-slate-500 mx-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            <span v-if="hoveredPart.rawItem.pain_level_after" class="font-bold px-1.5 py-0.5 rounded bg-slate-700 text-emerald-400">{{ hoveredPart.rawItem.pain_level_after }}</span>
+                        </div>
+                    </div>
+                    <div v-else class="text-slate-400 mt-1 italic text-[10px]">
+                        คลิกเพื่อระบุอาการ
+                    </div>
+                </div>
+            </div>
+        </Teleport>
     </div>
 </template>
 
