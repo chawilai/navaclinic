@@ -21,7 +21,12 @@ const statusLabels = {
     cancelled: 'ยกเลิก',
 };
 
-const getStatusLabel = (status) => statusLabels[status] || status;
+const getStatusLabel = (visit) => {
+    if (visit.status === 'ongoing' && visit.is_complete) {
+        return 'รักษาเสร็จสิ้น';
+    }
+    return statusLabels[visit.status] || visit.status;
+};
 
 const isDetailedPainArea = (areas) => {
     return Array.isArray(areas) && areas.length > 0 && typeof areas[0] !== 'string';
@@ -82,11 +87,11 @@ const hasMedicalHistory = computed(() => {
                     </h2>
                     <span class="px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wide ring-1 ring-inset"
                         :class="{
-                            'bg-emerald-50 text-emerald-700 ring-emerald-600/20': visit.status === 'completed', 
-                            'bg-blue-50 text-blue-700 ring-blue-600/20': visit.status === 'ongoing', 
+                            'bg-emerald-50 text-emerald-700 ring-emerald-600/20': visit.status === 'completed' || (visit.status === 'ongoing' && visit.is_complete), 
+                            'bg-blue-50 text-blue-700 ring-blue-600/20': visit.status === 'ongoing' && !visit.is_complete, 
                             'bg-slate-50 text-slate-700 ring-slate-600/20': visit.status === 'pending'
                         }">
-                        {{ getStatusLabel(visit.status) }}
+                        {{ getStatusLabel(visit) }}
                     </span>
                 </div>
                 
@@ -153,11 +158,11 @@ const hasMedicalHistory = computed(() => {
                     </Link>
                      <span class="px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wide border"
                         :class="{
-                            'bg-emerald-50 text-emerald-700 border-emerald-200': visit.status === 'completed', 
-                            'bg-blue-50 text-blue-700 border-blue-200': visit.status === 'ongoing', 
+                            'bg-emerald-50 text-emerald-700 border-emerald-200': visit.status === 'completed' || (visit.status === 'ongoing' && visit.is_complete), 
+                            'bg-blue-50 text-blue-700 border-blue-200': visit.status === 'ongoing' && !visit.is_complete, 
                             'bg-slate-50 text-slate-700 border-slate-200': visit.status === 'pending'
                         }">
-                        {{ getStatusLabel(visit.status) }}
+                        {{ getStatusLabel(visit) }}
                     </span>
                  </div>
             </div>
