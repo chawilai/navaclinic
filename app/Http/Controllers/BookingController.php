@@ -57,6 +57,27 @@ class BookingController extends Controller
             $requestedStart = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $validated['start_time']);
             $requestedEnd = $requestedStart->copy()->addMinutes((int) $validated['duration_minutes']);
 
+            // Check Schedule
+            $dayOfWeek = \Carbon\Carbon::parse($validated['appointment_date'])->dayOfWeek;
+            $doctorSchedule = \App\Models\DoctorSchedule::where('doctor_id', $validated['doctor_id'])
+                ->where('day_of_week', $dayOfWeek)
+                ->first();
+
+            if ($doctorSchedule && !$doctorSchedule->is_working) {
+                return back()->withErrors(['doctor_id' => "หมอไม่ทำงานในวันนี้"]);
+            }
+
+            if ($doctorSchedule && $doctorSchedule->start_time && $doctorSchedule->end_time) {
+                $scheduleStart = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $doctorSchedule->start_time);
+                $scheduleEnd = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $doctorSchedule->end_time);
+
+                if ($requestedStart->lt($scheduleStart) || $requestedEnd->gt($scheduleEnd)) {
+                    $sStart = \Carbon\Carbon::parse($doctorSchedule->start_time)->format('H:i');
+                    $sEnd = \Carbon\Carbon::parse($doctorSchedule->end_time)->format('H:i');
+                    return back()->withErrors(['doctor_id' => "หมอทำงานช่วงเวลา {$sStart} - {$sEnd}"]);
+                }
+            }
+
             // Check Leaves
             $overlappingLeave = \App\Models\DoctorLeave::where('doctor_id', $validated['doctor_id'])
                 ->where('date', $validated['appointment_date'])
@@ -253,19 +274,18 @@ class BookingController extends Controller
             ->get();
 
         // 2. Fetch Visits (Walk-ins) on this date
-        // Note: Visit has 'visit_date' which is a DateTime. We need to filter by DATE part.
         $visits = \App\Models\Visit::whereDate('visit_date', $date)
-            ->whereIn('status', ['pending', 'ongoing']) // Assuming pending/ongoing blocks the doctor. Completed might strictly mean "Done", but for today's schedule, it WAS blocked? 
-            // Actually, if it's completed, it's in the past relative to execution? Or it blocked that slot.
-            // Let's include 'completed' as well if it was today, because you can't double book a past slot anyway, or we want to show it as "Busy" in history.
-            // Usually 'cancelled' is the only one that frees up the slot.
+            ->whereIn('status', ['pending', 'ongoing'])
             ->where('status', '!=', 'cancelled')
             ->get();
 
         // 3. Fetch Leaves on this date
         $leaves = \App\Models\DoctorLeave::where('date', $date)->get();
 
-        \Illuminate\Support\Facades\Log::info("Bookings: " . $bookings->count() . ", Visits: " . $visits->count() . ", Leaves: " . $leaves->count());
+        // 4. Fetch Doctor Schedules for this day_of_week
+        $doctorSchedules = \App\Models\DoctorSchedule::where('day_of_week', $dayOfWeek)->get();
+
+        \Illuminate\Support\Facades\Log::info("Bookings: " . $bookings->count() . ", Visits: " . $visits->count() . ", Leaves: " . $leaves->count() . ", Schedules: " . $doctorSchedules->count());
 
         // Use dynamic Open/Close times from Schedule
         if ($request->boolean('is_admin')) {
@@ -303,7 +323,39 @@ class BookingController extends Controller
             $checkEnd = $slotStart->copy()->addMinutes($duration + 30);
 
             // Process all doctors for this slot
-            $doctorsWithStatus = $doctors->map(function ($doctor) use ($bookings, $visits, $leaves, $slotStart, $checkEnd) {
+            $doctorsWithStatus = $doctors->map(function ($doctor) use ($bookings, $visits, $leaves, $doctorSchedules, $date, $slotStart, $checkEnd) {
+
+                // Merge Busy Slots for display
+                $busySlots = [];
+
+                // --- Check Schedule ---
+                $doctorSchedule = $doctorSchedules->where('doctor_id', $doctor->id)->first();
+                if ($doctorSchedule && !$doctorSchedule->is_working) {
+                    return [
+                        'id' => $doctor->id,
+                        'name' => $doctor->name,
+                        'specialty' => $doctor->specialty,
+                        'status' => 'busy',
+                        'reason' => "วันหยุดหมอ",
+                        'busy_slots' => $busySlots
+                    ];
+                }
+
+                if ($doctorSchedule && $doctorSchedule->start_time && $doctorSchedule->end_time) {
+                    $scheduleStart = \Carbon\Carbon::parse($date . ' ' . $doctorSchedule->start_time);
+                    $scheduleEnd = \Carbon\Carbon::parse($date . ' ' . $doctorSchedule->end_time);
+
+                    if ($slotStart->lt($scheduleStart) || $checkEnd->gt($scheduleEnd)) {
+                        return [
+                            'id' => $doctor->id,
+                            'name' => $doctor->name,
+                            'specialty' => $doctor->specialty,
+                            'status' => 'busy',
+                            'reason' => "นอกเวลาทำงาน",
+                            'busy_slots' => $busySlots
+                        ];
+                    }
+                }
 
                 // --- Check Bookings ---
                 $doctorBookings = $bookings->where('doctor_id', $doctor->id);
@@ -313,9 +365,6 @@ class BookingController extends Controller
 
                 // --- Check Leaves ---
                 $doctorLeaves = $leaves->where('doctor_id', $doctor->id);
-
-                // Merge Busy Slots for display
-                $busySlots = [];
 
                 foreach ($doctorLeaves as $leave) {
                     $lStart = \Carbon\Carbon::parse($leave->start_time)->format('H:i');

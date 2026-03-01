@@ -10,6 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import DoctorLeavesModal from '@/Components/DoctorLeavesModal.vue';
+import DoctorScheduleModal from '@/Components/DoctorScheduleModal.vue';
 
 defineProps({
     doctors: {
@@ -35,6 +36,9 @@ const doctorToDelete = ref(null);
 const showLeavesModal = ref(false);
 const selectedDoctorLeaves = ref(null);
 
+const showScheduleModal = ref(false);
+const selectedDoctorSchedule = ref(null);
+
 const openLeavesModal = (doctor) => {
     selectedDoctorLeaves.value = doctor;
     showLeavesModal.value = true;
@@ -43,6 +47,16 @@ const openLeavesModal = (doctor) => {
 const closeLeavesModal = () => {
     showLeavesModal.value = false;
     selectedDoctorLeaves.value = null;
+};
+
+const openScheduleModal = (doctor) => {
+    selectedDoctorSchedule.value = doctor;
+    showScheduleModal.value = true;
+};
+
+const closeScheduleModal = () => {
+    showScheduleModal.value = false;
+    selectedDoctorSchedule.value = null;
 };
 
 const leaveReasons = [
@@ -175,6 +189,7 @@ const deleteDoctor = () => {
                                     ดูประวัติ <span aria-hidden="true">&rarr;</span>
                                 </Link>
                                 <div class="flex gap-2">
+                                    <button @click="openScheduleModal(doctor)" class="text-teal-600 hover:text-teal-800 text-sm font-medium">ตารางงาน</button>
                                     <button @click="openLeavesModal(doctor)" class="text-amber-600 hover:text-amber-800 text-sm font-medium">จัดการวันหยุด</button>
                                     <button @click="openModal(doctor)" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">แก้ไข</button>
                                     <button @click="confirmDelete(doctor)" class="text-red-600 hover:text-red-900 text-sm font-medium">ลบ</button>
@@ -288,5 +303,8 @@ const deleteDoctor = () => {
         </Modal>
         <!-- Leaves Modal -->
         <DoctorLeavesModal :show="showLeavesModal" :doctor="selectedDoctorLeaves" @close="closeLeavesModal" />
+
+        <!-- Schedule Modal -->
+        <DoctorScheduleModal :show="showScheduleModal" :doctor="selectedDoctorSchedule" @close="closeScheduleModal" />
     </AuthenticatedLayout>
 </template>

@@ -195,6 +195,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/doctors/{doctor}/leaves', [\App\Http\Controllers\DoctorLeaveController::class, 'index'])->name('api.doctors.leaves.index');
     Route::post('/api/doctors/{doctor}/leaves', [\App\Http\Controllers\DoctorLeaveController::class, 'store'])->name('api.doctors.leaves.store');
     Route::delete('/api/doctors/{doctor}/leaves/{leave}', [\App\Http\Controllers\DoctorLeaveController::class, 'destroy'])->name('api.doctors.leaves.destroy');
+
+    // Doctor Schedules API Routes
+    Route::get('/api/doctors/{doctor}/schedules', [\App\Http\Controllers\DoctorScheduleController::class, 'index'])->name('api.doctors.schedules.index');
+    Route::post('/api/doctors/{doctor}/schedules', [\App\Http\Controllers\DoctorScheduleController::class, 'update'])->name('api.doctors.schedules.update');
 });
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {

@@ -243,6 +243,33 @@ class VisitController extends Controller
         $start = \Carbon\Carbon::parse($request->date . ' ' . $request->start_time);
         $end = $start->copy()->addMinutes($request->duration_minutes);
 
+        // Check Schedule
+        $dayOfWeek = \Carbon\Carbon::parse($request->date)->dayOfWeek;
+        $doctorSchedule = \App\Models\DoctorSchedule::where('doctor_id', $doctor->id)
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+        if ($doctorSchedule && !$doctorSchedule->is_working) {
+            return response()->json([
+                'available' => false,
+                'reason' => "Doctor is not working today."
+            ]);
+        }
+
+        if ($doctorSchedule && $doctorSchedule->start_time && $doctorSchedule->end_time) {
+            $scheduleStart = \Carbon\Carbon::parse($request->date . ' ' . $doctorSchedule->start_time);
+            $scheduleEnd = \Carbon\Carbon::parse($request->date . ' ' . $doctorSchedule->end_time);
+
+            if ($start->lt($scheduleStart) || $end->gt($scheduleEnd)) {
+                $sStart = \Carbon\Carbon::parse($doctorSchedule->start_time)->format('H:i');
+                $sEnd = \Carbon\Carbon::parse($doctorSchedule->end_time)->format('H:i');
+                return response()->json([
+                    'available' => false,
+                    'reason' => "Doctor works from {$sStart} to {$sEnd}"
+                ]);
+            }
+        }
+
         // Check Leaves
         $overlappingLeave = \App\Models\DoctorLeave::where('doctor_id', $doctor->id)
             ->where('date', $request->date)

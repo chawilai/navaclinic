@@ -96,6 +96,27 @@ class BookingController extends Controller
             $requestedStart = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $validated['start_time']);
             $requestedEnd = $requestedStart->copy()->addMinutes((int) $validated['duration_minutes']);
 
+            // Check Schedule
+            $dayOfWeek = \Carbon\Carbon::parse($validated['appointment_date'])->dayOfWeek;
+            $doctorSchedule = \App\Models\DoctorSchedule::where('doctor_id', $validated['doctor_id'])
+                ->where('day_of_week', $dayOfWeek)
+                ->first();
+
+            if ($doctorSchedule && !$doctorSchedule->is_working) {
+                return back()->withErrors(['doctor_id' => "หมอไม่ทำงานในวันนี้"]);
+            }
+
+            if ($doctorSchedule && $doctorSchedule->start_time && $doctorSchedule->end_time) {
+                $scheduleStart = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $doctorSchedule->start_time);
+                $scheduleEnd = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $doctorSchedule->end_time);
+
+                if ($requestedStart->lt($scheduleStart) || $requestedEnd->gt($scheduleEnd)) {
+                    $sStart = \Carbon\Carbon::parse($doctorSchedule->start_time)->format('H:i');
+                    $sEnd = \Carbon\Carbon::parse($doctorSchedule->end_time)->format('H:i');
+                    return back()->withErrors(['doctor_id' => "หมอทำงานช่วงเวลา {$sStart} - {$sEnd}"]);
+                }
+            }
+
             // Check Leaves
             $overlappingLeave = \App\Models\DoctorLeave::where('doctor_id', $validated['doctor_id'])
                 ->where('date', $validated['appointment_date'])
@@ -252,6 +273,27 @@ class BookingController extends Controller
                 return back()->withErrors([
                     'start_time' => 'Doctor is not available at this time (Conflicting booking).'
                 ]);
+            }
+
+            // Check Schedule
+            $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek;
+            $doctorSchedule = \App\Models\DoctorSchedule::where('doctor_id', $validated['doctor_id'])
+                ->where('day_of_week', $dayOfWeek)
+                ->first();
+
+            if ($doctorSchedule && !$doctorSchedule->is_working) {
+                return back()->withErrors(['start_time' => "หมอไม่ทำงานในวันนี้"]);
+            }
+
+            if ($doctorSchedule && $doctorSchedule->start_time && $doctorSchedule->end_time) {
+                $scheduleStart = \Carbon\Carbon::parse($date . ' ' . $doctorSchedule->start_time);
+                $scheduleEnd = \Carbon\Carbon::parse($date . ' ' . $doctorSchedule->end_time);
+
+                if ($start->lt($scheduleStart) || $end->gt($scheduleEnd)) {
+                    $sStart = \Carbon\Carbon::parse($doctorSchedule->start_time)->format('H:i');
+                    $sEnd = \Carbon\Carbon::parse($doctorSchedule->end_time)->format('H:i');
+                    return back()->withErrors(['start_time' => "หมอทำงานช่วงเวลา {$sStart} - {$sEnd}"]);
+                }
             }
 
             // Check Leaves
