@@ -337,4 +337,13 @@ class VisitController extends Controller
             'visit' => $visit,
         ]);
     }
+
+    public function toggleHidden(Request $request, Visit $visit)
+    {
+        $visit->update([
+            'is_hidden' => !$visit->is_hidden,
+        ]);
+
+        return back()->with('success', 'Visit visibility updated successfully.');
+    }
 }

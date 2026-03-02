@@ -18,9 +18,15 @@ class OwnerDashboardController extends Controller
         $period = $request->input('period', 'monthly'); // daily, weekly, monthly, yearly
         $date = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::now();
 
+        $showHidden = $request->query('show_hidden') == '1';
+
         // Base query
         $query = Visit::with(['doctor', 'patient', 'booking', 'treatmentRecord'])
             ->whereNotNull('doctor_id');
+
+        if (!$showHidden) {
+            $query->where('is_hidden', false);
+        }
 
         // Determine date range
         if ($period === 'daily') {
@@ -136,6 +142,10 @@ class OwnerDashboardController extends Controller
         $chartQuery = Visit::with(['doctor', 'treatmentRecord'])
             ->whereNotNull('doctor_id')
             ->whereBetween('visit_date', [$chartStartDate, $chartEndDate]);
+
+        if (!$showHidden) {
+            $chartQuery->where('is_hidden', false);
+        }
 
         if ($chartDoctorId) {
             $chartQuery->where('doctor_id', $chartDoctorId);
@@ -258,6 +268,10 @@ class OwnerDashboardController extends Controller
             ->whereBetween('visit_date', [$doctorStartDate, $doctorEndDate])
             ->orderBy('visit_date', 'desc');
 
+        if (!$showHidden) {
+            $doctorVisitsQuery->where('is_hidden', false);
+        }
+
         $doctorVisits = $doctorVisitsQuery->get();
 
         // --- Doctor Stats ---
@@ -307,6 +321,7 @@ class OwnerDashboardController extends Controller
                         'doctor_fee' => $visit->doctor_commission ?? ($visit->price * ($visit->doctor->commission_rate ?? 50) / 100),
                         'tip' => $visit->tip ?? 0,
                         'is_complete' => $visit->is_complete,
+                        'is_hidden' => $visit->is_hidden,
                     ];
                 })
             ];
@@ -368,10 +383,15 @@ class OwnerDashboardController extends Controller
         // --- Financial Overview (Today, Month, Year) ---
         // Fetch all visits for the selected year to minimize queries
         $currentDate = $date->copy();
-        $yearlyVisits = Visit::with(['doctor', 'treatmentRecord'])
+        $yearlyVisitsQuery = Visit::with(['doctor', 'treatmentRecord'])
             ->whereYear('visit_date', $currentDate->year)
-            ->whereNotNull('doctor_id')
-            ->get();
+            ->whereNotNull('doctor_id');
+
+        if (!$showHidden) {
+            $yearlyVisitsQuery->where('is_hidden', false);
+        }
+
+        $yearlyVisits = $yearlyVisitsQuery->get();
 
         $doctors = Doctor::orderBy('name')->get();
 
@@ -471,7 +491,13 @@ class OwnerDashboardController extends Controller
             'doctor_filters' => [
                 'period' => $doctorPeriod,
                 'date' => $doctorDate->format('Y-m-d'),
-            ]
+            ],
+            'completeness_summary' => [
+                'total' => $totalVisits,
+                'complete' => $visits->filter->is_complete->count(),
+                'incomplete' => $totalVisits - $visits->filter->is_complete->count(),
+            ],
+            'show_hidden' => $showHidden,
         ]);
     }
 }

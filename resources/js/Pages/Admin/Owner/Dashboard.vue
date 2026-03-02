@@ -43,6 +43,8 @@ const props = defineProps({
     upcoming_bookings: Array,
     top_patients: Array,
     doctors: Array,
+    completeness_summary: Object,
+    show_hidden: Boolean,
 });
 
 const period = ref(props.filters.period);
@@ -124,6 +126,16 @@ const updateChart = () => {
         preserveScroll: true,
         only: ['financial_chart', 'chart_filters', 'chart_totals'],
     });
+};
+
+const toggleVisibility = (visitId, event) => {
+    event.stopPropagation();
+    if (confirm('คุณแน่ใจหรือไม่ที่จะสลับสถานะการซ่อนรายการนี้?')) {
+        router.patch(route('admin.visits.toggle-hidden', visitId), {}, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    }
 };
 
 const formatCurrency = (value) => {
@@ -483,6 +495,22 @@ const doctorChartOptions = {
                     </div>
                 </div>
 
+                <!-- Completeness Summary -->
+                <div v-if="completeness_summary && show_hidden" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-slate-200 p-4">
+                        <div class="text-slate-500 text-sm font-medium">จำนวนเคสทั้งหมด</div>
+                        <div class="text-2xl font-bold text-slate-800">{{ completeness_summary.total }}</div>
+                    </div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-emerald-200 p-4">
+                        <div class="text-emerald-600 text-sm font-medium">ข้อมูลสมบูรณ์แล้ว</div>
+                        <div class="text-2xl font-bold text-emerald-800">{{ completeness_summary.complete }}</div>
+                    </div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-amber-200 p-4">
+                        <div class="text-amber-600 text-sm font-medium">ข้อมูลยังไม่ครบถ้วน</div>
+                        <div class="text-2xl font-bold text-amber-800">{{ completeness_summary.incomplete }}</div>
+                    </div>
+                </div>
+
                 <!-- Insights Row -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- New vs Returning Chart -->
@@ -776,6 +804,7 @@ const doctorChartOptions = {
                                         <th class="px-6 py-3 text-right">ส่วนลด</th>
                                         <th class="px-6 py-3 text-right">ค่ามือแพทย์</th>
                                         <th class="px-6 py-3 text-right">ทิป</th>
+                                        <th v-if="show_hidden" class="px-4 py-3 text-center">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -795,6 +824,14 @@ const doctorChartOptions = {
                                             <span v-else class="text-slate-400 text-xs italic">รอข้อมูล</span>
                                         </td>
                                         <td class="px-6 py-4 text-right font-medium text-amber-500">{{ visit.tip > 0 ? formatCurrency(visit.tip) : '-' }}</td>
+                                        <td v-if="show_hidden" class="px-4 py-4 text-center">
+                                            <button 
+                                                @click="toggleVisibility(visit.id, $event)" 
+                                                class="px-2 py-1 bg-slate-200 hover:bg-slate-300 rounded text-xs text-slate-700 transition"
+                                            >
+                                                {{ visit.is_hidden ? 'เลิกซ่อน' : 'ซ่อน' }}
+                                            </button>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>

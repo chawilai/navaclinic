@@ -239,6 +239,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/visits/check-availability', [\App\Http\Controllers\Admin\VisitController::class, 'checkAvailability'])->name('admin.visits.check-availability');
         Route::get('/visits/create', [\App\Http\Controllers\Admin\VisitController::class, 'create'])->name('admin.visits.create');
         Route::post('/visits', [\App\Http\Controllers\Admin\VisitController::class, 'store'])->name('admin.visits.store');
+        Route::patch('/visits/{visit}/toggle-hidden', [\App\Http\Controllers\Admin\VisitController::class, 'toggleHidden'])->name('admin.visits.toggle-hidden');
         Route::get('/visits/{visit}', [\App\Http\Controllers\Admin\VisitController::class, 'show'])->name('admin.visits.show');
 
         // Visit Documents (Printable)
