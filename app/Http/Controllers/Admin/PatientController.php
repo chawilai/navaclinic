@@ -13,8 +13,7 @@ class PatientController extends Controller
     {
         // 1. Base Query for Registered Users (excluding admins and doctors)
         $query = User::where('is_admin', false)
-            ->where('is_doctor', false)
-            ->latest();
+            ->where('is_doctor', false);
 
         // 2. Filter / Search
         if ($request->has('search')) {
@@ -28,8 +27,29 @@ class PatientController extends Controller
             });
         }
 
+        // 2.5 Sort
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+
+        // Ensure proper direction
+        $sortDirection = in_array(strtolower($sortDirection), ['asc', 'desc']) ? strtolower($sortDirection) : 'desc';
+
+        // Check allowed sort columns to prevent SQL injection
+        $allowedSortColumns = ['created_at', 'patient_id', 'name'];
+        if (in_array($sortBy, $allowedSortColumns)) {
+            if ($sortBy === 'patient_id') {
+                // If sorting by patient_id, we might want to cast or handle nulls
+                // But simple order by column is usually fine
+                $query->orderBy('patient_id', $sortDirection);
+            } else {
+                $query->orderBy($sortBy, $sortDirection);
+            }
+        } else {
+            $query->latest(); // Default
+        }
+
         // 3. Paginate and Transform
-        $patients = $query->paginate(10)->through(function ($user) {
+        $patients = $query->paginate(10)->withQueryString()->through(function ($user) {
             return [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -56,7 +76,7 @@ class PatientController extends Controller
 
         return Inertia::render('Admin/Patients/Index', [
             'patients' => $patients,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'sort_by', 'sort_direction']),
             'unregisteredBookings' => $unregisteredBookings,
         ]);
     }
@@ -144,11 +164,7 @@ class PatientController extends Controller
 
         // Generate HN
         // Format: HN+YY+XXXX (YY = 2-digit Thai year, XXXX = running number for that year)
-        $thaiYear = (int) date('Y') + 543;
-        $yy = substr((string) $thaiYear, -2);
-
-        $countThisYear = User::whereYear('created_at', date('Y'))->whereNotNull('patient_id')->count() + 1;
-        $hnId = 'HN' . $yy . str_pad($countThisYear, 4, '0', STR_PAD_LEFT);
+        $hnId = \App\Helpers\HNHelper::generate();
 
         // Generate dummy email if not provided (required by DB)
         $email = $validated['phone_number']
@@ -229,12 +245,7 @@ class PatientController extends Controller
             // Create new User
             // We'll use phone number as email if email is not available or make a dummy one?
             // Generate Patient ID (HN)
-            // Format: HN+YY+XXXX (YY = 2-digit Thai year, XXXX = running number for that year)
-            $thaiYear = (int) date('Y') + 543;
-            $yy = substr((string) $thaiYear, -2);
-
-            $countThisYear = User::whereYear('created_at', date('Y'))->whereNotNull('patient_id')->count() + 1;
-            $hnId = 'HN' . $yy . str_pad($countThisYear, 4, '0', STR_PAD_LEFT);
+            $hnId = \App\Helpers\HNHelper::generate();
 
             // Generate dummy email if needed (required by DB)
             $email = $validated['phone_number']

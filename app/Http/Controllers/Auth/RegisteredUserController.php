@@ -36,12 +36,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Format: HN+YY+XXXX (YY = 2-digit Thai year, XXXX = running number for that year)
-        $thaiYear = (int) date('Y') + 543;
-        $yy = substr((string) $thaiYear, -2);
-
-        $countThisYear = User::whereYear('created_at', date('Y'))->whereNotNull('patient_id')->count() + 1;
-        $patientId = 'HN' . $yy . str_pad($countThisYear, 4, '0', STR_PAD_LEFT);
+        $patientId = \App\Helpers\HNHelper::generate();
 
         $user = User::create([
             'patient_id' => $patientId,

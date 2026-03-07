@@ -30,11 +30,36 @@ const props = defineProps({
 });
 
 const search = ref(props.filters.search);
+const sortBy = ref(props.filters.sort_by || 'created_at');
+const sortDirection = ref(props.filters.sort_direction || 'desc');
+
+const handleSort = (column) => {
+    if (sortBy.value === column) {
+        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortBy.value = column;
+        sortDirection.value = 'asc'; // default to asc when clicking new column
+    }
+
+    router.get(
+        route('admin.patients.index'),
+        { 
+            search: search.value, 
+            sort_by: sortBy.value, 
+            sort_direction: sortDirection.value 
+        },
+        { preserveState: true, replace: true }
+    );
+};
 
 watch(search, debounce((value) => {
     router.get(
         route('admin.patients.index'),
-        { search: value },
+        { 
+            search: value,
+            sort_by: sortBy.value,
+            sort_direction: sortDirection.value
+        },
         { preserveState: true, replace: true }
     );
 }, 300));
@@ -197,13 +222,25 @@ const submitRegister = () => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div>
                     <div class="mb-6 flex flex-col md:flex-row justify-between gap-4 items-center">
-                        <input
-                            v-model="search"
-                            type="text"
-                            placeholder="ค้นหาด้วยรหัส, ชื่อ, บัตรปชช. หรือเบอร์โทร..."
-                            class="w-full md:w-1/3 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent shadow-sm bg-white text-slate-700"
-                        />
-                        <PrimaryButton @click="openRegisterModal" class="bg-blue-600 hover:bg-blue-700">
+                        <div class="relative w-full md:w-1/3">
+                            <input
+                                v-model="search"
+                                type="text"
+                                placeholder="ค้นหาด้วยรหัส, ชื่อ, บัตรปชช. หรือเบอร์โทร..."
+                                class="w-full pl-4 pr-10 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent shadow-sm bg-white text-slate-700"
+                            />
+                            <button
+                                v-if="search"
+                                @click="search = ''"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                title="ล้างการค้นหา"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <PrimaryButton @click="openRegisterModal" class="bg-blue-600 hover:bg-blue-700 w-full md:w-auto">
                             <span class="mr-2">+</span> ลงทะเบียนคนไข้ใหม่
                         </PrimaryButton>
                     </div>
@@ -213,9 +250,27 @@ const submitRegister = () => {
                             <table class="w-full text-sm text-left rtl:text-right text-slate-600">
                                 <thead class="text-xs text-slate-700 uppercase bg-blue-50 border-b border-blue-100">
                                     <tr>
-                                        <th scope="col" class="px-6 py-4 font-bold text-blue-900">ชื่อ</th>
+                                        <th scope="col" class="px-6 py-4 font-bold text-blue-900 cursor-pointer hover:bg-blue-100 transition-colors" @click="handleSort('patient_id')">
+                                            <div class="flex items-center gap-1">
+                                                ชื่อ / รหัสคนไข้
+                                                <span v-if="sortBy === 'patient_id'" class="text-blue-600">
+                                                    <svg v-if="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 01-1.06-.02L10 8.832 6.29 12.77a.75.75 0 11-1.08-1.04l4.25-4.5a.75.75 0 011.08 0l4.25 4.5a.75.75 0 01-.02 1.06z" clip-rule="evenodd" /></svg>
+                                                    <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                                </span>
+                                                <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-slate-300"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.25 3.25a.75.75 0 11-1.06 1.06L10 4.81l-2.72 2.72a.75.75 0 01-1.06-1.06l3.25-3.25A.75.75 0 0110 3zm-3.78 9.97a.75.75 0 011.06.02L10 15.19l2.72-2.72a.75.75 0 111.06 1.06l-3.25 3.25a.75.75 0 01-1.06 0l-3.25-3.25a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                            </div>
+                                        </th>
                                         <th scope="col" class="px-6 py-4 font-bold text-blue-900">เบอร์โทรศัพท์</th>
-                                        <th scope="col" class="px-6 py-4 font-bold text-blue-900">วันที่สมัคร</th>
+                                        <th scope="col" class="px-6 py-4 font-bold text-blue-900 cursor-pointer hover:bg-blue-100 transition-colors" @click="handleSort('created_at')">
+                                            <div class="flex items-center gap-1">
+                                                วันที่สมัคร
+                                                <span v-if="sortBy === 'created_at'" class="text-blue-600">
+                                                    <svg v-if="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 01-1.06-.02L10 8.832 6.29 12.77a.75.75 0 11-1.08-1.04l4.25-4.5a.75.75 0 011.08 0l4.25 4.5a.75.75 0 01-.02 1.06z" clip-rule="evenodd" /></svg>
+                                                    <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                                </span>
+                                                <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-slate-300"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.25 3.25a.75.75 0 11-1.06 1.06L10 4.81l-2.72 2.72a.75.75 0 01-1.06-1.06l3.25-3.25A.75.75 0 0110 3zm-3.78 9.97a.75.75 0 011.06.02L10 15.19l2.72-2.72a.75.75 0 111.06 1.06l-3.25 3.25a.75.75 0 01-1.06 0l-3.25-3.25a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                            </div>
+                                        </th>
                                         <th scope="col" class="px-6 py-4 font-bold text-blue-900">การดำเนินการ</th>
                                     </tr>
                                 </thead>

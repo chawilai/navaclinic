@@ -76,13 +76,7 @@ class VisitController extends Controller
                 $bookingId = str_replace('guest_', '', $patientId);
                 $guestBooking = Booking::findOrFail($bookingId);
 
-                // Generate HN
-                // Format: HN+YY+XXXX (YY = 2-digit Thai year, XXXX = running number for that year)
-                $thaiYear = (int) date('Y') + 543;
-                $yy = substr((string) $thaiYear, -2);
-
-                $countThisYear = User::whereYear('created_at', date('Y'))->whereNotNull('patient_id')->count() + 1;
-                $hnId = 'HN' . $yy . str_pad($countThisYear, 4, '0', STR_PAD_LEFT);
+                $hnId = \App\Helpers\HNHelper::generate();
 
                 // Create User
                 $email = $guestBooking->customer_phone
